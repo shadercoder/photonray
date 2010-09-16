@@ -355,25 +355,7 @@ HRESULT DrawAxes()
 	return S_OK;
 }
 
-void DisplaySomeText()
-{
-	LPD3DXFONT m_font;
-	// Create a D3DX font object
-	D3DXCreateFont( pDirect3DDevice, 20, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"), &m_font );
-	// Create a colour for the text - in this case blue
-	D3DCOLOR fontColor = D3DCOLOR_ARGB(255,0,0,255);    
 
-	// Create a rectangle to indicate where on the screen it should be drawn
-	RECT rct;
-	rct.left=20;
-	rct.right=100;
-	rct.top=100;
-	rct.bottom=rct.top+20;
-
-	// Draw some text 
-	m_font->DrawText(NULL, "Hello World", -1, &rct, 0, fontColor );
-	m_font->Release();
-}
 //-----------------------------------------------------------------------------
 // Name: Render()
 // Desc: Draws the scene
@@ -511,7 +493,6 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 			}
 			InputParticles(frame, path, pattern);
 			Render();			
-			DisplaySomeText();
 			TakeScreenShot(frame);			
 			frame += stepFrame;
 			if (frame > lastFrame)
