@@ -22,6 +22,8 @@ public:
 	void yaw(float angle);   // rotation around the vector up
 	void roll(float angle);  // rotation around the vector eye
 
+	void setView(LPDIRECT3DDEVICE9 pDirect3DDevice);
+
 	void getViewMatrix(D3DXMATRIX* V);     
 	void getPosition(D3DXVECTOR3* pos);
 	void setPosition(D3DXVECTOR3* pos);

@@ -29,3 +29,14 @@ void Camera::setLook(D3DXVECTOR3* look)
 {
 	this->look = D3DXVECTOR3(*look);
 }
+
+void Camera::setView(LPDIRECT3DDEVICE9 pDirect3DDevice)
+{
+	D3DXMATRIX MatrixView;
+	D3DXMATRIX MAtrixProjection;
+	D3DXMatrixLookAtLH(&MatrixView, &pos, &look, &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
+	pDirect3DDevice->SetTransform(D3DTS_VIEW, &MatrixView);
+
+	D3DXMatrixPerspectiveFovLH(&MAtrixProjection, D3DX_PI / 4, 800.0f / 600.0f, 1.0f, 100.0f);
+	pDirect3DDevice->SetTransform(D3DTS_PROJECTION, &MAtrixProjection);
+}
