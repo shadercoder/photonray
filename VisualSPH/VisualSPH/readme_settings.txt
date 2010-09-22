@@ -1,7 +1,7 @@
-<path to folder>
-<file pattern>
-<first frame (inclusive)>
-<last frame (inclusive)>
-<frame step>
-<camera position (x,y,z)>
-<camera look at (x,y,z)>
+<path to folder string>
+<file pattern string>
+<first frame (inclusive) int>
+<last frame (inclusive) int>
+<frame step int>
+<camera position (x,y,z) float>
+<camera look at (x,y,z) float>
