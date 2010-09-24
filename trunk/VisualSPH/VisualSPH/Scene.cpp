@@ -47,6 +47,7 @@ VOID Scene::InputParticles(const int frame)
 		current.position.x = x;
 		current.position.y = y;
 		current.position.z = z;
+
 		current.color = D3DCOLOR_ARGB(255, 255, 255, 255);
 		// TODO: unused parameters
 		for (int j = 0; j < 5; ++j) 

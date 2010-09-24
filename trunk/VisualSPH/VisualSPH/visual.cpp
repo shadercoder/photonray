@@ -34,19 +34,6 @@ DWORD FtoDw(float f)
 
 
 
-struct ParticleAttribute
-{
-     D3DXVECTOR3 position;
-	 float U; 
-	 float V;
-	 float W;
-	 float Ro;
-	 float P;
-};
-
-
-
-
 //-----------------------------------------------------------------------------
 // Name: InitialDirect3D()
 // Desc: Initializes Direct3D
@@ -92,50 +79,6 @@ HRESULT InitialDirect3D( HWND hWnd, Scene* scene )
 
 	return S_OK;
 }
-
-
-//HRESULT InitialObjects()
-//{
-//	// [2010.08.30] debug
-//	//CUSTOMVERTEX Particlesm[] = 
-//	//{
-//	//	{1.0f, -1.0f, 0.0f, 0x00000fff, },
-//	//	{-1.0f, -1.0f, 0.0f, 0xff000fff, },
-//	//	{-1.0f, 1.0f, 0.0f, 0x00000fff, },
-//
-//	//	{-1.0f, 1.0f, 0.0f, 0x00000fff, },
-//	//	{1.0f, 1.0f, 0.0f, 0xff000fff, },
-//	//	{1.0f, -1.0f, 0.0f, 0x00000fff, }
-//	//};	
-//	//vector<CUSTOMVERTEX> Particles(Particlesm, Particlesm + sizeof(Particlesm) / sizeof(CUSTOMVERTEX));
-//	
-//	if(Particles.size() == 0) 
-//	{
-//		// Nothing to draw
-//		return S_OK;
-//	}	
-//	if (FAILED(pDirect3DDevice->CreateVertexBuffer(Particles.size() * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
-//		return E_FAIL;
-//	VOID* pBV;
-//	if(FAILED(pBufferParticles->Lock(0, sizeof(Particles), (void**) &pBV, 0)))
-//		return E_FAIL;
-//	memcpy(pBV, (void*)&Particles[0], Particles.size() * sizeof(CUSTOMVERTEX));
-//	pBufferParticles->Unlock();
-//	return S_OK;
-//}
-// Set View and Projection matrix 
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //-----------------------------------------------------------------------------
