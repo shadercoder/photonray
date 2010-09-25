@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Particle.h"
 #include "Vertexes.h"
+#include "Logger.h"
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <d3dx9core.h>
@@ -40,12 +41,19 @@ private:
 	int firstFrame;
 	int lastFrame;
 	int step;
-
+	HWND* hWnd;
+	Logger log;
+	void setGradientColorDensity(float density, CUSTOMVERTEX* point);
+	DWORD getGradientColorFromTo(DWORD color1, DWORD color2, float value);
 public:
 	//todo incapsulate
 	const bool WINDOWED;
 	const int SCREEN_WIDTH;
 	const int SCREEN_HEIGHT;
+	const float DRAW_SCALE;
+	// coeff normalize vector
+	const float NORMAL_RATE;
+
 	Camera cam;
 	LPDIRECT3D9				pDirect3D; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9		pDirect3DDevice; // Our rendering device
@@ -54,10 +62,13 @@ public:
 	HRESULT DrawAxes();
 	VOID Render();
 	HRESULT ParticleRender();
+	HRESULT ParticleDensityRender();
+	HRESULT ParticleVelocityRender();
 	VOID TranslateParticles();
 	VOID setView();
-	HRESULT TakeScreenShot(const int frame, HWND hWnd);
+	HRESULT TakeScreenShot(const int frame);
 	Scene(void);
+	void setHWND(HWND& window);
 	// FOR GUI!
 	void setParameter(string pathToFolder, string filePattern, int firstFrame, int lastFrame, int step, float camX, float camY, float camZ, float lookX, float lookY, float lookZ);
 	~Scene(void);

@@ -2,19 +2,13 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <d3dx9core.h>
+#include "Vertexes.h"
 
 class Particle
 {
 public:
-	D3DXVECTOR3 position;	
-	D3DCOLOR color;
-};
-
-struct ParticleAttribute
-{
-     D3DXVECTOR3 position;
-	 D3DXVECTOR3 velocity;
-	 float Ro;
-	 float P;
+	CUSTOMVERTEX pos;
+	CUSTOMVERTEX x0; // start point vector of velocity
+	CUSTOMVERTEX x1; // end point vector of velocity
 };
 
