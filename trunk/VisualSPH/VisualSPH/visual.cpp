@@ -73,7 +73,7 @@ HRESULT InitialDirect3D( HWND hWnd, Scene* scene )
 	// For particles
 	//pDirect3DDevice->SetRenderState(D3DRS_POINTSPRITEENABLE, true);
 	//pDirect3DDevice->SetRenderState(D3DRS_POINTSCALEENABLE, true);
-	//pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE, FtoDw(2.5f));
+	scene->pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE, FtoDw(2.5f));
 	//pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE_MIN, FtoDw(0.2f));
 	//pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE_MAX, FtoDw(5.0f));
 
@@ -135,6 +135,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 		NULL, NULL, wc.hInstance, NULL );
 	
 	Scene sc;
+	sc.setHWND(hWnd);
 	// Initialize Direct3D
 	if( SUCCEEDED( InitialDirect3D( hWnd, &sc ) ) )
 	{
@@ -183,7 +184,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 			}
 			sc.InputParticles(frame);
 			sc.Render();			
-			//sc.TakeScreenShot(frame, hWnd);			
+			sc.TakeScreenShot(frame);	
 			frame += stepFrame;
 			if (frame > lastFrame)
 			{
