@@ -194,8 +194,8 @@ VOID Scene::Render()
 
 		// Translate particles
 		TranslateParticles();	
-		ParticleRender();
-		//ParticleVelocityRender();
+		//ParticleRender();
+		ParticleVelocityRender();
 		//ParticleDensityRender();
 
 		//End the scene
@@ -344,15 +344,19 @@ HRESULT Scene::TakeScreenShot(const int frame)
 	// tells DirectX what kind of file we want to save (in this example we decide to save to BMP)    
 	// Note the difference between a fullscreen screenshot and a windowed one. If we have a windowed application    
 	// we only want the specified RECT saved from our screen capture    
-	if( !WINDOWED )        
-		if(!SUCCEEDED( D3DXSaveSurfaceToFile( filename, D3DXIFF_BMP, frontbuf, NULL, NULL)))
+	if( !WINDOWED )  
+	{    
+		//if(!SUCCEEDED( D3DXSaveSurfaceToFile( filename, D3DXIFF_BMP, frontbuf, NULL, NULL)))
+		if(!SUCCEEDED( D3DXSaveSurfaceToFile( filename, D3DXIFF_PNG, frontbuf, NULL, NULL)))
 		{
 			log.errors(string("Couldn't save screenshot"));
 		}
+	}
 	else
 	{
 		//D3DXSaveSurfaceToFile( filename, D3DXIFF_JPG, frontbuf, NULL, &rcWindow);     
-		if(!SUCCEEDED( D3DXSaveSurfaceToFile( filename, D3DXIFF_BMP, frontbuf, NULL, &rcWindow)))
+		//if(!SUCCEEDED( D3DXSaveSurfaceToFile( filename, D3DXIFF_BMP, frontbuf, NULL, &rcWindow)))
+		if(!SUCCEEDED( D3DXSaveSurfaceToFile( filename, D3DXIFF_PNG, frontbuf, NULL, &rcWindow)))
 		{
 			log.errors(string("Couldn't save screenshot"));
 		}

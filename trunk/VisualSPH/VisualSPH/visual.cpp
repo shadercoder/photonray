@@ -135,7 +135,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 		NULL, NULL, wc.hInstance, NULL );
 	
 	Scene sc;
-	sc.setHWND(hWnd);
+
 	// Initialize Direct3D
 	if( SUCCEEDED( InitialDirect3D( hWnd, &sc ) ) )
 	{
@@ -143,6 +143,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 		// Show the window
 		ShowWindow( hWnd, SW_SHOWDEFAULT );
 		UpdateWindow( hWnd );
+		sc.setHWND(hWnd);
 		// Initial
 		string path;
 		string pattern;
