@@ -26,6 +26,16 @@ void Logger::errors(string& a)
 	{
 		fileErrors << dateStr[i];
 	}
+
+	fileErrors<<' ';
+
+	_strtime( dateStr);
+	
+	for (int i = 0; i < 9; ++i)
+	{
+		fileErrors<<dateStr[i];
+	}
+
 	fileErrors << ']' << ' ' << a << endl;
 }
 
@@ -39,6 +49,14 @@ void Logger::warnings(string& a)
 	{
 		fileWarnings<<dateStr[i];
 	}
+	
+	_strtime( dateStr);
+	
+	for (int i = 0; i < 9; ++i)
+	{
+		fileWarnings<<dateStr[i];
+	}
+
 	fileWarnings<<']'<<' '<<a<<endl;
 }
 
@@ -51,5 +69,13 @@ void Logger::info(string& a)
 	{
 		fileInfo<<dateStr[i];
 	}
+
+	_strtime( dateStr);
+	
+	for (int i = 0; i < 9; ++i)
+	{
+		fileInfo<<dateStr[i];
+	}
+
 	fileInfo<<']'<<' '<<a<<endl;
 }
