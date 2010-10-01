@@ -15,6 +15,9 @@ Scene::~Scene(void)
 		pDirect3D->Release();
 }
 
+// Hotspot!
+// Very slow reading from file by single value...
+// TODO : implements buffering input
 VOID Scene::InputParticles(const int frame)
 {
 	Particles.clear();
@@ -41,22 +44,24 @@ VOID Scene::InputParticles(const int frame)
 		float x, y, z, u, v, w, Ro;
 		Particle current;
 		fin >> x >> y >> z >> u >> v >> w >> Ro;
-		
-		current.x0.x = x;
-		current.x0.y = y;
-		current.x0.z = z;
-		current.pos = current.x0;
 
-		current.x1.x = x + u * NORMAL_RATE;
-		current.x1.y = y + v * NORMAL_RATE;
-		current.x1.z = z + w * NORMAL_RATE;
+		current.presentation.vector.begin.x = x;
+		current.presentation.vector.begin.y = y;
+		current.presentation.vector.begin.z = z;
+		current.presentation.position.x = x;
+		current.presentation.position.y = y;
+		current.presentation.position.z = z;
 
-		setGradientColorDensity(Ro, &current.pos);
+		current.presentation.vector.end.x = x + u * NORMAL_RATE;
+		current.presentation.vector.end.y = y + v * NORMAL_RATE;
+		current.presentation.vector.end.z = z + w * NORMAL_RATE;
 
-		current.x0.color = D3DCOLOR_ARGB(255, 0, 255, 255);
-		current.x1.color = D3DCOLOR_ARGB(255, 255, 0, 0);
+		setGradientColorDensity(Ro, &current.presentation.position);
+
+		current.presentation.vector.begin.color = D3DCOLOR_ARGB(255, 0, 255, 255);
+		current.presentation.vector.end.color = D3DCOLOR_ARGB(255, 255, 0, 0);
+
 		// TODO: unused parameters
-		for (int j = 0; j < 1; ++j) 
 		{
 			float tmp;
 			fin >> tmp;
@@ -65,7 +70,7 @@ VOID Scene::InputParticles(const int frame)
 	}
 	fin.close();
 }
-
+// TODO: incorrect! need to fix
 DWORD Scene::getGradientColorFromTo(DWORD color1, DWORD color2, float value)
 {
 	DWORD a1 = (color1>>24)&0xFF;
@@ -87,7 +92,7 @@ DWORD Scene::getGradientColorFromTo(DWORD color1, DWORD color2, float value)
 	return DrawCol;
 }
 
-void Scene::setGradientColorDensity(float density, CUSTOMVERTEX* point)
+void Scene::setGradientColorDensity(float density, Vertex* point)
 {
 
 	if (density > 2000 && density < 2500)
@@ -121,7 +126,7 @@ HRESULT Scene::DrawAxes()
 	// create vertexes and buffers for axes
 	LPDIRECT3DVERTEXBUFFER9 pBufferVertexAxes	= NULL;
 	LPDIRECT3DINDEXBUFFER9 pBufferIndex			= NULL;
-	CUSTOMVERTEX Vertexes[] = 
+	Vertex Vertexes[] = 
 	{
 		{0.0f, 0.0f, 0.0f, D3DCOLOR_ARGB(255, 255, 255, 255), },
 		{1.0f, 0.0f, 0.0f, D3DCOLOR_ARGB(255, 255, 0, 0), },
@@ -134,7 +139,7 @@ HRESULT Scene::DrawAxes()
 		0, 2,
 		0, 3
 	};
-	if (FAILED(pDirect3DDevice->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &pBufferVertexAxes, NULL)))
+	if (FAILED(pDirect3DDevice->CreateVertexBuffer(4 * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferVertexAxes, NULL)))
 		return E_FAIL;
 	VOID* pBV;
 	if(FAILED(pBufferVertexAxes->Lock(0, sizeof(Vertexes), (void**) &pBV, 0)))
@@ -148,8 +153,8 @@ HRESULT Scene::DrawAxes()
 	memcpy(pBI, Index, sizeof(Index));
 	pBufferIndex->Unlock();
 	// Render axes
-	pDirect3DDevice->SetStreamSource(0, pBufferVertexAxes, 0, sizeof(CUSTOMVERTEX));
-	pDirect3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+	pDirect3DDevice->SetStreamSource(0, pBufferVertexAxes, 0, sizeof(Vertex));
+	pDirect3DDevice->SetFVF(D3DFVF_Vertex);
 	pDirect3DDevice->SetIndices(pBufferIndex);
 	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, 4, 0, 3);
 	pBufferVertexAxes->Release();
@@ -206,7 +211,7 @@ VOID Scene::Render()
 	pDirect3DDevice->Present( NULL, NULL, NULL, NULL );
 }
 
-// Particle render
+// Render particle as a simple point
 HRESULT Scene::ParticleRender()
 {	
 	LPDIRECT3DVERTEXBUFFER9 pBufferParticles = NULL;
@@ -216,16 +221,20 @@ HRESULT Scene::ParticleRender()
 		return S_OK;
 	}	
 	// Setup vertex buffer for available particles
-	if (FAILED(pDirect3DDevice->CreateVertexBuffer(Particles.size() * sizeof(Particle), 0, D3DFVF_PARTICLE, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
+	if (FAILED(pDirect3DDevice->CreateVertexBuffer(Particles.size() * sizeof(ParticleVertex), 0, D3DFVF_PARTICLE, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
 		return E_FAIL;
-	VOID* pBV;
-	if(FAILED(pBufferParticles->Lock(0, sizeof(Particles), (void**) &pBV, 0)))
+	ParticleVertex* pBV = new ParticleVertex[Particles.size()];
+	if(FAILED(pBufferParticles->Lock(0, Particles.size() * sizeof(ParticleVertex), (void**) &pBV, 0)))
 		return E_FAIL;
 	// Copy particles to vertex buffer
-	memcpy(pBV, (void*)&Particles[0], Particles.size() * sizeof(Particle));
+	//memcpy(pBV, (void*)&Particles[0], Particles.size() * sizeof(ParticleVertex));
+	for (int i = 0; i < Particles.size(); ++i)
+	{
+		pBV[i] = Particles[i].presentation.position;
+	}
 	pBufferParticles->Unlock();
 	// Render
-	pDirect3DDevice->SetStreamSource(0, pBufferParticles, 0, sizeof(Particle));
+	pDirect3DDevice->SetStreamSource(0, pBufferParticles, 0, sizeof(ParticleVertex));
 	pDirect3DDevice->SetFVF(D3DFVF_PARTICLE);
 	pDirect3DDevice->DrawPrimitive(D3DPT_POINTLIST, 0, Particles.size());
 	pBufferParticles->Release();
@@ -242,7 +251,7 @@ HRESULT Scene::ParticleDensityRender()
 		return S_OK;
 	}	
 	// Setup vertex buffer for available particles
-	if (FAILED(pDirect3DDevice->CreateVertexBuffer(Particles.size() * sizeof(Particle), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
+	if (FAILED(pDirect3DDevice->CreateVertexBuffer(Particles.size() * sizeof(Particle), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
 		return E_FAIL;
 	VOID* pBV;
 	if(FAILED(pBufferParticles->Lock(0, sizeof(Particles), (void**) &pBV, 0)))
@@ -252,7 +261,7 @@ HRESULT Scene::ParticleDensityRender()
 	pBufferParticles->Unlock();
 	// Render
 	pDirect3DDevice->SetStreamSource(0, pBufferParticles, 0, sizeof(Particle));
-	pDirect3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+	pDirect3DDevice->SetFVF(D3DFVF_Vertex);
 	pDirect3DDevice->DrawPrimitive(D3DPT_POINTLIST, 0, Particles.size());
 	pBufferParticles->Release();
 	return S_OK;
@@ -268,24 +277,24 @@ HRESULT Scene::ParticleVelocityRender()
 		return S_OK;
 	}	
 	// Setup vertex buffer for available particles
-	if (FAILED(pDirect3DDevice->CreateVertexBuffer(2 * Particles.size() * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
+	if (FAILED(pDirect3DDevice->CreateVertexBuffer(2 * Particles.size() * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
 		return E_FAIL;
 
-	CUSTOMVERTEX* pBV = new CUSTOMVERTEX[Particles.size() * 2];
-	if(FAILED(pBufferParticles->Lock(0, sizeof(CUSTOMVERTEX), (void**) &pBV, 0)))
+	Vertex* pBV = new Vertex[Particles.size() * 2];
+	if(FAILED(pBufferParticles->Lock(0, sizeof(Vertex), (void**) &pBV, 0)))
 		return E_FAIL;
 
 	int j=0; 
-	for(int i=0; i<Particles.size()*2; i+=2)
+	for(int i=0; i < Particles.size() * 2; i+=2)
 	{
-		pBV[i] = Particles[j].x0;
-		pBV[i+1] = Particles[j].x1;
+		pBV[i] = Particles[j].presentation.vector.begin;
+		pBV[i+1] = Particles[j].presentation.vector.end;
 		j++;
 	}
 	pBufferParticles->Unlock();
 
 	// Render
-	pDirect3DDevice->SetStreamSource(0, pBufferParticles, 0, sizeof(CUSTOMVERTEX));
+	pDirect3DDevice->SetStreamSource(0, pBufferParticles, 0, sizeof(Vertex));
 	pDirect3DDevice->SetFVF(D3DFVF_PARTICLE);
 	pDirect3DDevice->DrawPrimitive(D3DPT_POINTLIST, 0, 2*Particles.size());
 	pDirect3DDevice->DrawPrimitive(D3DPT_LINELIST, 0, Particles.size());
@@ -306,7 +315,7 @@ HRESULT Scene::TakeScreenShot(const int frame)
 	int x, y;    
 	RECT rcWindow;     
 
-	sprintf(filename, "./screenshots/frame_%d.bmp", frame);        
+	sprintf(filename, "./screenshots/frame_%d.png", frame);        
 
 
 	// get the screen resolution. If it's a windowed application get the whole    
