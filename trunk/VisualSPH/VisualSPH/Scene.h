@@ -27,14 +27,6 @@ using namespace std;
 class Scene
 {
 private:
-	//-----------------------------------------------------------------------------
-	// Global constants
-	//-----------------------------------------------------------------------------
-	//-----------------------------------------------------------------------------
-	// Global variables
-	//-----------------------------------------------------------------------------
-
-
 	vector<Particle> Particles;
 	string pathToFolder;
 	string filePattern;
@@ -43,8 +35,14 @@ private:
 	int step;
 	HWND* hWnd;
 	Logger log;
-	void setGradientColorDensity(float density, CUSTOMVERTEX* point);
+	void setGradientColorDensity(float density, Vertex* point);
 	DWORD getGradientColorFromTo(DWORD color1, DWORD color2, float value);
+
+	HRESULT ParticleRender();
+	HRESULT ParticleDensityRender();
+	HRESULT ParticleVelocityRender();
+	VOID TranslateParticles();
+	HRESULT DrawAxes();
 public:
 	//todo incapsulate
 	const bool WINDOWED;
@@ -59,12 +57,8 @@ public:
 	LPDIRECT3DDEVICE9		pDirect3DDevice; // Our rendering device
 
 	VOID InputParticles(const int frame);
-	HRESULT DrawAxes();
+
 	VOID Render();
-	HRESULT ParticleRender();
-	HRESULT ParticleDensityRender();
-	HRESULT ParticleVelocityRender();
-	VOID TranslateParticles();
 	VOID setView();
 	HRESULT TakeScreenShot(const int frame);
 	Scene(void);

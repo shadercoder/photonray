@@ -29,8 +29,8 @@ DWORD FtoDw(float f)
      return *((DWORD*)&f);
 }
 
-
-	HWND hWnd;
+//Main window
+HWND hWnd;
 
 
 
@@ -131,7 +131,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 
 	// Create the application's window
 	hWnd = CreateWindow( "MainWindow", "VisualSPH",
-		WS_OVERLAPPEDWINDOW, 200, 200, 800, 600,
+		WS_OVERLAPPEDWINDOW, 100, 100, 800, 600,
 		NULL, NULL, wc.hInstance, NULL );
 	
 	Scene sc;
@@ -157,11 +157,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 			float cx, cy, cz;
 			float lx, ly, lz;
 			fin >> cx >> cy >> cz;
-			//D3DXVECTOR3 pos(x, y, z);
-			//sc.cam.setPosition(&pos);
 			fin >> lx >> ly >> lz;
-			//D3DXVECTOR3 look(x, y, z);
-			//sc.cam.setLook(&look);
 			sc.setParameter(path, pattern, firstFrame, lastFrame, stepFrame, cx, cy, cz, lx, ly, lz); 
 			fin.close();				
 		}
@@ -185,7 +181,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 			}
 			sc.InputParticles(frame);
 			sc.Render();			
-			sc.TakeScreenShot(frame);	
+			//sc.TakeScreenShot(frame);	
 			frame += stepFrame;
 			if (frame > lastFrame)
 			{

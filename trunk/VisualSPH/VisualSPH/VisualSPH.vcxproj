@@ -81,14 +81,18 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Vector.cpp" />
     <ClCompile Include="visual.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="Primitive.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="Vertexes.h" />
   </ItemGroup>
   <ItemGroup>

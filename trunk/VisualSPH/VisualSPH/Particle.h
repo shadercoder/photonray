@@ -3,12 +3,23 @@
 #include <d3dx9.h>
 #include <d3dx9core.h>
 #include "Vertexes.h"
+#include "Vector.h"
 
-class Particle
+// "particles" which containt in vertex buffer. Like as "View"
+class ParticleDX
 {
 public:
-	CUSTOMVERTEX pos;
-	CUSTOMVERTEX x0; // start point vector of velocity
-	CUSTOMVERTEX x1; // end point vector of velocity
+	ParticleVertex position;
+	VectorDX vector;
 };
 
+// Particle containt all information about particle. Like as "Model"
+struct Particle 
+{
+	D3DXVECTOR3 position;
+	D3DXVECTOR3 velocity;
+	FLOAT density;
+	FLOAT pressure;
+
+	ParticleDX presentation;
+};
