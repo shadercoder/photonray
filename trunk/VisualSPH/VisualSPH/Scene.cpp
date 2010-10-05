@@ -61,6 +61,8 @@ VOID Scene::InputParticles(const int frame)
 		current.presentation.vector.begin.color = D3DCOLOR_ARGB(255, 0, 255, 255);
 		current.presentation.vector.end.color = D3DCOLOR_ARGB(255, 255, 0, 0);
 
+
+
 		// TODO: unused parameters
 		{
 			float tmp;
@@ -71,7 +73,7 @@ VOID Scene::InputParticles(const int frame)
 	fin.close();
 }
 // TODO: incorrect! need to fix
-DWORD Scene::getGradientColorFromTo(DWORD color1, DWORD color2, float value)
+/*DWORD Scene::getGradientColorFromTo(DWORD color1, DWORD color2, float value)
 {
 	DWORD a1 = (color1>>24)&0xFF;
 	DWORD r1 = (color1>>16)&0xFF;
@@ -90,31 +92,48 @@ DWORD Scene::getGradientColorFromTo(DWORD color1, DWORD color2, float value)
 	//DrawCol = (a1+(int)(aDif*value) << 24) | (r1+(int)(rDif * value) << 16) | (g1+(int)(gDif * value) << 8) | (b1+(int)(bDif*value));
 	DrawCol = (a1+(int)(aDif) << 24) | (r1+(int)(rDif) << 16) | (g1+(int)(gDif) << 8) | (b1+(int)(bDif));
 	return DrawCol;
+}*/
+DWORD Scene::getMyGradient(float density)
+{
+	const int light_blue_r(0),light_blue_g(191), light_blue_b(255);
+	const int blue_r(0),blue_g(0), blue_b(255);
+	const int normal_denicity = 1000;
+	int current_density = (int) density;
+	int r,g,b;
+	if(current_density<normal_denicity)
+	{
+		r =(normal_denicity-current_density)*255/1000;
+		g =(current_density*(light_blue_g+255)/normal_denicity)-255;
+		b = blue_b;
+	}
+	if(current_density>=normal_denicity&&current_density<normal_denicity*3)
+	{
+		r =0;
+		g = ((current_density-normal_denicity*3)*light_blue_g)/((-2)*normal_denicity);
+		b = blue_b;
+	}
+	if (current_density>=normal_denicity*3&&current_density<normal_denicity*5)
+	{
+		r=0;
+		g=0;
+		b = (255/((-2)*normal_denicity))*normal_denicity+((-5*normal_denicity)*255)/((-2)*normal_denicity);
+	}
+	if (current_density>=normal_denicity*5)
+	{
+		r=0;
+		g=0;
+		b=0;
+	}
+	DWORD result;
+	
+	result = D3DCOLOR_ARGB(255,r,g,b);
+	return result;
 }
-
 void Scene::setGradientColorDensity(float density, Vertex* point)
 {
 
-	if (density > 2000 && density < 2500)
-	{
-		// from yellow to red		
-		point->color = getGradientColorFromTo(D3DCOLOR_ARGB(255, 255, 237, 0), D3DCOLOR_ARGB(255, 255, 127, 80), density);
-	}
-	if (density > 1500 && density < 2000)
-	{
-		// from green to yellow
-		point->color = getGradientColorFromTo(D3DCOLOR_ARGB(255, 127, 255, 0), D3DCOLOR_ARGB(255, 255, 237, 0), density);
-	}
-	if (density > 1000 && density < 1500)
-	{
-		// from blue to green
-		point->color = getGradientColorFromTo(D3DCOLOR_ARGB(255, 28, 57, 187), D3DCOLOR_ARGB(255, 127, 255, 0), density);
-	}
-	if (density < 1000)
-	{
-		// from violet to blue
-		point->color = getGradientColorFromTo(D3DCOLOR_ARGB(255, 128, 0, 255), D3DCOLOR_ARGB(255, 28, 57, 187), density);
-	}
+	//TODO decomment
+	point->color = getMyGradient(density);
 }
 
 //-----------------------------------------------------------------------------
@@ -199,8 +218,8 @@ VOID Scene::Render()
 
 		// Translate particles
 		TranslateParticles();	
-		//ParticleRender();
-		ParticleVelocityRender();
+		ParticleRender();
+		//ParticleVelocityRender();
 		//ParticleDensityRender();
 
 		//End the scene

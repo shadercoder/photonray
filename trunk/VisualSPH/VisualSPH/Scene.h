@@ -36,8 +36,8 @@ private:
 	HWND* hWnd;
 	Logger log;
 	void setGradientColorDensity(float density, Vertex* point);
-	DWORD getGradientColorFromTo(DWORD color1, DWORD color2, float value);
-
+//	DWORD getGradientColorFromTo(DWORD color1, DWORD color2, float value);
+	DWORD getMyGradient(float density);
 	HRESULT ParticleRender();
 	HRESULT ParticleDensityRender();
 	HRESULT ParticleVelocityRender();
