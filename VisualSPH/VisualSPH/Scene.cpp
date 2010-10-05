@@ -131,7 +131,6 @@ DWORD Scene::getMyGradient(float density)
 }
 void Scene::setGradientColorDensity(float density, Vertex* point)
 {
-
 	//TODO decomment
 	point->color = getMyGradient(density);
 }
@@ -242,7 +241,7 @@ HRESULT Scene::ParticleRender()
 	// Setup vertex buffer for available particles
 	if (FAILED(pDirect3DDevice->CreateVertexBuffer(Particles.size() * sizeof(ParticleVertex), 0, D3DFVF_PARTICLE, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
 		return E_FAIL;
-	ParticleVertex* pBV = new ParticleVertex[Particles.size()];
+	ParticleVertex* pBV;
 	if(FAILED(pBufferParticles->Lock(0, Particles.size() * sizeof(ParticleVertex), (void**) &pBV, 0)))
 		return E_FAIL;
 	// Copy particles to vertex buffer
@@ -299,12 +298,12 @@ HRESULT Scene::ParticleVelocityRender()
 	if (FAILED(pDirect3DDevice->CreateVertexBuffer(2 * Particles.size() * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferParticles, NULL)))
 		return E_FAIL;
 
-	Vertex* pBV = new Vertex[Particles.size() * 2];
+	Vertex* pBV;
 	if(FAILED(pBufferParticles->Lock(0, sizeof(Vertex), (void**) &pBV, 0)))
 		return E_FAIL;
 
-	int j=0; 
-	for(int i=0; i < Particles.size() * 2; i+=2)
+	int j = 0; 
+	for(int i = 0; i < Particles.size() * 2; i += 2)
 	{
 		pBV[i] = Particles[j].presentation.vector.begin;
 		pBV[i+1] = Particles[j].presentation.vector.end;
