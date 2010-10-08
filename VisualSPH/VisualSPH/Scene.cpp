@@ -72,28 +72,8 @@ VOID Scene::InputParticles(const int frame)
 	}
 	fin.close();
 }
-// TODO: incorrect! need to fix
-/*DWORD Scene::getGradientColorFromTo(DWORD color1, DWORD color2, float value)
-{
-	DWORD a1 = (color1>>24)&0xFF;
-	DWORD r1 = (color1>>16)&0xFF;
-	DWORD g1 = (color1>>8)&0xFF;
-	DWORD b1 = (color1>>32)&0xFF;
-	DWORD a2 = (color2>>24)&0xFF;
-	DWORD r2 = (color2>>16)&0xFF;
-	DWORD g2 = (color2>>8)&0xFF;
-	DWORD b2 = (color2>>32)&0xFF;
-	float aDif,rDif,gDif,bDif;
-	aDif = ((float)a2-(float)a1)/value;
-	rDif = ((float)r2-(float)r1)/value;
-	gDif = ((float)g2-(int)g1)/value;
-	bDif = ((float)b2-(float)b1)/value;
-	DWORD DrawCol;
-	//DrawCol = (a1+(int)(aDif*value) << 24) | (r1+(int)(rDif * value) << 16) | (g1+(int)(gDif * value) << 8) | (b1+(int)(bDif*value));
-	DrawCol = (a1+(int)(aDif) << 24) | (r1+(int)(rDif) << 16) | (g1+(int)(gDif) << 8) | (b1+(int)(bDif));
-	return DrawCol;
-}*/
-DWORD Scene::getMyGradient(float density)
+
+DWORD Scene::getColorGradient(float density)
 {
 	const int light_blue_r(0),light_blue_g(191), light_blue_b(255);
 	const int blue_r(0),blue_g(0), blue_b(255);
@@ -126,13 +106,13 @@ DWORD Scene::getMyGradient(float density)
 	}
 	DWORD result;
 	
-	result = D3DCOLOR_ARGB(255,r,g,b);
+	result = D3DCOLOR_ARGB(255/*,r,g,b);*/,255,255,255);
 	return result;
 }
 void Scene::setGradientColorDensity(float density, Vertex* point)
 {
 	//TODO decomment
-	point->color = getMyGradient(density);
+	point->color = getColorGradient(density);
 }
 
 //-----------------------------------------------------------------------------

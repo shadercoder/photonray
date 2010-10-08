@@ -181,7 +181,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 			}
 			sc.InputParticles(frame);
 			sc.Render();			
-			//sc.TakeScreenShot(frame);	
+			sc.TakeScreenShot(frame);	
 			frame += stepFrame;
 			if (frame > lastFrame)
 			{
