@@ -106,7 +106,7 @@ DWORD Scene::getColorGradient(float density)
 	}
 	DWORD result;
 	
-	result = D3DCOLOR_ARGB(255/*,r,g,b);*/,255,255,255);
+	result = D3DCOLOR_ARGB(255,r,g,b);
 	return result;
 }
 void Scene::setGradientColorDensity(float density, Vertex* point)
