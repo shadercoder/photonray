@@ -159,6 +159,99 @@ HRESULT Scene::DrawAxes()
 	pBufferIndex->Release();
 	return S_OK;
 }
+//-----------------------------------------------------------------------------
+// Name: DrawBox()
+//-----------------------------------------------------------------------------
+HRESULT Scene::DrawBox(float xmin=-1, float ymin=-1, float zmin=0, float xmax=1, float ymax=3, float zmax=2)
+{	
+
+
+	LPDIRECT3DVERTEXBUFFER9 pBufferVertexBox	= NULL;
+	LPDIRECT3DINDEXBUFFER9 pBufferIndex			= NULL;
+
+	Vertex Vertexes[] = 
+	{
+       {  xmin,ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //À
+       {  xmax,ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //Â
+       {  xmin, ymax,zmin, D3DCOLOR_ARGB(255, 255, 255, 255), }, //Ñ
+	   {  xmin, ymin,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //D
+
+
+	   {  xmax,ymax,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //À
+       {  xmin,ymax,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //Â
+       {  xmax, ymin,zmin, D3DCOLOR_ARGB(255, 255, 255, 255), }, //Ñ
+	   {  xmax, ymax,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //D
+        
+      
+             
+       { xmin,ymax,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //À
+       { xmax,ymax,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //Â
+       { xmin, ymin,zmax, D3DCOLOR_ARGB(255, 255, 255, 255), }, //Ñ
+	   { xmin, ymax,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //D 
+
+
+            
+       { xmax,ymin,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //À
+       { xmin,ymin,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //Â
+       { xmax,ymax,zmax, D3DCOLOR_ARGB(255, 255, 255, 255), }, //Ñ
+	   { xmax, ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //D
+    
+    };
+    const unsigned short Index[]={
+   	
+		0, 1,
+		0, 2,
+		0, 3,
+
+	
+		4,5,
+		4,6,
+		4,7,
+
+
+		8,9,
+		8,10,
+		8,11,
+
+		
+		12,13,
+		12,14,
+		12,15
+
+	};
+
+
+	if (FAILED(pDirect3DDevice->CreateVertexBuffer(24 * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferVertexBox, NULL)))
+		return E_FAIL;
+	VOID* pBV;
+	if(FAILED(pBufferVertexBox->Lock(0, sizeof(Vertexes), (void**) &pBV, 0)))
+		return E_FAIL;
+	memcpy(pBV, Vertexes, sizeof(Vertexes));
+	pBufferVertexBox->Unlock();
+
+	pDirect3DDevice->CreateIndexBuffer(24 * sizeof(Index), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &pBufferIndex, NULL);
+	VOID* pBI;
+	pBufferIndex->Lock(0, sizeof(Index), (void**) &pBI, 0);
+	memcpy(pBI, Index, sizeof(Index));
+	pBufferIndex->Unlock();
+
+
+	
+	pDirect3DDevice->SetStreamSource(0, pBufferVertexBox, 0, sizeof(Vertex));
+	pDirect3DDevice->SetFVF(D3DFVF_Vertex);
+	pDirect3DDevice->SetIndices(pBufferIndex);
+
+
+	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, 4, 0, 3);
+	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 4, 0, 4, 0, 3);
+	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 8, 0, 4, 0, 3);
+	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 12, 0, 4, 0, 3);
+	pBufferIndex->Release();
+	return S_OK;
+}
+
+
+
 VOID Scene::TranslateParticles()
 {
 	D3DXMATRIX MatrixWorld;
@@ -182,7 +275,7 @@ VOID Scene::Render()
 		return;
 
 	// Clear the backbuffer to a blue color
-	pDirect3DDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 10, 10, 10 ), 1.0f, 0 );
+	pDirect3DDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 42, 42, 42 ), 1.0f, 0 );
 
 	// Begin the scene
 	if( SUCCEEDED( pDirect3DDevice->BeginScene() ) )
@@ -193,6 +286,8 @@ VOID Scene::Render()
 		D3DXMATRIX MatrixWorld;
 		D3DXMatrixIdentity( &MatrixWorld );
 		pDirect3DDevice->SetTransform(D3DTS_WORLD, &MatrixWorld);
+		DrawBox();
+		
 		DrawAxes();
 
 		// Translate particles
