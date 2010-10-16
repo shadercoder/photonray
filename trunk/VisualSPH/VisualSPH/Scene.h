@@ -42,6 +42,7 @@ private:
 	HRESULT ParticleVelocityRender();
 	VOID TranslateParticles();
 	HRESULT DrawAxes();
+	HRESULT DrawBox(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax);
 public:
 	//todo incapsulate
 	const bool WINDOWED;
