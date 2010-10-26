@@ -159,6 +159,68 @@ HRESULT Scene::DrawAxes()
 	pBufferIndex->Release();
 	return S_OK;
 }
+
+//-----------------------------------------------------------------------------
+//Name: DrawTexture
+//------------------------------------------------------------------------------
+
+HRESULT Scene::DrawTexture(Vertex& a,Vertex& b,Vertex& c,Vertex& d)
+{
+	LPDIRECT3DVERTEXBUFFER9 pBufferVertexBox	= NULL;;			// Вертекс буфер для отрисовки кубика
+	LPDIRECT3DTEXTURE9		MyTexture;				// Текстура для нашего кубика
+	Vertex Vertexes[] ={a,
+						b,
+						c,
+						
+						c,
+						d,
+						a,};
+			
+	/*			{ -1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 0.0f, 0.0f,},
+		{  1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 1.0f, 0.0f,},
+		{  1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 1.0f, 1.0f,}, 
+		{ -1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 0.0f, 0.0f,},
+		{  1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 1.0f, 1.0f,}, 
+		{ -1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 0.0f, 1.0f,}, 
+*/
+
+	if (FAILED(pDirect3DDevice->CreateVertexBuffer(6 * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferVertexBox, NULL)))
+		return E_FAIL;
+void * pBuf;
+	// заполненяем вершинный буфер
+	pBufferVertexBox->Lock( 0, 6 * sizeof(Vertex), &pBuf, 0 );
+	memcpy( pBuf, Vertexes, 36 * sizeof(Vertex));
+	pBufferVertexBox->Unlock();
+
+	// Загружаем текстуру из файла
+	D3DXCreateTextureFromFile(pDirect3DDevice, "index.jpg", &MyTexture);
+
+
+		// Устанавливаем вершинный буфер
+		pDirect3DDevice->SetStreamSource( 0,pBufferVertexBox, 0, sizeof(Vertex) );
+		// устанавливаем формат вершин
+		pDirect3DDevice->SetFVF( D3DFVF_Vertex );
+
+		// Если текстура нормально загрузилась
+		if( MyTexture != NULL )
+			pDirect3DDevice->SetTexture(0, MyTexture); // Ставим текстуру
+		pDirect3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		pDirect3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		pDirect3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+
+		// Производим отрисовку
+		pDirect3DDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, 2);
+
+
+		pDirect3DDevice->EndScene();							// Закончили рисовать
+		pDirect3DDevice->Present( NULL, NULL, NULL, NULL );	// Отображаем задний буфер на экран
+
+
+	return S_OK;
+
+
+}
+
 //-----------------------------------------------------------------------------
 // Name: DrawBox()
 //-----------------------------------------------------------------------------
@@ -168,6 +230,15 @@ HRESULT Scene::DrawBox(float xmin=-1, float ymin=-1, float zmin=0, float xmax=1,
 
 	LPDIRECT3DVERTEXBUFFER9 pBufferVertexBox	= NULL;
 	LPDIRECT3DINDEXBUFFER9 pBufferIndex			= NULL;
+
+	Vertex vert_text[4] ={
+		{  xmin,ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255),0.0f,0.0f },
+		{  xmax,ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255),1.0f,0.0f },
+		{  xmax,ymin,zmax,D3DCOLOR_ARGB(255, 255, 255, 255),1.0f,1.0f },
+		{  xmin,ymin,zmax,D3DCOLOR_ARGB(255, 255, 255, 255),0.0f,1.0f },
+	};
+
+	DrawTexture(vert_text[0],vert_text[1],vert_text[2],vert_text[3]);
 
 	Vertex Vertexes[] = 
 	{
@@ -234,9 +305,8 @@ HRESULT Scene::DrawBox(float xmin=-1, float ymin=-1, float zmin=0, float xmax=1,
 	pBufferIndex->Lock(0, sizeof(Index), (void**) &pBI, 0);
 	memcpy(pBI, Index, sizeof(Index));
 	pBufferIndex->Unlock();
-
-
 	
+		
 	pDirect3DDevice->SetStreamSource(0, pBufferVertexBox, 0, sizeof(Vertex));
 	pDirect3DDevice->SetFVF(D3DFVF_Vertex);
 	pDirect3DDevice->SetIndices(pBufferIndex);
@@ -247,6 +317,8 @@ HRESULT Scene::DrawBox(float xmin=-1, float ymin=-1, float zmin=0, float xmax=1,
 	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 8, 0, 4, 0, 3);
 	pDirect3DDevice->DrawIndexedPrimitive(D3DPT_LINELIST, 12, 0, 4, 0, 3);
 	pBufferIndex->Release();
+	
+	
 	return S_OK;
 }
 

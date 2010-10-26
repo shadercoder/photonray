@@ -43,6 +43,7 @@ private:
 	VOID TranslateParticles();
 	HRESULT DrawAxes();
 	HRESULT DrawBox(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax);
+	HRESULT DrawTexture(Vertex& ,Vertex& ,Vertex& ,Vertex& );
 public:
 	//todo incapsulate
 	const bool WINDOWED;
