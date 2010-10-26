@@ -67,5 +67,8 @@
     <None Include="settings.txt">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="index.jpg">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
