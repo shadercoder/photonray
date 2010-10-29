@@ -330,7 +330,7 @@ VOID Scene::TranslateParticles()
 	D3DXMATRIX MatrixWorldTranslate;
 	D3DXMATRIX MatrixWorldRotate;
 	D3DXMATRIX MatrixWorldScale;
-	D3DXMatrixTranslation(&MatrixWorldTranslate, 0.0f, 0.0f, 0.0f);
+	D3DXMatrixTranslation(&MatrixWorldTranslate, 0.0f, -1.0f, 0.0f);
 	// conver from local coord to presenter's
 	D3DXMatrixRotationX(&MatrixWorldRotate, -D3DX_PI / 2.0f);
 	D3DXMatrixScaling(&MatrixWorldScale, DRAW_SCALE, DRAW_SCALE, DRAW_SCALE);
@@ -358,7 +358,7 @@ VOID Scene::Render()
 		D3DXMATRIX MatrixWorld;
 		D3DXMatrixIdentity( &MatrixWorld );
 		pDirect3DDevice->SetTransform(D3DTS_WORLD, &MatrixWorld);
-		DrawBox();
+		DrawBox(-1,-1,-1,1,1,1);
 		
 		DrawAxes();
 
