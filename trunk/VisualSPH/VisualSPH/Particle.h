@@ -20,6 +20,7 @@ struct Particle
 	D3DXVECTOR3 velocity;
 	FLOAT density;
 	FLOAT pressure;
-
+	FLOAT mass;
+	FLOAT viscosity;
 	ParticleDX presentation;
 };
