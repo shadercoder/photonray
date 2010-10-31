@@ -174,7 +174,7 @@ HRESULT Scene::DrawTexture(Vertex& a,Vertex& b,Vertex& c,Vertex& d)
 						
 						c,
 						d,
-						a,};
+						a};
 			
 	/*			{ -1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 0.0f, 0.0f,},
 		{  1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB( 0,   20,  100), 1.0f, 0.0f,},
@@ -189,7 +189,7 @@ HRESULT Scene::DrawTexture(Vertex& a,Vertex& b,Vertex& c,Vertex& d)
 void * pBuf;
 	// заполненяем вершинный буфер
 	pBufferVertexBox->Lock( 0, 6 * sizeof(Vertex), &pBuf, 0 );
-	memcpy( pBuf, Vertexes, 36 * sizeof(Vertex));
+	memcpy( pBuf, Vertexes, 6 * sizeof(Vertex));
 	pBufferVertexBox->Unlock();
 
 	// Загружаем текстуру из файла
