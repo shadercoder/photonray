@@ -3,6 +3,18 @@
 
 Scene::Scene(void): WINDOWED (TRUE), SCREEN_WIDTH (800), SCREEN_HEIGHT(600), DRAW_SCALE (2.0f), NORMAL_RATE(0.05f)
 {
+	pFont = NULL;
+
+	/*Filling vector of regions*/
+	tagRECT r;
+	r.bottom = 340; r.left = 300; r.right = 315; r.top = 310;
+	regions.push_back(r);
+	r.bottom = 260; r.left = 200; r.right = 215; r.top = 230;
+	regions.push_back(r);
+	r.bottom = 420; r.left = 330; r.right = 345; r.top = 390;
+	regions.push_back(r);
+	r.bottom = 400; r.left = 195; r.right = 210; r.top = 370;
+	regions.push_back(r);
 }
 
 
@@ -13,6 +25,14 @@ Scene::~Scene(void)
 
 	if( pDirect3D != NULL )
 		pDirect3D->Release();
+}
+
+VOID Scene::DrawLegend()
+{
+	pFont->DrawTextA(NULL, "X", -1, &regions.at(0), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
+	pFont->DrawTextA(NULL, "Y", -1, &regions.at(1), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
+	pFont->DrawTextA(NULL, "Z", -1, &regions.at(2), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
+	pFont->DrawTextA(NULL, "0", -1, &regions.at(3), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
 }
 
 // Hotspot!
@@ -60,8 +80,6 @@ VOID Scene::InputParticles(const int frame)
 
 		current.presentation.vector.begin.color = D3DCOLOR_ARGB(255, 0, 255, 255);
 		current.presentation.vector.end.color = D3DCOLOR_ARGB(255, 255, 0, 0);
-
-
 
 		// TODO: unused parameters
 		{
@@ -211,6 +229,7 @@ void * pBuf;
 		// Производим отрисовку
 		pDirect3DDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, 2);
 
+		DrawLegend();
 
 		pDirect3DDevice->EndScene();							// Закончили рисовать
 		pDirect3DDevice->Present( NULL, NULL, NULL, NULL );	// Отображаем задний буфер на экран
@@ -244,13 +263,13 @@ HRESULT Scene::DrawBox(float xmin=-1, float ymin=-1, float zmin=0, float xmax=1,
 	{
        {  xmin,ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //А
        {  xmax,ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //В
-       {  xmin, ymax,zmin, D3DCOLOR_ARGB(255, 255, 255, 255), }, //С
+       {  xmin, ymax,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //С
 	   {  xmin, ymin,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //D
 
 
 	   {  xmax,ymax,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //А
        {  xmin,ymax,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //В
-       {  xmax, ymin,zmin, D3DCOLOR_ARGB(255, 255, 255, 255), }, //С
+       {  xmax, ymin,zmin,D3DCOLOR_ARGB(255, 255, 255, 255), }, //С
 	   {  xmax, ymax,zmax,D3DCOLOR_ARGB(255, 255, 255, 255), }, //D
         
       
@@ -292,7 +311,7 @@ HRESULT Scene::DrawBox(float xmin=-1, float ymin=-1, float zmin=0, float xmax=1,
 	};
 
 
-	if (FAILED(pDirect3DDevice->CreateVertexBuffer(24 * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferVertexBox, NULL)))
+	if(FAILED(pDirect3DDevice->CreateVertexBuffer(24 * sizeof(Vertex), 0, D3DFVF_Vertex, D3DPOOL_DEFAULT, &pBufferVertexBox, NULL)))
 		return E_FAIL;
 	VOID* pBV;
 	if(FAILED(pBufferVertexBox->Lock(0, sizeof(Vertexes), (void**) &pBV, 0)))
