@@ -24,6 +24,102 @@
 
 using namespace std;
 
+Camera TheCamera(Camera::AIRCRAFT);
+//LPDIRECT3DDEVICE9 pDirect3DDevice;
+Scene sc;
+HINSTANCE hInstance;
+
+// Функция обработки нажатия клавиш  
+bool EnterKey(float timeDelta)
+{
+	if(sc.pDirect3DDevice)
+	{
+		if (GetAsyncKeyState('W') & 0x8000f)
+			TheCamera.walk(4.0f * timeDelta);
+
+		if (GetAsyncKeyState('S') & 0x8000f)
+			TheCamera.walk(-4.0f * timeDelta);
+
+		if (GetAsyncKeyState('A') & 0x8000f)
+			TheCamera.strafe(-4.0f * timeDelta);
+
+		if (GetAsyncKeyState('D') & 0x8000f)
+			TheCamera.strafe(4.0f * timeDelta);
+
+		if (GetAsyncKeyState('R') & 0x8000f)
+			TheCamera.fly(4.0f * timeDelta);
+
+		if (GetAsyncKeyState('F') & 0x8000f)
+			TheCamera.fly(-4.0f * timeDelta);
+
+		if (GetAsyncKeyState(VK_UP) & 0x8000f)
+			TheCamera.pitch(-1.0f * timeDelta);
+
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000f)
+			TheCamera.pitch(1.0f * timeDelta);
+
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000f)
+			TheCamera.yaw(-1.0f * timeDelta);
+			
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000f)
+			TheCamera.yaw(1.0f * timeDelta);
+
+		if (GetAsyncKeyState('N') & 0x8000f)
+			TheCamera.roll(1.0f * timeDelta);
+
+		if (GetAsyncKeyState('M') & 0x8000f)
+			TheCamera.roll(-1.0f * timeDelta);
+		
+		// Обновление матрицы вида согласно новому
+        //местоположению и ориентации камеры
+		D3DXMATRIX V;
+	//	D3DXMatrixIdentity(&V);
+		TheCamera.getViewMatrix(&V);
+		sc.pDirect3DDevice->SetTransform(D3DTS_VIEW, &V);
+	//	TheCamera.setView(sc.pDirect3DDevice);
+	}
+	return true;
+}
+
+void EnterMsgLoop (int firstFrame, int lastFrame, int stepFrame, bool (*Display)(float timeDelta))
+{
+	int frame = firstFrame;
+
+	MSG msg;
+	ZeroMemory(&msg, sizeof(msg));
+
+	static float lastTime = (float)timeGetTime(); 
+
+	while(msg.message != WM_QUIT)
+	{
+		if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			if(msg.message == WM_QUIT)
+			{
+				break;
+			}
+		}
+		else
+        {
+			float currTime  = (float)timeGetTime();
+			float timeDelta = (currTime - lastTime)*0.001f;
+
+			Display(timeDelta);
+			sc.InputParticles(frame);
+			sc.Render();
+			lastTime = currTime;
+ 		}
+
+		frame += stepFrame;
+		if (frame > lastFrame)
+		{
+			frame = firstFrame;
+		}
+	}
+}
+
 DWORD FtoDw(float f)
 {
      return *((DWORD*)&f);
@@ -111,7 +207,6 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Name: wWinMain()
 // Desc: The application's entry point
@@ -119,7 +214,7 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 {
 	UNREFERENCED_PARAMETER( hInst );
-
+	sc.cam = ::TheCamera;
 	// Register the window class
 	WNDCLASSEX wc =
 	{
@@ -133,8 +228,6 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 	hWnd = CreateWindow( "MainWindow", "VisualSPH",
 		WS_OVERLAPPEDWINDOW, 100, 100, 800, 600,
 		NULL, NULL, wc.hInstance, NULL );
-	
-	Scene sc;
 
 	// Initialize Direct3D
 	if( SUCCEEDED( InitialDirect3D( hWnd, &sc ) ) )
@@ -165,9 +258,92 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 		// Enter the message loop
 		sc.setView();
 		
-		MSG msg;
+		//MSG msg;
 		int frame = firstFrame;
-		while(TRUE)
+		/*while(TRUE)
+		{
+			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			if(msg.message == WM_QUIT)
+			{
+				break;
+			}*/
+			sc.InputParticles(frame);
+			sc.Render();
+			EnterMsgLoop(firstFrame, lastFrame, stepFrame, EnterKey);
+			//sc.TakeScreenShot(frame);	
+			/*frame += stepFrame;
+			if (frame > lastFrame)
+			{
+				frame = firstFrame;
+			}
+		}*/
+
+	}
+	UnregisterClass( "MainWindow", wc.hInstance );
+	
+	return 0;
+}
+
+
+
+/*
+int WINAPI WinMain(HINSTANCE hInst,	HINSTANCE hprevinstance, LPSTR lpcmdline, int ncmdshow)
+{
+    WNDCLASSEX windowsclass;
+    HWND hwnd;
+    MSG msg;
+    hInstance = hInst;
+
+    windowsclass.cbSize = sizeof(WNDCLASSEX);
+    windowsclass.style = CS_DBLCLKS|CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
+    windowsclass.lpfnWndProc = MsgProc;
+    windowsclass.cbClsExtra = 0;
+    windowsclass.cbWndExtra = 0;
+    windowsclass.hInstance = hInst;
+    windowsclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    windowsclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    windowsclass.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+    windowsclass.lpszMenuName = NULL;
+    windowsclass.lpszClassName = "WINDOWSCLASS";
+    windowsclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+
+    if (!RegisterClassEx(&windowsclass))
+        return 0;
+
+    hwnd = CreateWindowEx(NULL, "WINDOWSCLASS", "Загрузка Х-файла с вращением", WS_OVERLAPPEDWINDOW|WS_VISIBLE,
+        0, 0, 770, 500, NULL, NULL, hInst, NULL);
+    if (!hwnd)
+        return 0;
+
+    if (SUCCEEDED(InitialDirect3D(hwnd,&sc)))
+    {
+        ShowWindow(hwnd, SW_SHOWDEFAULT);
+        UpdateWindow(hwnd);
+		sc.setHWND(hWnd);
+		// Initial
+		string path;
+		string pattern;
+
+		int firstFrame, lastFrame, stepFrame;
+		{
+			ifstream fin("settings.txt");
+			fin >> path;			
+			fin >> pattern;			
+			fin >> firstFrame >> lastFrame >> stepFrame;
+			float cx, cy, cz;
+			float lx, ly, lz;
+			fin >> cx >> cy >> cz;
+			fin >> lx >> ly >> lz;
+			sc.setParameter(path, pattern, firstFrame, lastFrame, stepFrame, cx, cy, cz, lx, ly, lz); 
+			fin.close();				
+		}
+			int frame = firstFrame;
+		while (true)
 		{
 			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -187,13 +363,8 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 			{
 				frame = firstFrame;
 			}
+			
 		}
-
-	}
-	UnregisterClass( "MainWindow", wc.hInstance );
-	
-	return 0;
-}
-
-
-
+    }
+    return (int)msg.wParam;
+}*/

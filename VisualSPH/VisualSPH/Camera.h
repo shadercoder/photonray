@@ -10,10 +10,11 @@ private:
 	D3DXVECTOR3 look;
 	D3DXVECTOR3 pos;
 public:     
-
+	enum CameraType {AIRCRAFT,LANDOBJECT} cameraType;
 	Camera();     
+	Camera::Camera(CameraType cameraType);
 	~Camera();
-
+	
 	void strafe(float units); // left / right
 	void fly(float units);    // up / down
 	void walk(float units);   // forward / back
@@ -31,4 +32,8 @@ public:
 	void getUp(D3DXVECTOR3* up);
 	void getLook(D3DXVECTOR3* look);
 	void setLook(D3DXVECTOR3* look);
+	void setCameraType(CameraType cameraType_)
+	{
+		this->cameraType = cameraType_;
+	}
 };
