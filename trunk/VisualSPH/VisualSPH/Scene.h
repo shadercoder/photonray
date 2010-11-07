@@ -53,6 +53,16 @@ public:
 	// coeff normalize vector
 	const float NORMAL_RATE;
 
+
+	/*For fonts and some legends or inscriptions*/
+	LPD3DXFONT pFont;
+	HFONT hFont;
+
+	vector<tagRECT> regions;
+	/**/
+
+	VOID DrawLegend();
+
 	Camera cam;
 	LPDIRECT3D9				pDirect3D; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9		pDirect3DDevice; // Our rendering device
