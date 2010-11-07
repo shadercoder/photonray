@@ -3,6 +3,7 @@
 
 Scene::Scene(void): WINDOWED (TRUE), SCREEN_WIDTH (800), SCREEN_HEIGHT(600), DRAW_SCALE (2.0f), NORMAL_RATE(0.05f)
 {
+	// TODO fix it!
 	pFont = NULL;
 
 	/*Filling vector of regions*/
@@ -29,10 +30,12 @@ Scene::~Scene(void)
 
 VOID Scene::DrawLegend()
 {
+	/*
 	pFont->DrawTextA(NULL, "X", -1, &regions.at(0), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
 	pFont->DrawTextA(NULL, "Y", -1, &regions.at(1), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
 	pFont->DrawTextA(NULL, "Z", -1, &regions.at(2), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
 	pFont->DrawTextA(NULL, "0", -1, &regions.at(3), DT_RIGHT, D3DCOLOR_ARGB(250, 250, 250, 50));
+	*/
 }
 
 // Hotspot!
