@@ -84,7 +84,6 @@ bool EnterKey(float timeDelta)
 void EnterMsgLoop (int firstFrame, int lastFrame, int stepFrame, bool (*Display)(float timeDelta))
 {
 	int frame = firstFrame;
-
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
 
@@ -107,6 +106,10 @@ void EnterMsgLoop (int firstFrame, int lastFrame, int stepFrame, bool (*Display)
 			float timeDelta = (currTime - lastTime)*0.001f;
 
 			Display(timeDelta);
+			if (GetAsyncKeyState('P') & 0x8000f)
+			{
+				sc.TakeScreenShot(frame);
+			}
 			sc.InputParticles(frame);
 			sc.Render();
 			lastTime = currTime;
