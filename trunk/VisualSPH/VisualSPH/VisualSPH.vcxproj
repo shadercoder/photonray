@@ -98,6 +98,7 @@
     <ClInclude Include="Vertexes.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Camera_hotkeys.txt" />
     <None Include="index.jpg" />
     <None Include="readme_settings.txt" />
     <None Include="settings.txt" />

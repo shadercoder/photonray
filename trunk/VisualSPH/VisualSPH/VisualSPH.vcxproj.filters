@@ -70,5 +70,8 @@
     <None Include="index.jpg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Camera_hotkeys.txt">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
