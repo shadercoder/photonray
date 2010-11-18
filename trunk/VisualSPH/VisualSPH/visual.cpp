@@ -1,373 +1,277 @@
-#include <d3d9.h>
-#include "d3dx9.h"
-#include "d3dx9core.h"
-#include <MMSystem.h>
-#include <vector>
-#include <fstream>
-#include <string>
+#include <cstdlib>
+#include <crtdbg.h>
+#include <sstream>
 
-#include "Scene.h"
-#include "Camera.h"
-#include "Particle.h"
+#include "common\d3dApp.h"
+#include "Box.h"
+#include "Axis.h"
+#include "InputStreamPS.h"
+#include "Settings.h"
+#include "HUD.h"
+#include "Common\Camera.h"
 
-
-#pragma warning( disable : 4996 ) // disable deprecated warning 
-#include <strsafe.h>
-#pragma warning( default : 4996 )
-// include the Direct3D Library file
-#pragma comment (lib, "d3d9.lib")
-#pragma comment (lib, "d3dx9.lib")
-// include the win system lib
-#pragma comment (lib, "winmm.lib")
-
-#define KEYDOWN(name, key) (name[key] & 0x80)
-
-using namespace std;
-
-Camera TheCamera(Camera::AIRCRAFT);
-//LPDIRECT3DDEVICE9 pDirect3DDevice;
-Scene sc;
-HINSTANCE hInstance;
-
-// Функция обработки нажатия клавиш  
-bool EnterKey(float timeDelta)
+class VisualSPH : public D3DApp
 {
-	if(sc.pDirect3DDevice)
-	{
-		if (GetAsyncKeyState('W') & 0x8000f)
-			TheCamera.walk(4.0f * timeDelta);
+public:
+	VisualSPH(HINSTANCE hInstance);
+	~VisualSPH();
 
-		if (GetAsyncKeyState('S') & 0x8000f)
-			TheCamera.walk(-4.0f * timeDelta);
+	Settings settings;
+	HUD hud;
+	// primitives
+	Box boundingBox;
+	Axis axis;
+	InputStreamPS particleSystem;
 
-		if (GetAsyncKeyState('A') & 0x8000f)
-			TheCamera.strafe(-4.0f * timeDelta);
+	void initApp();
+	void onResize();
+	void updateScene(float dt);
+	void drawScene(); 
 
-		if (GetAsyncKeyState('D') & 0x8000f)
-			TheCamera.strafe(4.0f * timeDelta);
+private:
+	void buildFX();
+	void buildVertexLayouts();
+	HRESULT msgProc(UINT msg, WPARAM wParam, LPARAM lParam);
+private:
 
-		if (GetAsyncKeyState('R') & 0x8000f)
-			TheCamera.fly(4.0f * timeDelta);
+	POINT mOldMousePos;
+	ID3D10Effect* mFX;
+	ID3D10EffectTechnique* mTech;
+	ID3D10InputLayout* mVertexLayout;
+	ID3D10EffectMatrixVariable* mfxWVPVar;
 
-		if (GetAsyncKeyState('F') & 0x8000f)
-			TheCamera.fly(-4.0f * timeDelta);
+	D3DXMATRIX mView;
+	D3DXMATRIX mProj;
+	D3DXMATRIX mWVP;
 
-		if (GetAsyncKeyState(VK_UP) & 0x8000f)
-			TheCamera.pitch(-1.0f * timeDelta);
+	float mTheta;
+	float mPhi;
+};
 
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000f)
-			TheCamera.pitch(1.0f * timeDelta);
-
-		if (GetAsyncKeyState(VK_LEFT) & 0x8000f)
-			TheCamera.yaw(-1.0f * timeDelta);
-			
-		if (GetAsyncKeyState(VK_RIGHT) & 0x8000f)
-			TheCamera.yaw(1.0f * timeDelta);
-
-		if (GetAsyncKeyState('N') & 0x8000f)
-			TheCamera.roll(1.0f * timeDelta);
-
-		if (GetAsyncKeyState('M') & 0x8000f)
-			TheCamera.roll(-1.0f * timeDelta);
-		
-		// Обновление матрицы вида согласно новому
-        //местоположению и ориентации камеры
-		D3DXMATRIX V;
-	//	D3DXMatrixIdentity(&V);
-		TheCamera.getViewMatrix(&V);
-		sc.pDirect3DDevice->SetTransform(D3DTS_VIEW, &V);
-	//	TheCamera.setView(sc.pDirect3DDevice);
-	}
-	return true;
-}
-
-void EnterMsgLoop (int firstFrame, int lastFrame, int stepFrame, bool (*Display)(float timeDelta))
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
+				   PSTR cmdLine, int showCmd)
 {
-	int frame = firstFrame;
-	MSG msg;
-	ZeroMemory(&msg, sizeof(msg));
-
-	static float lastTime = (float)timeGetTime(); 
-
-	while(msg.message != WM_QUIT)
-	{
-		if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			if(msg.message == WM_QUIT)
-			{
-				break;
-			}
-		}
-		else
-        {
-			float currTime  = (float)timeGetTime();
-			float timeDelta = (currTime - lastTime)*0.001f;
-
-			Display(timeDelta);
-			if (GetAsyncKeyState('P') & 0x8000f)
-			{
-				sc.TakeScreenShot(frame);
-			}
-			sc.InputParticles(frame);
-			sc.Render();
-			lastTime = currTime;
- 		}
-
-		frame += stepFrame;
-		if (frame > lastFrame)
-		{
-			frame = firstFrame;
-		}
-	}
-}
-
-DWORD FtoDw(float f)
-{
-     return *((DWORD*)&f);
-}
-
-//Main window
-HWND hWnd;
+	//_CrtSetBreakAlloc(155);
+	// Enable run-time memory check for debug builds.
+#if defined(DEBUG) | defined(_DEBUG)
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
 
 
-
-//-----------------------------------------------------------------------------
-// Name: InitialDirect3D()
-// Desc: Initializes Direct3D
-//-----------------------------------------------------------------------------
-HRESULT InitialDirect3D( HWND hWnd, Scene* scene )
-{
-	// Create the D3D object, which is needed to create the D3DDevice.
-	if( NULL == ( scene->pDirect3D = Direct3DCreate9( D3D_SDK_VERSION ) ) )
-		return E_FAIL;
-	D3DDISPLAYMODE Display;
-	if( FAILED(scene->pDirect3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &Display)))
-	{
-		return E_FAIL;
-	}
+	VisualSPH theApp(hInstance);
 	
-	// Set up the structure used to create the D3DDevice. 
-	D3DPRESENT_PARAMETERS Direct3DParameter;
-	ZeroMemory( &Direct3DParameter, sizeof( Direct3DParameter ) );
-	Direct3DParameter.Windowed = scene->WINDOWED;
-	Direct3DParameter.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	// Anti Aliasing
-	//Direct3DParameter.MultiSampleType = D3DMULTISAMPLE_2_SAMPLES;
-	Direct3DParameter.BackBufferFormat = Display.Format;
+	theApp.initApp();
+
+	return theApp.run();
+}
+
+VisualSPH::VisualSPH(HINSTANCE hInstance)
+: D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
+  mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f)
+{
+	D3DXMatrixIdentity(&mView);
+	D3DXMatrixIdentity(&mProj);
+	D3DXMatrixIdentity(&mWVP); 
+}
+
+VisualSPH::~VisualSPH()
+{
+	if( md3dDevice )
+		md3dDevice->ClearState();
+
+	ReleaseCOM(mFX);
+	ReleaseCOM(mVertexLayout);
+}
+
+void VisualSPH::initApp()
+{
+	this->mMainWndCaption = L"[Visual SPH]";
+	D3DApp::initApp();
+	hud.init(md3dDevice);
+	// init settings
+	settings.loadFromFile("settings.txt");
+	// Camera 
+	GetCamera().setPosition() = settings.cameraPos;
+	GetCamera().setLook() = (settings.cameraLookAt - settings.cameraPos);
+	GetCamera().setUp() = D3DXVECTOR3(0.f, 1.f, 0.f);
 	
-	// Create the Direct3D device. 
-	if( FAILED( scene->pDirect3D->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-		D3DCREATE_HARDWARE_VERTEXPROCESSING,
-		&Direct3DParameter, &scene->pDirect3DDevice ) ) )
-	{
-		return E_FAIL;
-	}
-
-	// Device state would normally be set here
-	scene->pDirect3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	scene->pDirect3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-	scene->pDirect3DDevice->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
-	// For particles
-	//pDirect3DDevice->SetRenderState(D3DRS_POINTSPRITEENABLE, true);
-	//pDirect3DDevice->SetRenderState(D3DRS_POINTSCALEENABLE, true);
-	scene->pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE, FtoDw(2.5f));
-	//pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE_MIN, FtoDw(0.2f));
-	//pDirect3DDevice->SetRenderState(D3DRS_POINTSIZE_MAX, FtoDw(5.0f));
-
-	return S_OK;
+	particleSystem.init(md3dDevice, settings.pathToFolder, settings.patternString, settings.firstFrame, settings.lastFrame, settings.stepFrame);
+	// TODO: fix load initial frame 
+	particleSystem.getFrame(settings.firstFrame);
+	boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_POINTLIST, 1.5);
+	axis.init(md3dDevice);
+	buildFX();
+	buildVertexLayouts();
 }
 
-
-//-----------------------------------------------------------------------------
-// Name: MsgProc()
-// Desc: The window's message handler
-//-----------------------------------------------------------------------------
-LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
+void VisualSPH::onResize()
 {
-	switch( msg )
-	{
-	case WM_DESTROY:
-		PostQuitMessage( 0 );
-		return 0;
-		
-	case WM_KEYDOWN:
-		// Если нажата клавиша Esc, уничтожаем
-		// главное окно приложения, идентифицируемое
-		// дескриптором MainWindowHandle.
-		if( wParam == VK_ESCAPE )
-			DestroyWindow(hWnd);
-		return 0;
+	D3DApp::onResize();
 
-	case WM_PAINT:
-		//sc.Render();
-		ValidateRect( hWnd, NULL );
-		return 0;
-	}
-
-	return DefWindowProc( hWnd, msg, wParam, lParam );
+	float aspect = (float)mClientWidth/mClientHeight;
+	D3DXMatrixPerspectiveFovLH(&mProj, 0.25f*PI, aspect, 1.0f, 1000.0f);
 }
 
-
-//-----------------------------------------------------------------------------
-// Name: wWinMain()
-// Desc: The application's entry point
-//-----------------------------------------------------------------------------
-INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
+void VisualSPH::updateScene(float dt)
 {
-	UNREFERENCED_PARAMETER( hInst );
-	sc.cam = ::TheCamera;
-	// Register the window class
-	WNDCLASSEX wc =
-	{
-		sizeof( WNDCLASSEX ), CS_CLASSDC, MsgProc, 0L, 0L,
-		GetModuleHandle( NULL ), NULL, NULL, NULL, NULL,
-		"MainWindow", NULL
-	};
-	RegisterClassEx( &wc );
-
-	// Create the application's window
-	hWnd = CreateWindow( "MainWindow", "VisualSPH",
-		WS_OVERLAPPEDWINDOW, 100, 100, 800, 600,
-		NULL, NULL, wc.hInstance, NULL );
-
-	// Initialize Direct3D
-	if( SUCCEEDED( InitialDirect3D( hWnd, &sc ) ) )
-	{
-
-		// Show the window
-		ShowWindow( hWnd, SW_SHOWDEFAULT );
-		UpdateWindow( hWnd );
-		sc.setHWND(hWnd);
-		// Initial
-		string path;
-		string pattern;
-
-		int firstFrame, lastFrame, stepFrame;
-		{
-			ifstream fin("settings.txt");
-			fin >> path;			
-			fin >> pattern;			
-			fin >> firstFrame >> lastFrame >> stepFrame;
-			float cx, cy, cz;
-			float lx, ly, lz;
-			fin >> cx >> cy >> cz;
-			fin >> lx >> ly >> lz;
-			sc.setParameter(path, pattern, firstFrame, lastFrame, stepFrame, cx, cy, cz, lx, ly, lz); 
-			fin.close();				
-		}
-		
-		// Enter the message loop
-		sc.setView();
-		
-		//MSG msg;
-		int frame = firstFrame;
-		/*while(TRUE)
-		{
-			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-
-			if(msg.message == WM_QUIT)
-			{
-				break;
-			}*/
-			sc.InputParticles(frame);
-			sc.Render();
-			EnterMsgLoop(firstFrame, lastFrame, stepFrame, EnterKey);
-			//sc.TakeScreenShot(frame);	
-			/*frame += stepFrame;
-			if (frame > lastFrame)
-			{
-				frame = firstFrame;
-			}
-		}*/
-
-	}
-	UnregisterClass( "MainWindow", wc.hInstance );
+	//D3DApp::updateScene(dt);
 	
-	return 0;
+	// Code computes the average frames per second, and also the 
+	// average time it takes to render one frame.
+
+	static int frameCnt = 0;
+	static float t_base = 0.0f;
+
+	frameCnt++;
+
+	// Compute averages over one second period.
+	if( (mTimer.getGameTime() - t_base) >= 0.25f )
+	{
+		float fps = (float)frameCnt; // fps = frameCnt / 1
+		float mspf = 1000.0f / fps;
+		// TODO: conver to normal setFPS, setFRAME
+		std::wostringstream outs;   
+		outs.precision(6);
+		outs << "FPS: " << fps << "\n" 
+			 << "Milliseconds: Per Frame: " << mspf << "\n"
+			 << "Frame: " << this->particleSystem.getNumCurrFrame() << endl;
+		hud.setText(outs.str());
+		//mFrameStats = std::wstring( outs.str());
+		// Reset for next average.
+		frameCnt = 0;
+		t_base  += 1.0f;
+	}
+
+	// Update angles based on input to orbit camera around box.
+
+	// Update angles based on input to orbit camera around scene.
+	if(GetAsyncKeyState('A') & 0x8000)	GetCamera().strafe(-1.3f*dt);
+	if(GetAsyncKeyState('D') & 0x8000)	GetCamera().strafe(+1.3f*dt);
+	if(GetAsyncKeyState('W') & 0x8000)	GetCamera().walk(+1.3f*dt);
+	if(GetAsyncKeyState('S') & 0x8000)	GetCamera().walk(-1.3f*dt);
+ 
+	GetCamera().rebuildView();
+
+	// TODO: fix auto switch next frame
+	if(GetAsyncKeyState('N') & 0x8000)	particleSystem.getNextFrame();
+	// TODO: fix to correct exit by press esc button
+	if(GetAsyncKeyState(27) & 0x8000) exit(0);
+
+	
 }
 
-
-
-/*
-int WINAPI WinMain(HINSTANCE hInst,	HINSTANCE hprevinstance, LPSTR lpcmdline, int ncmdshow)
+void VisualSPH::drawScene()
 {
-    WNDCLASSEX windowsclass;
-    HWND hwnd;
-    MSG msg;
-    hInstance = hInst;
+	D3DApp::drawScene();
 
-    windowsclass.cbSize = sizeof(WNDCLASSEX);
-    windowsclass.style = CS_DBLCLKS|CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
-    windowsclass.lpfnWndProc = MsgProc;
-    windowsclass.cbClsExtra = 0;
-    windowsclass.cbWndExtra = 0;
-    windowsclass.hInstance = hInst;
-    windowsclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    windowsclass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    windowsclass.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
-    windowsclass.lpszMenuName = NULL;
-    windowsclass.lpszClassName = "WINDOWSCLASS";
-    windowsclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	// Restore default states, input layout and primitive topology 
+	// because mFont->DrawText changes them.  Note that we can 
+	// restore the default states by passing null.
+	md3dDevice->OMSetDepthStencilState(0, 0);
+	float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
+    md3dDevice->IASetInputLayout(mVertexLayout);
+    //md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    if (!RegisterClassEx(&windowsclass))
-        return 0;
+   
+	// set constants
+	mWVP = GetCamera().view()*mProj;
+	mfxWVPVar->SetMatrix((float*)&mWVP);
 
-    hwnd = CreateWindowEx(NULL, "WINDOWSCLASS", "Загрузка Х-файла с вращением", WS_OVERLAPPEDWINDOW|WS_VISIBLE,
-        0, 0, 770, 500, NULL, NULL, hInst, NULL);
-    if (!hwnd)
-        return 0;
-
-    if (SUCCEEDED(InitialDirect3D(hwnd,&sc)))
+    D3D10_TECHNIQUE_DESC techDesc;
+    mTech->GetDesc( &techDesc );
+    for(UINT p = 0; p < techDesc.Passes; ++p)
     {
-        ShowWindow(hwnd, SW_SHOWDEFAULT);
-        UpdateWindow(hwnd);
-		sc.setHWND(hWnd);
-		// Initial
-		string path;
-		string pattern;
-
-		int firstFrame, lastFrame, stepFrame;
-		{
-			ifstream fin("settings.txt");
-			fin >> path;			
-			fin >> pattern;			
-			fin >> firstFrame >> lastFrame >> stepFrame;
-			float cx, cy, cz;
-			float lx, ly, lz;
-			fin >> cx >> cy >> cz;
-			fin >> lx >> ly >> lz;
-			sc.setParameter(path, pattern, firstFrame, lastFrame, stepFrame, cx, cy, cz, lx, ly, lz); 
-			fin.close();				
-		}
-			int frame = firstFrame;
-		while (true)
-		{
-			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-
-			if(msg.message == WM_QUIT)
-			{
-				break;
-			}
-			sc.InputParticles(frame);
-			sc.Render();			
-			//sc.TakeScreenShot(frame);	
-			frame += stepFrame;
-			if (frame > lastFrame)
-			{
-				frame = firstFrame;
-			}
-			
-		}
+        mTech->GetPassByIndex( p )->Apply(0);		
+		boundingBox.draw();
+		axis.draw();
+		particleSystem.drawAll();
     }
-    return (int)msg.wParam;
-}*/
+	
+	hud.draw();
+	
+	mSwapChain->Present(0, 0);
+}
+
+void VisualSPH::buildFX()
+{
+	DWORD shaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG )
+    shaderFlags |= D3D10_SHADER_DEBUG;
+	shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
+#endif
+ 
+	ID3D10Blob* compilationErrors = 0;
+	HRESULT hr = 0;
+	hr = D3DX10CreateEffectFromFile(L"color.fx", 0, 0, 
+		"fx_4_0", shaderFlags, 0, md3dDevice, 0, 0, &mFX, &compilationErrors, 0);
+	if(FAILED(hr))
+	{
+		if( compilationErrors )
+		{
+			MessageBoxA(0, (char*)compilationErrors->GetBufferPointer(), 0, 0);
+			ReleaseCOM(compilationErrors);
+		}
+		DXTrace(__FILE__, (DWORD)__LINE__, hr, L"D3DX10CreateEffectFromFile", true);
+	} 
+
+	mTech = mFX->GetTechniqueByName("ColorTech");
+	
+	mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
+}
+
+void VisualSPH::buildVertexLayouts()
+{
+	// Create the vertex input layout.
+	D3D10_INPUT_ELEMENT_DESC vertexDesc[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0}
+	};
+	// Create the input layout
+    D3D10_PASS_DESC PassDesc;
+    mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
+    HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature,
+		PassDesc.IAInputSignatureSize, &mVertexLayout));
+}
+
+LRESULT VisualSPH::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	POINT mousePos;
+	int dx = 0;
+	int dy = 0;
+	switch(msg)
+	{
+	case WM_LBUTTONDOWN:
+		if( wParam & MK_LBUTTON )
+		{
+			SetCapture(mhMainWnd);
+
+			mOldMousePos.x = LOWORD(lParam);
+			mOldMousePos.y = HIWORD(lParam);
+		}
+		return 0;
+
+	case WM_LBUTTONUP:
+		ReleaseCapture();
+		return 0;
+
+	case WM_MOUSEMOVE:
+		if( wParam & MK_LBUTTON )
+		{
+			mousePos.x = (int)LOWORD(lParam); 
+			mousePos.y = (int)HIWORD(lParam); 
+			dx = mousePos.x - mOldMousePos.x;
+			dy = mousePos.y - mOldMousePos.y;
+
+			GetCamera().pitch( dy * 0.0087266f );
+			GetCamera().rotateY( dx * 0.0087266f );
+			
+			mOldMousePos = mousePos;
+		}
+		return 0;
+	}
+
+	return D3DApp::msgProc(msg, wParam, lParam);
+}

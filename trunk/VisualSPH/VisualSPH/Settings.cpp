@@ -1,16 +1,23 @@
 #include "Settings.h"
 
-using namespace std;
-Settings::Settings()
+
+Settings::Settings(void)
 {
-	fullscreen=false;
-	screendefinition[0]=800;
-	screendefinition[1]=600;
-	ifstream fin("settings.txt");
-	fin >> path;			
-	fin >>pattern;			
+}
+
+
+Settings::~Settings(void)
+{
+}
+
+void Settings::loadFromFile(char* fileName)
+{
+	ifstream fin (fileName);
+	fin >> pathToFolder;
+	fin >> patternString;
 	fin >> firstFrame >> lastFrame >> stepFrame;
-	fin >>  cx >>  cy >>  cz;
-	fin >>  lx >>  ly >>  lz;
-	fin.close();		
+	fin >> cameraPos.x >> cameraPos.y >> cameraPos.z;
+	fin >> cameraLookAt.x >> cameraLookAt.y >> cameraLookAt.z;
+
+	fin.close();
 }
