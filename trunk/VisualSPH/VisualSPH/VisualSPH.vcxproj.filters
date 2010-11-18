@@ -124,14 +124,11 @@
     <None Include="index.jpg">
       <Filter>Resource Files</Filter>
     </None>
-<<<<<<< .mine
     <None Include="color.fx">
       <Filter>Resource Files</Filter>
     </None>
-=======
     <None Include="Camera_hotkeys.txt">
       <Filter>Resource Files</Filter>
     </None>
->>>>>>> .r37
   </ItemGroup>
 </Project>
