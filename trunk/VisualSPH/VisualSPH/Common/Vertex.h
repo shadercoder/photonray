@@ -1,6 +1,4 @@
-#ifndef VERTEX_H
-#define VERTEX_H
-
+#pragma once
 #include "common\d3dUtil.h"
 
 struct Vertex
@@ -9,4 +7,9 @@ struct Vertex
 	D3DXCOLOR   color;
 };
  
-#endif // VERTEX_H
+
+struct VertexParticle
+{
+	D3DXVECTOR3 pos;
+	D3DXVECTOR2 size;
+};

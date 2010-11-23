@@ -8,7 +8,6 @@ public:
 	GObject(void);
 	virtual ~GObject(void);
 
-//	virtual void init(ID3D10Device* device, D3D10_PRIMITIVE_TOPOLOGY topology, ...) = 0;
 	virtual void draw() = 0;
 
 protected:
@@ -19,5 +18,9 @@ protected:
 	ID3D10Buffer* mVB;
 	ID3D10Buffer* mIB;
 	D3D10_PRIMITIVE_TOPOLOGY primitiveTopology;
+	// render's parameters are set in this method before render
+	void onRenderBegin();
+	// restore previous render setup
+	void onRenderEnd();
 };
 

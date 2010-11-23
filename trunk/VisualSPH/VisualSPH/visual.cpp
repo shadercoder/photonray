@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "common\d3dApp.h"
+#include "Common\Effects.h"
 #include "Box.h"
 #include "Axis.h"
 #include "InputStreamPS.h"
@@ -15,7 +16,7 @@ class VisualSPH : public D3DApp
 public:
 	VisualSPH(HINSTANCE hInstance);
 	~VisualSPH();
-
+	
 	Settings settings;
 	HUD hud;
 	// primitives
@@ -87,6 +88,7 @@ void VisualSPH::initApp()
 {
 	this->mMainWndCaption = L"[Visual SPH]";
 	D3DApp::initApp();
+
 	hud.init(md3dDevice);
 	// init settings
 	settings.loadFromFile("settings.txt");
@@ -179,6 +181,9 @@ void VisualSPH::drawScene()
 	mWVP = GetCamera().view()*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 
+	md3dDevice->RSSetState(0); // restore default
+
+
     D3D10_TECHNIQUE_DESC techDesc;
     mTech->GetDesc( &techDesc );
     for(UINT p = 0; p < techDesc.Passes; ++p)
@@ -187,7 +192,7 @@ void VisualSPH::drawScene()
 		boundingBox.draw();
 		axis.draw();
 		particleSystem.drawAll();
-    }
+	}
 	
 	hud.draw();
 	

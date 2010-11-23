@@ -63,6 +63,9 @@
     <ClCompile Include="Common\TextureMgr.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Effects.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Particle.h">
@@ -111,6 +114,12 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="Common\TextureMgr.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Effects.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Light.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>

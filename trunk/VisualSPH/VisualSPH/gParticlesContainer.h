@@ -2,13 +2,11 @@
 #include "Particle.h"
 #include "Common\GObject.h"
 
-class gParticlesContainer :
-	public GObject
+class gParticlesContainer: public GObject
 {
 private:
 	const int MAX_PARTICLES;
-	//Vertex* vertices;
-
+	UINT mNumParticles;
 public:
 	gParticlesContainer(void);
 	~gParticlesContainer(void);
