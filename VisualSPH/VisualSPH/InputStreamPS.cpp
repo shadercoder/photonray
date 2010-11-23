@@ -44,6 +44,7 @@ Particle* InputStreamPS::getFrame(int num)
 	int sz = 0;
 	for(;fscanf(pIn, "%f %f %f %f %f %f %f %f", &data[sz][0], &data[sz][1], &data[sz][2], &data[sz][3], &data[sz][4], &data[sz][5], &data[sz][6], &data[sz][7]) == DIMENSIONS; ++sz);
 	particleCount = sz;
+
 	for (int i = 0; i < particleCount; ++i)
 	{
 		particleBuff[i] = Particle(data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5], data[i][6], data[i][7]);
@@ -71,6 +72,9 @@ void InputStreamPS::drawAll()
 	//particleView.init(device, &particleBuff[0], particleCount);
 	particleView.loadData(&particleBuff[0], particleCount);
 	particleView.draw();
+	device->RSSetState(0); // restore default
+
+//	particleView.draw();
 }
 
 int InputStreamPS::getNumCurrFrame()

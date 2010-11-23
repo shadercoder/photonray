@@ -17,7 +17,7 @@ public:
 	D3DXVECTOR3& setPosition();
 	D3DXVECTOR3& setLook();
 	D3DXVECTOR3& setUp();
-
+	D3DXVECTOR3 getPosition();
 	D3DXMATRIX view()const;
 	D3DXMATRIX proj()const;
 

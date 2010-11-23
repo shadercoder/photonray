@@ -102,6 +102,7 @@
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="Common\Camera.cpp" />
     <ClCompile Include="Common\d3dApp.cpp" />
+    <ClCompile Include="Common\Effects.cpp" />
     <ClCompile Include="Common\GameTimer.cpp" />
     <ClCompile Include="Common\GObject.cpp" />
     <ClCompile Include="Common\TextureMgr.cpp" />
@@ -120,8 +121,10 @@
     <ClInclude Include="Common\Camera.h" />
     <ClInclude Include="Common\d3dApp.h" />
     <ClInclude Include="Common\d3dUtil.h" />
+    <ClInclude Include="Common\Effects.h" />
     <ClInclude Include="Common\GameTimer.h" />
     <ClInclude Include="Common\GObject.h" />
+    <ClInclude Include="Common\Light.h" />
     <ClInclude Include="Common\TextureMgr.h" />
     <ClInclude Include="Common\Vertex.h" />
     <ClInclude Include="gParticlesContainer.h" />

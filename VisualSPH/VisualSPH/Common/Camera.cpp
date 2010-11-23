@@ -31,6 +31,12 @@ D3DXVECTOR3& Camera::setPosition()
 	return mPosition;
 }
 
+D3DXVECTOR3 Camera::getPosition()
+{
+	return mPosition;
+}
+
+
 D3DXMATRIX Camera::view()const
 {
 	return mView;
