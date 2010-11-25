@@ -12,29 +12,35 @@ Box::~Box()
 	ReleaseCOM(mIB);
 }
 
-void Box::init(ID3D10Device* device, D3D10_PRIMITIVE_TOPOLOGY topology, float scale)
-{
+void Box::init(ID3D10Device* device, D3D10_PRIMITIVE_TOPOLOGY topology, D3DXVECTOR3 dimension)
+ {
 	md3dDevice = device;
 	primitiveTopology = topology;
 	mNumVertices = 8;
 	mNumFaces    = 12; // 2 per quad
-
+	float x_max = dimension.x/2;  
+	float x_min = 0-dimension.x/2;
+	float y_max = dimension.y/2;  
+	float y_min = 0-dimension.y/2;
+	float z_max = dimension.z/2;  
+	float z_min = 0-dimension.z/2;
 	// Create vertex buffer
 	Vertex vertices[] =
 	{
-		{D3DXVECTOR3(-1.0f, -1.0f, -1.0f), WHITE},
-		{D3DXVECTOR3(-1.0f, +1.0f, -1.0f), WHITE},
-		{D3DXVECTOR3(+1.0f, +1.0f, -1.0f), WHITE},
-		{D3DXVECTOR3(+1.0f, -1.0f, -1.0f), WHITE},
-		{D3DXVECTOR3(-1.0f, -1.0f, +1.0f), WHITE},
-		{D3DXVECTOR3(-1.0f, +1.0f, +1.0f), WHITE},
-		{D3DXVECTOR3(+1.0f, +1.0f, +1.0f), WHITE},
-		{D3DXVECTOR3(+1.0f, -1.0f, +1.0f), WHITE},
+		{D3DXVECTOR3(x_min, y_min, z_min), BLACK},
+		{D3DXVECTOR3(x_min, y_max, z_min), BLACK},
+		{D3DXVECTOR3(x_max, y_max, z_min), BLACK},
+		{D3DXVECTOR3(x_max, y_min, z_min), BLACK},
+
+		{D3DXVECTOR3(x_min, y_min, z_max), BLACK},
+		{D3DXVECTOR3(x_min, y_max, z_max), BLACK},
+		{D3DXVECTOR3(x_max, y_max, z_max), BLACK},
+		{D3DXVECTOR3(x_max, y_min, z_max), BLACK},
 	};
 
 	// Scale the box.
-	for(DWORD i = 0; i < mNumVertices; ++i)
-		vertices[i].pos *= scale;
+	//for(DWORD i = 0; i < mNumVertices; ++i)
+	//	vertices[i].pos *= scale;
 
 
 	D3D10_BUFFER_DESC vbd;
@@ -52,33 +58,25 @@ void Box::init(ID3D10Device* device, D3D10_PRIMITIVE_TOPOLOGY topology, float sc
 
 	DWORD indices[] = {
 		// front face
-		0, 1, 2,
-		0, 2, 3,
+		0 , 1 ,
+		1 , 2 ,
+		2 , 3 ,
+		3 , 0 ,
 
-		// back face
-		4, 6, 5,
-		4, 7, 6,
+		0 , 4 ,
+		4 , 5 ,
+		5 , 6 ,
+		6 , 7,
+		7 , 4 ,
 
-		// left face
-		4, 5, 1,
-		4, 1, 0,
-
-		// right face
-		3, 2, 6,
-		3, 6, 7,
-
-		// top face
-		1, 5, 6,
-		1, 6, 2,
-
-		// bottom face
-		4, 0, 3, 
-		4, 3, 7
+		5 , 1 ,
+		6 , 2 ,
+		7 , 3 ,
 	};
 
 	D3D10_BUFFER_DESC ibd;
 	ibd.Usage = D3D10_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(DWORD) * mNumFaces*3;
+	ibd.ByteWidth = sizeof(DWORD) * D3D10_PRIMITIVE_TOPOLOGY_LINELIST*12;
 	ibd.BindFlags = D3D10_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
@@ -94,5 +92,5 @@ void Box::draw()
 	UINT offset = 0;
 	md3dDevice->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
-	md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
+	md3dDevice->DrawIndexed(D3D10_PRIMITIVE_TOPOLOGY_LINELIST*12, 0, 0);
 }
