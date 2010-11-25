@@ -100,7 +100,7 @@ void VisualSPH::initApp()
 	particleSystem.init(md3dDevice, settings.pathToFolder, settings.patternString, settings.firstFrame, settings.lastFrame, settings.stepFrame);
 	// TODO: fix load initial frame 
 	particleSystem.getFrame(settings.firstFrame);
-	boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_POINTLIST, 1.5);
+	boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_LINELIST, D3DXVECTOR3(1.5f,1.5f,3.0f));
 	axis.init(md3dDevice);
 	buildFX();
 	buildVertexLayouts();
