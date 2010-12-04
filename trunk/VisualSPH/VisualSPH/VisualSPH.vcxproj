@@ -50,12 +50,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\VisualSPH\Common\;$(SolutionDir)\VisualSPH\;C:\Program Files\Microsoft DirectX SDK %28June 2010%29\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\VisualSPH\DXUT\Optional\;$(SolutionDir)\VisualSPH\DXUT\Core\;$(SolutionDir)\VisualSPH\Common\;$(SolutionDir)\VisualSPH\;C:\Program Files\Microsoft DirectX SDK %28June 2010%29\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>DXUT.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,6 +109,7 @@
     <ClCompile Include="gParticlesContainer.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="InputStreamPS.cpp" />
+    <ClCompile Include="Launcher.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
@@ -139,6 +140,7 @@
     <None Include="color.fx" />
     <None Include="Camera_hotkeys.txt" />
     <None Include="index.jpg" />
+    <None Include="particle.fx" />
     <None Include="readme_settings.txt" />
     <None Include="settings.txt" />
   </ItemGroup>

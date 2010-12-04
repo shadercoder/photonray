@@ -1,5 +1,4 @@
 #include "Box.h"
-#include "Vertex.h"
 
 Box::Box()
 {
@@ -18,24 +17,24 @@ void Box::init(ID3D10Device* device, D3D10_PRIMITIVE_TOPOLOGY topology, D3DXVECT
 	primitiveTopology = topology;
 	mNumVertices = 8;
 	mNumFaces    = 12; // 2 per quad
-	float x_max = dimension.x/2;  
-	float x_min = 0-dimension.x/2;
-	float y_max = dimension.y/2;  
-	float y_min = 0-dimension.y/2;
-	float z_max = dimension.z/2;  
-	float z_min = 0-dimension.z/2;
+	float x_max = dimension.x / 2.f;  
+	float x_min = -dimension.x / 2.f;
+	float y_max = dimension.y / 2.f;  
+	float y_min = -dimension.y / 2.f;
+	float z_max = dimension.z / 2.f;  
+	float z_min = -dimension.z / 2.f;
 	// Create vertex buffer
 	Vertex vertices[] =
 	{
-		{D3DXVECTOR3(x_min, y_min, z_min), BLACK},
-		{D3DXVECTOR3(x_min, y_max, z_min), BLACK},
-		{D3DXVECTOR3(x_max, y_max, z_min), BLACK},
-		{D3DXVECTOR3(x_max, y_min, z_min), BLACK},
+		{D3DXVECTOR3(x_min, y_min, z_min), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
+		{D3DXVECTOR3(x_min, y_max, z_min), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
+		{D3DXVECTOR3(x_max, y_max, z_min), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
+		{D3DXVECTOR3(x_max, y_min, z_min), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
 
-		{D3DXVECTOR3(x_min, y_min, z_max), BLACK},
-		{D3DXVECTOR3(x_min, y_max, z_max), BLACK},
-		{D3DXVECTOR3(x_max, y_max, z_max), BLACK},
-		{D3DXVECTOR3(x_max, y_min, z_max), BLACK},
+		{D3DXVECTOR3(x_min, y_min, z_max), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
+		{D3DXVECTOR3(x_min, y_max, z_max), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
+		{D3DXVECTOR3(x_max, y_max, z_max), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
+		{D3DXVECTOR3(x_max, y_min, z_max), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLACK},
 	};
 
 	// Scale the box.

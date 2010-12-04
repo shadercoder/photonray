@@ -16,6 +16,9 @@
     <Filter Include="common">
       <UniqueIdentifier>{b8a38a8b-eef5-4f91-8019-469f85663292}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{a798e86c-773f-4ba0-8c90-1d5c00561a98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="visual.cpp">
@@ -65,6 +68,9 @@
     </ClCompile>
     <ClCompile Include="Common\Effects.cpp">
       <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="Launcher.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -133,11 +139,14 @@
     <None Include="index.jpg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="color.fx">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Camera_hotkeys.txt">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="color.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="particle.fx">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

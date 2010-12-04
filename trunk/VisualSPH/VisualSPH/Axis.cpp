@@ -21,12 +21,12 @@ void Axis::init(ID3D10Device* device)
 	// Create vertex buffer
 	Vertex vertices[] =
 	{
-		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), RED},
-		{D3DXVECTOR3(1.0f, 0.0f, 0.0f), RED},
-		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), GREEN},
-		{D3DXVECTOR3(0.0f, 1.0f, 0.0f), GREEN},
-		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLUE},
-		{D3DXVECTOR3(0.0f, 0.0f, 1.0f), BLUE},
+		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), RED},
+		{D3DXVECTOR3(1.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), RED},
+		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), GREEN},
+		{D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), GREEN},
+		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLUE},
+		{D3DXVECTOR3(0.0f, 0.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), BLUE},
 	};
 
 	D3D10_BUFFER_DESC vbd;

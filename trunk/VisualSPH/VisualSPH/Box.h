@@ -1,5 +1,4 @@
-#ifndef BOX_H
-#define BOX_H
+#pragma once
 
 #include "Common\GObject.h"
 
@@ -14,6 +13,3 @@ public:
 	void draw();
 
 };
-
-
-#endif // BOX_H
