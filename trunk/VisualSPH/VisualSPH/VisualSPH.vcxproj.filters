@@ -148,5 +148,8 @@
     <None Include="particle.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Particle.dds">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
