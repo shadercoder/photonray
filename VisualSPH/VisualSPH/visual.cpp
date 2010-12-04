@@ -10,6 +10,7 @@
 #include "Settings.h"
 #include "HUD.h"
 #include "Common\Camera.h"
+#include "Common\TextureMgr.h"
 
 class VisualSPH : public D3DApp
 {
@@ -34,12 +35,12 @@ private:
 	void buildVertexLayouts();
 	HRESULT msgProc(UINT msg, WPARAM wParam, LPARAM lParam);
 private:
-
 	POINT mOldMousePos;
 	ID3D10Effect* mFX;
 	ID3D10EffectTechnique* mTech;
 	ID3D10InputLayout* mVertexLayout;
 	ID3D10EffectMatrixVariable* mfxWVPVar;
+	ID3D10EffectMatrixVariable* g_pmInvView;
 
 	D3DXMATRIX mView;
 	D3DXMATRIX mProj;
@@ -100,10 +101,13 @@ void VisualSPH::initApp()
 	particleSystem.init(md3dDevice, settings.pathToFolder, settings.patternString, settings.firstFrame, settings.lastFrame, settings.stepFrame);
 	// TODO: fix load initial frame 
 	particleSystem.getFrame(settings.firstFrame);
-	boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_LINELIST, D3DXVECTOR3(1.5f,1.5f,3.0f));
+	boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_LINELIST, D3DXVECTOR3(1.1f,1.1f,3.0f));
 	axis.init(md3dDevice);
+	GetTextureMgr().init(md3dDevice);
+	GetTextureMgr().createTex(L"Particle.dds");
 	buildFX();
 	buildVertexLayouts();
+	
 }
 
 void VisualSPH::onResize()
@@ -181,19 +185,33 @@ void VisualSPH::drawScene()
 	mWVP = GetCamera().view()*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 
+	D3DXMATRIX mInvView;
+    D3DXMatrixInverse( &mInvView, NULL, &GetCamera().view() );
+    g_pmInvView->SetMatrix( ( float* )&mInvView );
+
+
 	md3dDevice->RSSetState(0); // restore default
 
 
     D3D10_TECHNIQUE_DESC techDesc;
+	mTech = mFX->GetTechniqueByName("Render");
     mTech->GetDesc( &techDesc );
     for(UINT p = 0; p < techDesc.Passes; ++p)
     {
         mTech->GetPassByIndex( p )->Apply(0);		
 		boundingBox.draw();
 		axis.draw();
+	}
+
+	mTech = mFX->GetTechniqueByName("RenderParticles");
+    mTech->GetDesc( &techDesc );
+    for(UINT p = 0; p < techDesc.Passes; ++p)
+    {
+        mTech->GetPassByIndex( p )->Apply(0);		
 		particleSystem.drawAll();
 	}
-	
+
+
 	hud.draw();
 	
 	mSwapChain->Present(0, 0);
@@ -221,9 +239,11 @@ void VisualSPH::buildFX()
 		DXTrace(__FILE__, (DWORD)__LINE__, hr, L"D3DX10CreateEffectFromFile", true);
 	} 
 
-	mTech = mFX->GetTechniqueByName("ColorTech");
+	mTech = mFX->GetTechniqueByName("Render");
 	
 	mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
+	g_pmInvView = mFX->GetVariableByName( "g_mInvView" )->AsMatrix();
+	mFX->GetVariableByName("g_txParticle")->AsShaderResource()->SetResource(GetTextureMgr().createTex(L"Particle.dds"));
 }
 
 void VisualSPH::buildVertexLayouts()
@@ -232,12 +252,13 @@ void VisualSPH::buildVertexLayouts()
 	D3D10_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0}
+		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  D3D10_APPEND_ALIGNED_ELEMENT, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,  D3D10_APPEND_ALIGNED_ELEMENT, D3D10_INPUT_PER_VERTEX_DATA, 0},		
 	};
 	// Create the input layout
     D3D10_PASS_DESC PassDesc;
     mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
-    HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature,
+    HR(md3dDevice->CreateInputLayout(vertexDesc, 3, PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
 
