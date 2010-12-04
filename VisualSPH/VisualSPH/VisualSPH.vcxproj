@@ -140,6 +140,7 @@
     <None Include="color.fx" />
     <None Include="Camera_hotkeys.txt" />
     <None Include="index.jpg" />
+    <None Include="Particle.dds" />
     <None Include="particle.fx" />
     <None Include="readme_settings.txt" />
     <None Include="settings.txt" />
