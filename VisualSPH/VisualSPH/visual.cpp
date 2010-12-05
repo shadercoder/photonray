@@ -214,7 +214,7 @@ void VisualSPH::drawScene()
 
 	hud.draw();
 	
-	mSwapChain->Present(0, 0);
+	mSwapChain->Present(1, 0);
 }
 
 void VisualSPH::buildFX()
