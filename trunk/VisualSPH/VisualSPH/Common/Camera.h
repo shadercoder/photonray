@@ -27,7 +27,9 @@ public:
 	void walk(float d);
 
 	void pitch(float angle);
+	void yaw(float angle);
 	void rotateY(float angle);
+	void rotateZ(float angle);
 
 	void rebuildView();
 

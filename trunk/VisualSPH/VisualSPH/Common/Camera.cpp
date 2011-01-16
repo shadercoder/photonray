@@ -76,10 +76,30 @@ void Camera::pitch(float angle)
 	D3DXVec3TransformNormal(&mLook, &mLook, &R);
 }
 
+void Camera::yaw(float angle)
+{
+	D3DXMATRIX R;
+	D3DXMatrixRotationAxis(&R, &mUp, angle);
+
+	D3DXVec3TransformNormal(&mRight, &mRight, &R);
+	D3DXVec3TransformNormal(&mLook, &mLook, &R);
+}
+
+
 void Camera::rotateY(float angle)
 {
 	D3DXMATRIX R;
 	D3DXMatrixRotationY(&R, angle);
+
+	D3DXVec3TransformNormal(&mRight, &mRight, &R);
+	D3DXVec3TransformNormal(&mUp, &mUp, &R);
+	D3DXVec3TransformNormal(&mLook, &mLook, &R);
+}
+
+void Camera::rotateZ(float angle)
+{
+	D3DXMATRIX R;
+	D3DXMatrixRotationZ(&R, angle);
 
 	D3DXVec3TransformNormal(&mRight, &mRight, &R);
 	D3DXVec3TransformNormal(&mUp, &mUp, &R);
