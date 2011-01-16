@@ -291,8 +291,11 @@ LRESULT VisualSPH::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 			dx = mousePos.x - mOldMousePos.x;
 			dy = mousePos.y - mOldMousePos.y;
 
-			GetCamera().pitch( dy * 0.0087266f );
-			GetCamera().rotateY( dx * 0.0087266f );
+			GetCamera().pitch(dy * 0.0087266f);
+			//GetCamera().rotateZ(dx * 0.0087266f);
+			GetCamera().yaw(dx * 0.0087266f);
+			
+
 			
 			mOldMousePos = mousePos;
 		}

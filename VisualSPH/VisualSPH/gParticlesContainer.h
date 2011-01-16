@@ -7,6 +7,7 @@ class gParticlesContainer: public GObject
 private:
 	const int MAX_PARTICLES;
 	UINT mNumParticles;
+	ID3D10BlendState* pBlendState;
 public:
 	gParticlesContainer(void);
 	~gParticlesContainer(void);

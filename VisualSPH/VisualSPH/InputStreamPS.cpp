@@ -72,7 +72,7 @@ void InputStreamPS::drawAll()
 	//particleView.init(device, &particleBuff[0], particleCount);
 	particleView.loadData(&particleBuff[0], particleCount);
 	particleView.draw();
-	device->RSSetState(0); // restore default
+	//device->RSSetState(0); // restore default
 
 //	particleView.draw();
 }

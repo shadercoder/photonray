@@ -208,7 +208,7 @@ VSParticleDrawOut VSScenemain(VSParticleIn input)
     //
     output.pos = input.pos;
     output.radius = 1.5;
-    output.color = float4(0,0.2,1,1);    
+    output.color = input.col;//float4(0,0.2,1,1);    
     return output;
 }
 
@@ -241,7 +241,7 @@ void GSScenemain(point VSParticleDrawOut input[1], inout TriangleStream<PSSceneI
 //
 float4 PSScenemain(PSSceneIn input) : SV_Target
 {   
-    return g_txParticle.Sample( g_samLinear, input.tex ) * input.color;
+    return g_txParticle.Sample( g_samLinear, input.tex ) * input.color;	
 	//return input.color;
 }
 
@@ -257,7 +257,7 @@ technique10 RenderParticles
         SetPixelShader( CompileShader( ps_4_0, PSScenemain() ) );
         
 //        SetDepthStencilState( EnableDepth, 0 );
-        SetBlendState( AdditiveBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
+        //SetBlendState( AdditiveBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
 
        SetDepthStencilState( DisableDepth, 0 );
     }  
