@@ -87,6 +87,7 @@
       <UseIntelOptimizedHeaders>false</UseIntelOptimizedHeaders>
       <GenerateAlternateCodePaths>SSE3</GenerateAlternateCodePaths>
       <UseProcessorExtensions>HOST</UseProcessorExtensions>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,7 +107,9 @@
     <ClCompile Include="Common\GameTimer.cpp" />
     <ClCompile Include="Common\GObject.cpp" />
     <ClCompile Include="Common\TextureMgr.cpp" />
+    <ClCompile Include="gMetaballs.cpp" />
     <ClCompile Include="gParticlesContainer.cpp" />
+    <ClCompile Include="gQuad.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="InputStreamPS.cpp" />
     <ClCompile Include="Launcher.cpp" />
@@ -128,7 +131,9 @@
     <ClInclude Include="Common\Light.h" />
     <ClInclude Include="Common\TextureMgr.h" />
     <ClInclude Include="Common\Vertex.h" />
+    <ClInclude Include="gMetaballs.h" />
     <ClInclude Include="gParticlesContainer.h" />
+    <ClInclude Include="gQuad.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="InputStreamPS.h" />
     <ClInclude Include="Logger.h" />
@@ -144,6 +149,7 @@
     <None Include="particle.fx" />
     <None Include="readme_settings.txt" />
     <None Include="settings.txt" />
+    <None Include="shaders\metaballs.sh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

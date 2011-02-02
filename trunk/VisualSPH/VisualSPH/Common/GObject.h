@@ -12,7 +12,8 @@ public:
 
 protected:
 	DWORD mNumVertices;
-	DWORD mNumFaces;
+	DWORD mNumIndices;
+	DWORD mNumFaces;	
 
 	ID3D10Device* md3dDevice;
 	ID3D10Buffer* mVB;

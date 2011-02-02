@@ -2,6 +2,7 @@
 #include "particlesystem.h"
 #include "Common\d3dUtil.h"
 #include "gParticlesContainer.h"
+#include "gMetaballs.h"
 #include <cstdio>
 #include <string>
 
@@ -22,10 +23,12 @@ public:
 	Particle* getNextFrame();
 	int getNumCurrFrame();
 	void drawAll();
+	gMetaballs particleView;
 private:
 	float data[MAX_PARTICLES][DIMENSIONS];
 	Particle particleBuff[MAX_PARTICLES];
-	gParticlesContainer particleView;
+	//gParticlesContainer particleView;
+	
 	ID3D10Device* device;
 	int particleCount;
 	int curr, first, last, step;
