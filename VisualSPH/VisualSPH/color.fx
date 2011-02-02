@@ -121,11 +121,6 @@ technique10 Render
 }
 
 
-//--------------------------------------------------------------------------------------
-// File: ParticlesGS.fx
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
 struct VSParticleIn
 {
     float3 pos              : POSITION;         //position of the particle

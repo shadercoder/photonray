@@ -4,13 +4,15 @@
 
 #include "common\d3dApp.h"
 #include "Common\Effects.h"
+#include "Common\Camera.h"
+#include "Common\TextureMgr.h"
+
 #include "Box.h"
 #include "Axis.h"
 #include "InputStreamPS.h"
 #include "Settings.h"
 #include "HUD.h"
-#include "Common\Camera.h"
-#include "Common\TextureMgr.h"
+#include "gMetaballs.h"
 
 class VisualSPH : public D3DApp
 {
@@ -23,6 +25,8 @@ public:
 	// primitives
 	Box boundingBox;
 	Axis axis;
+	//gMetaballs metaballs;
+
 	InputStreamPS particleSystem;
 
 	void initApp();
@@ -101,11 +105,12 @@ void VisualSPH::initApp()
 	particleSystem.init(md3dDevice, settings.pathToFolder, settings.patternString, settings.firstFrame, settings.lastFrame, settings.stepFrame);
 	// TODO: fix load initial frame 
 	particleSystem.getFrame(settings.firstFrame);
-	boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_LINELIST, D3DXVECTOR3(1.1f,1.1f,3.0f));
-	axis.init(md3dDevice);
-	GetTextureMgr().init(md3dDevice);
-	GetTextureMgr().createTex(L"Particle.dds");
-	buildFX();
+	//boundingBox.init(md3dDevice, D3D10_PRIMITIVE_TOPOLOGY_LINELIST, D3DXVECTOR3(1.1f,1.1f,3.0f));
+	//axis.init(md3dDevice);
+//	metaballs.init(md3dDevice, this->mClientWidth, this->mClientHeight, 128);
+	//GetTextureMgr().init(md3dDevice);
+	//GetTextureMgr().createTex(L"Particle.dds");
+	//buildFX();
 	buildVertexLayouts();
 	
 }
@@ -159,7 +164,12 @@ void VisualSPH::updateScene(float dt)
 	GetCamera().rebuildView();
 
 	// TODO: fix auto switch next frame
-	if(GetAsyncKeyState('N') & 0x8000)	particleSystem.getNextFrame();
+	if(GetAsyncKeyState('N') & 0x8000)	
+	{
+			particleSystem.getNextFrame();
+				particleSystem.particleView.update();
+
+	}
 	// TODO: fix to correct exit by press esc button
 	if(GetAsyncKeyState(27) & 0x8000) exit(0);
 
@@ -183,43 +193,45 @@ void VisualSPH::drawScene()
    
 	// set constants
 	mWVP = GetCamera().view()*mProj;
-	mfxWVPVar->SetMatrix((float*)&mWVP);
+	//mfxWVPVar->SetMatrix((float*)&mWVP);
 
 	D3DXMATRIX mInvView;
     D3DXMatrixInverse( &mInvView, NULL, &GetCamera().view() );
-    g_pmInvView->SetMatrix( ( float* )&mInvView );
+    //g_pmInvView->SetMatrix( ( float* )&mInvView );
 
 
 	md3dDevice->RSSetState(0); // restore default
 
 
-    D3D10_TECHNIQUE_DESC techDesc;
-	mTech = mFX->GetTechniqueByName("Render");
-    mTech->GetDesc( &techDesc );
-    for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        mTech->GetPassByIndex( p )->Apply(0);		
-		boundingBox.draw();
-		axis.draw();
-	}
+ //   D3D10_TECHNIQUE_DESC techDesc;
+	//mTech = mFX->GetTechniqueByName("Render");
+ //   mTech->GetDesc( &techDesc );
+ //   for(UINT p = 0; p < techDesc.Passes; ++p)
+ //   {
+ //       mTech->GetPassByIndex( p )->Apply(0);		
+	//	boundingBox.draw();
+	//	axis.draw();
+	//}
 
-	mTech = mFX->GetTechniqueByName("RenderParticles");
-    mTech->GetDesc( &techDesc );
-    for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        mTech->GetPassByIndex( p )->Apply(0);		
+	//mTech = mFX->GetTechniqueByName("RenderParticles");
+ //   mTech->GetDesc( &techDesc );
+ //   for(UINT p = 0; p < techDesc.Passes; ++p)
+ //   {
+ //       mTech->GetPassByIndex( p )->Apply(0);	
+	particleSystem.particleView.onFrameMove(mWVP);
 		particleSystem.drawAll();
-	}
+	//}
 
 
 	hud.draw();
-	
+	//metaballs.onFrameMove(mWVP);
+	//metaballs.draw();
 	mSwapChain->Present(1, 0);
 }
 
 void VisualSPH::buildFX()
 {
-	DWORD shaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
+	/*DWORD shaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3D10_SHADER_DEBUG;
 	shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
@@ -242,8 +254,9 @@ void VisualSPH::buildFX()
 	mTech = mFX->GetTechniqueByName("Render");
 	
 	mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
-	g_pmInvView = mFX->GetVariableByName( "g_mInvView" )->AsMatrix();
-	mFX->GetVariableByName("g_txParticle")->AsShaderResource()->SetResource(GetTextureMgr().createTex(L"Particle.dds"));
+	g_pmInvView = mFX->GetVariableByName("g_mInvView")->AsMatrix();
+	//mFX->GetVariableByName("g_txParticle")->AsShaderResource()->SetResource(GetTextureMgr().createTex(L"Particle.dds"));
+	*/
 }
 
 void VisualSPH::buildVertexLayouts()
@@ -256,10 +269,9 @@ void VisualSPH::buildVertexLayouts()
 		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,  D3D10_APPEND_ALIGNED_ELEMENT, D3D10_INPUT_PER_VERTEX_DATA, 0},		
 	};
 	// Create the input layout
-    D3D10_PASS_DESC PassDesc;
-    mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
-    HR(md3dDevice->CreateInputLayout(vertexDesc, 3, PassDesc.pIAInputSignature,
-		PassDesc.IAInputSignatureSize, &mVertexLayout));
+//    D3D10_PASS_DESC PassDesc;
+//    mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
+//    HR(md3dDevice->CreateInputLayout(vertexDesc, 3, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
 
 LRESULT VisualSPH::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)

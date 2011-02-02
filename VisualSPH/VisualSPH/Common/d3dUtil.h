@@ -21,7 +21,7 @@
 #include <crtdbg.h>
 #endif
 
-
+#include <D3D10.h>
 #include <d3dx10.h>
 #include <dxerr.h>
 #include <cassert>

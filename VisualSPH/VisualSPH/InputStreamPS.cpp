@@ -11,7 +11,8 @@ void InputStreamPS::init(ID3D10Device* device, string& _pathToFolder, string& _f
 	step = _step;
 
 	curr = first;
-	particleView.init(device);
+	// TODO : remove magic constants
+	particleView.init(device, 800, 600, 64);
 }
 
 InputStreamPS::InputStreamPS(void)
@@ -70,11 +71,13 @@ void InputStreamPS::drawAll()
 {
 	// draw all particles
 	//particleView.init(device, &particleBuff[0], particleCount);
-	particleView.loadData(&particleBuff[0], particleCount);
-	particleView.draw();
-	//device->RSSetState(0); // restore default
 
-//	particleView.draw();
+	//particleView.loadData(&particleBuff[0], particleCount);
+	//particleView.draw();
+	//device->RSSetState(0); // restore default
+	particleView.loadData(&particleBuff[0], particleCount);
+	//particleView.update();
+	particleView.draw();
 }
 
 int InputStreamPS::getNumCurrFrame()
