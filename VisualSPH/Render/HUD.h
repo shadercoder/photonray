@@ -1,5 +1,5 @@
 #pragma once
-#include "Common\d3dUtil.h"
+#include "d3dUtil.h"
 #include <string>
 using namespace std;
 class HUD
