@@ -119,7 +119,7 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 void InitApp()
 {
     g_fScale = 0.0f;
-    g_bSpinning = true;
+    g_bSpinning = false;
 
     g_D3DSettingsDlg.Init( &g_DialogResourceManager );
     g_HUD.Init( &g_DialogResourceManager );

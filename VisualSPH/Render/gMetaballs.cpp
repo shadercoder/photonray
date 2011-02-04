@@ -36,7 +36,7 @@ float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 {	
 	D3DXVECTOR3 tmp = centerBall - cell;	
 	float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
-	if (len > THRESHOLD) {
+	if (len > sqrtf(THRESHOLD)) {
 		return 0.0f;
 	}
 	return 1.0f / (len + 1e-5);
@@ -52,11 +52,11 @@ void gMetaballs::updateVolume(const Particle* particles, int numParticles)
 		int y = particles[i].position.y;
 		int z = particles[i].position.z;
 		float val = 0.0f;
-		for (int dx = -4; dx <= 4; ++dx)
+		for (int dx = -THRESHOLD; dx <= THRESHOLD; ++dx)
 		{
-			for (int dy = -4; dy <= 4; ++dy)
+			for (int dy = -THRESHOLD; dy <= THRESHOLD; ++dy)
 			{
-				for (int dz = -4; dz <= 4; ++dz)
+				for (int dz = -THRESHOLD; dz <= THRESHOLD; ++dz)
 				{
 					D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
 					if(field.isInside(x + dx, y + dy, z + dz))

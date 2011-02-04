@@ -108,6 +108,7 @@
     <ClInclude Include="ParticlesContainer.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="d3dUtil.h" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
