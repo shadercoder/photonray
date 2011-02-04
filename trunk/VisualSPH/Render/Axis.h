@@ -1,5 +1,5 @@
 #pragma once
-#include "common\gobject.h"
+#include "gobject.h"
 class Axis : public GObject
 {
 public:

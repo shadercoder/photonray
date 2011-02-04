@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common\GObject.h"
+#include "GObject.h"
 
 class Box: public GObject
 {
