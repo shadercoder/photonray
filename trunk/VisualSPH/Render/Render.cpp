@@ -106,7 +106,7 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
     InitApp();
 
     DXUTCreateWindow( L"VisualSPH" );
-    DXUTCreateDevice( true, 800, 600);
+	DXUTCreateDevice( true, appSettings.screenWidth, appSettings.screenHeight);
     DXUTMainLoop(); // Enter into the DXUT render loop
 
     return DXUTGetExitCode();
