@@ -13,6 +13,7 @@ using namespace std;
 <frame step int>
 <camera position (x,y,z) float>
 <camera look at (x,y,z) float>
+<screen resolution (width, height) int>
 */
 
 class Settings
@@ -23,6 +24,7 @@ public:
 	string patternString;
 	D3DXVECTOR3 cameraPos;
 	D3DXVECTOR3 cameraLookAt;
+	int screenWidth, screenHeight;
 
 	void loadFromFile(char* fileName);
 	Settings(void);
