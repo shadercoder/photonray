@@ -379,6 +379,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Settings.cpp" />
+    <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Vertex.h" />
     <None Include="DXUT\Optional\directx.ico" />

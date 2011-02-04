@@ -3,7 +3,7 @@
 #include "gQuad.h"
 #include "DenseField.h"
 #include "Particle.h"
-#define THRESHOLD 4.0f
+#define THRESHOLD 8.0f
 
 struct VS_CONSTANT_BUFFER
 {
