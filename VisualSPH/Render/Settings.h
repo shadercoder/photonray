@@ -25,7 +25,7 @@ public:
 	D3DXVECTOR3 cameraPos;
 	D3DXVECTOR3 cameraLookAt;
 	int screenWidth, screenHeight;
-
+	int volumeResolution;
 	void loadFromFile(char* fileName);
 	Settings(void);
 	~Settings(void);

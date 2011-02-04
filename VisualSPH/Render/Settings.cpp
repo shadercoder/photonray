@@ -18,5 +18,6 @@ void Settings::loadFromFile(char* fileName)
 	fin >> cameraPos.x >> cameraPos.y >> cameraPos.z;
 	fin >> cameraLookAt.x >> cameraLookAt.y >> cameraLookAt.z;
 	fin >> screenWidth >> screenHeight;
+	fin >> volumeResolution;
 	fin.close();
 }

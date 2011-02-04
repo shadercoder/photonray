@@ -83,6 +83,7 @@ public:
 
 	~DenseField(void)
 	{
-		delete[] data;
+		//delete[] data;
+		SAFE_DELETE_ARRAY(data);
 	}
 };
