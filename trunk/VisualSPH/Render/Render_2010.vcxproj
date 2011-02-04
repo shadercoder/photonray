@@ -382,6 +382,7 @@
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Vertex.h" />
+    <None Include="directx.ico" />
     <None Include="DXUT\Optional\directx.ico" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Box.h" />

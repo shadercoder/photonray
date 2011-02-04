@@ -75,6 +75,9 @@
     <None Include="metaballs.sh">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="directx.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />
