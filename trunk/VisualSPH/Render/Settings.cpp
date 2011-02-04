@@ -17,6 +17,6 @@ void Settings::loadFromFile(char* fileName)
 	fin >> firstFrame >> lastFrame >> stepFrame;
 	fin >> cameraPos.x >> cameraPos.y >> cameraPos.z;
 	fin >> cameraLookAt.x >> cameraLookAt.y >> cameraLookAt.z;
-
+	fin >> screenWidth >> screenHeight;
 	fin.close();
 }

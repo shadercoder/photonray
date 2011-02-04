@@ -64,7 +64,7 @@ Particle* ParticlesContainer::getFrame(int num)
 	while(!fin.eof())
 	{
 		fin >> x >> y >> z >> tmp >> tmp >> tmp >> tmp >> tmp;
-		particleBuff[sz++] = Particle(x * 80 , y * 80, (z - 1) * 80, 0,0,0,0,0);
+		particleBuff[sz++] = Particle(x * 80 , y * 80, (z - 1.) * 80, 0,0,0,0,0);
 	}
 	particleCount = sz;
 

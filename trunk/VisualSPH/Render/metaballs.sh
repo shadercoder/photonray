@@ -71,7 +71,7 @@ PS_IN QuadVS(VS_IN input)
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	int Iterations = 128;
+	int Iterations = 20;
 	float StepSize = 1.0 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
@@ -103,7 +103,7 @@ float4 RayCastPS(PS_IN input): SV_Target
     {		
         value = volume.Sample(mysampler, pos).r;
 		[unroll]
-		for (int j = 0; j < 0; ++j)
+		for (int j = 0; j < 6; ++j)
 		{
 			value += 0.12f * volume.Sample(mysampler, pos + neighbors[j]).r;
 		}

@@ -181,7 +181,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     D3DXVECTOR3 At( 0.0f, 0.0f, 0.0f );
     g_Camera.SetViewParams( &Eye, &At );
 
-	metaballs.init(pd3dDevice, 800, 600, 128);
+	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, 256);
 	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount());
 
     return S_OK;
@@ -210,7 +210,7 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
     g_HUD.SetSize( 170, 170 );
     g_SampleUI.SetLocation( pBufferSurfaceDesc->Width - 170, pBufferSurfaceDesc->Height - 300 );
     g_SampleUI.SetSize( 170, 300 );
-
+	metaballs.onFrameResize(pBufferSurfaceDesc->Width, pBufferSurfaceDesc->Height);
     return S_OK;
 }
 

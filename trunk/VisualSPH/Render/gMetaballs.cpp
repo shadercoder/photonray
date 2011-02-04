@@ -39,7 +39,7 @@ float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 	if (len > THRESHOLD * THRESHOLD) {
 		return 0.0f;
 	}
-	return 1.0f / (len + 1e-5);
+	return 1.0f / (len + 1e-5f);
 }
 
 
@@ -95,11 +95,27 @@ void gMetaballs::init(ID3D10Device* device, int _screenWidth, int _screenHeight,
 	volumeResolution = _volumeResolution;	
 	field = DenseField(volumeResolution, volumeResolution, volumeResolution);
 	onCreate();
-	createTexture();
+	createTexture2D();
+	createTexture3D();
 	quad.init(md3dDevice);
 }
 
-HRESULT gMetaballs::createTexture()
+void gMetaballs::onFrameResize(int width, int height)
+{
+	screenWidth = width;
+	screenHeight = height;
+	SAFE_RELEASE(pFrontS);
+	SAFE_RELEASE(pFrontSRV);
+	SAFE_RELEASE(pFrontSView);
+	SAFE_RELEASE(pBackS);
+	SAFE_RELEASE(pBackSRV);
+	SAFE_RELEASE(pBackSView);
+	SAFE_RELEASE(pDepthStencilBuffer);
+	SAFE_RELEASE(pDepthStencilView);
+	createTexture2D();
+}
+
+HRESULT gMetaballs::createTexture2D()
 {
 	HRESULT hr;
 	// Create the render target texture
@@ -147,7 +163,12 @@ HRESULT gMetaballs::createTexture()
 
 	hr = md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &pDepthStencilBuffer);
 	hr = md3dDevice->CreateDepthStencilView(pDepthStencilBuffer, 0, &pDepthStencilView);
+	return hr;
+}
 
+HRESULT gMetaballs::createTexture3D()
+{
+	HRESULT hr = S_OK;
 	D3D10_TEXTURE3D_DESC volume_desc;
 	ZeroMemory(&volume_desc, sizeof(volume_desc));
 	volume_desc.Width = volumeResolution;
@@ -176,7 +197,6 @@ HRESULT gMetaballs::createTexture()
 
 	HR(md3dDevice->CreateTexture3D(&volume_desc, &densityField, &pVolume));
 	HR(md3dDevice->CreateShaderResourceView(pVolume, &densityFieldSRVdesc, &volumeSRV));
-
 	return hr;
 }
 

@@ -50,7 +50,8 @@ private:
 	DenseField field;
 
 	HRESULT onCreate();
-	HRESULT createTexture();
+	HRESULT createTexture2D();
+	HRESULT createTexture3D();
 
 	void drawBox();
 	static float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
@@ -59,6 +60,7 @@ public:
 	void updateVolume(const Particle* particles, int numParticles);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj);
+	void onFrameResize(int width, int height);
 	void init(ID3D10Device* device, int _screenWidth, int _screenHeight, int _volumeResolution);
 	gMetaballs(void);
 	~gMetaballs(void);
