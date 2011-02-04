@@ -181,7 +181,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     D3DXVECTOR3 At( 0.0f, 0.0f, 0.0f );
     g_Camera.SetViewParams( &Eye, &At );
 
-	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, 256);
+	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
 	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount());
 
     return S_OK;

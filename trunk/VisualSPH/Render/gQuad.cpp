@@ -16,9 +16,6 @@ gQuad::~gQuad(void)
 	SAFE_RELEASE(pRasterizerState);
 	SAFE_RELEASE(pDepthStencilState);
 	SAFE_RELEASE(mCB);
-	//SAFE_RELEASE(frontSRV);
-	//SAFE_RELEASE(backSRV);
-	//SAFE_RELEASE(volume);
 }
 
 HRESULT gQuad::init(ID3D10Device* device)
@@ -126,6 +123,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 	// Create input layout
 	HR(md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout ));
 	SAFE_RELEASE(pBlob);
+	SAFE_RELEASE(err);
 	// Compile the pixel shader from file
 	HR(D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL ));
 	if (FAILED(hr))
@@ -137,7 +135,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 	// Create the pixel shader
 	HR(md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pPixelShader ));
 	SAFE_RELEASE(pBlob);
-
+	SAFE_RELEASE(err);
 	// Create sampler state
 	D3D10_SAMPLER_DESC samplerDesc;
 	samplerDesc.Filter = D3D10_FILTER_ANISOTROPIC;

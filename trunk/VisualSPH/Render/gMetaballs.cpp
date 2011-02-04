@@ -6,7 +6,6 @@ gMetaballs::gMetaballs(void)
 {
 }
 
-
 gMetaballs::~gMetaballs(void)
 {
 	SAFE_RELEASE(pVertexShader);
@@ -15,7 +14,8 @@ gMetaballs::~gMetaballs(void)
 
 	SAFE_RELEASE(mCB);
 	SAFE_RELEASE(pBlendState);
-	SAFE_RELEASE(pRasterizerState);
+	SAFE_RELEASE(pRasterizerStateFront);
+	SAFE_RELEASE(pRasterizerStateBack);
 	SAFE_RELEASE(pDepthStencilState);	
 	SAFE_RELEASE(pFrontS);
 	SAFE_RELEASE(pFrontSView);
@@ -28,8 +28,6 @@ gMetaballs::~gMetaballs(void)
 	SAFE_RELEASE(pRenderTargetView);
 	SAFE_RELEASE(pDepthStencilBuffer);
 	SAFE_RELEASE(pDepthStencilView);
-	SAFE_RELEASE(pVBQuad);
-	SAFE_RELEASE(pIBQuad);
 }
 
 float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
@@ -69,8 +67,6 @@ void gMetaballs::updateVolume(const Particle* particles, int numParticles)
 	}
 	D3D10_MAPPED_TEXTURE3D pMT;
 	HR(pVolume->Map(D3D10CalcSubresource(0, 0, 1), D3D10_MAP_WRITE_DISCARD, 0, &pMT));	
-	D3D10_TEXTURE3D_DESC desc;
-	pVolume->GetDesc(&desc);	
 	int strideI = pMT.DepthPitch / sizeof(float);
 	int strideJ = pMT.RowPitch / sizeof(float);
 	float* textureData = (float*) pMT.pData;	
@@ -111,7 +107,7 @@ void gMetaballs::onFrameResize(int width, int height)
 	SAFE_RELEASE(pBackSRV);
 	SAFE_RELEASE(pBackSView);
 	SAFE_RELEASE(pDepthStencilBuffer);
-	SAFE_RELEASE(pDepthStencilView);
+	SAFE_RELEASE(pDepthStencilView);	
 	createTexture2D();
 }
 
@@ -176,7 +172,7 @@ HRESULT gMetaballs::createTexture3D()
 	volume_desc.Depth = volumeResolution;	
 	volume_desc.MipLevels = 1;
 	volume_desc.Format = DXGI_FORMAT_R32_FLOAT;
-	volume_desc.Usage = D3D10_USAGE_DYNAMIC; // default?
+	volume_desc.Usage = D3D10_USAGE_DYNAMIC; 
 	volume_desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
 	volume_desc.MiscFlags = 0;
 	volume_desc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
@@ -295,7 +291,7 @@ HRESULT gMetaballs::onCreate()
 	// Create a rasterizer state to disable culling
 	D3D10_RASTERIZER_DESC RSDesc;
 	RSDesc.FillMode = D3D10_FILL_SOLID;
-	RSDesc.CullMode = D3D10_CULL_NONE;
+	RSDesc.CullMode = D3D10_CULL_FRONT;
 	RSDesc.FrontCounterClockwise = TRUE;
 	RSDesc.DepthBias = 0;
 	RSDesc.DepthBiasClamp = 0;
@@ -303,7 +299,9 @@ HRESULT gMetaballs::onCreate()
 	RSDesc.ScissorEnable = FALSE;
 	RSDesc.MultisampleEnable = TRUE;
 	RSDesc.AntialiasedLineEnable = FALSE;
-	hr = md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerState );
+	hr = md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerStateFront );
+	RSDesc.CullMode = D3D10_CULL_BACK;
+	hr = md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerStateBack );
 
 	// Create a depth stencil state to enable less-equal depth testing
 	D3D10_DEPTH_STENCIL_DESC DSDesc;
@@ -313,7 +311,7 @@ HRESULT gMetaballs::onCreate()
 	DSDesc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ALL;
 	hr = md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState );
 
-
+	ID3D10Blob*	pBlob;
 	// Compile the vertex shader from the file
 	ID3D10Blob* err;
 	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "SimpleVS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
@@ -330,6 +328,7 @@ HRESULT gMetaballs::onCreate()
 	hr = md3dDevice->CreateInputLayout( layout, 3, pBlob->GetBufferPointer(),
 		pBlob->GetBufferSize(), &pVertexLayout );
 	SAFE_RELEASE(pBlob);
+	SAFE_RELEASE(err);
 
 	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "SimplePS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 	if (FAILED(hr))
@@ -342,6 +341,7 @@ HRESULT gMetaballs::onCreate()
 	hr = md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(),
 		pBlob->GetBufferSize(), &pPixelShader );
 	SAFE_RELEASE(pBlob);
+	SAFE_RELEASE(err);
 	return hr;
 }
 
@@ -375,20 +375,7 @@ void gMetaballs::drawBox()
 	md3dDevice->ClearDepthStencilView(pDepthStencilView, D3D10_CLEAR_DEPTH|D3D10_CLEAR_STENCIL, 1.0f, 0);
 	md3dDevice->ClearRenderTargetView(pFrontSView, BLACK);
 
-	D3D10_RASTERIZER_DESC RSDesc;
-	ZeroMemory( &RSDesc, sizeof(RSDesc) );
-	RSDesc.FillMode = D3D10_FILL_SOLID;
-	RSDesc.CullMode = D3D10_CULL_FRONT;
-	RSDesc.FrontCounterClockwise = FALSE;
-	RSDesc.DepthBias = 0;
-	RSDesc.DepthBiasClamp = 0;
-	RSDesc.SlopeScaledDepthBias = 0;
-	RSDesc.ScissorEnable = FALSE;
-	RSDesc.MultisampleEnable = FALSE;
-	RSDesc.AntialiasedLineEnable = FALSE;
-	md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerState );
-
-	md3dDevice->RSSetState(pRasterizerState);
+	md3dDevice->RSSetState(pRasterizerStateFront);
 
 	md3dDevice->DrawIndexed( mNumIndices, 0, 0 );
 
@@ -398,18 +385,14 @@ void gMetaballs::drawBox()
 	md3dDevice->ClearDepthStencilView(pDepthStencilView, D3D10_CLEAR_DEPTH|D3D10_CLEAR_STENCIL, 1.0f, 0);
 	md3dDevice->ClearRenderTargetView(pBackSView, BLACK);
 
-	RSDesc.CullMode = D3D10_CULL_BACK;
-
-	md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerState );
-
-	md3dDevice->RSSetState(pRasterizerState);
+	md3dDevice->RSSetState(pRasterizerStateBack);
 
 	md3dDevice->DrawIndexed( mNumIndices, 0, 0 );
 
 	md3dDevice->OMSetRenderTargets(1, &pmBackBufferView, pmDepthStencilView);
 
-	ReleaseCOM(pmBackBufferView);	
-	ReleaseCOM(pmDepthStencilView);
+	SAFE_RELEASE(pmBackBufferView);	
+	SAFE_RELEASE(pmDepthStencilView);
 }
 
 void gMetaballs::draw()

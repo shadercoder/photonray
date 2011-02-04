@@ -63,7 +63,8 @@ PS_IN QuadVS(VS_IN input)
 	PS_IN output = (PS_IN) 0;
 	output.pos = float4(input.pos, 0);
 	output.textcoord = input.textcoord;
-	output.col = input.col;
+	//output.col = input.col;
+	output.col = float4(0.0f, 0.125f, 0.3f, 1.0f);
 	output.pos = mul(float4(input.pos, 1), mWorldViewProj);
 	return output;
 }
@@ -71,8 +72,8 @@ PS_IN QuadVS(VS_IN input)
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	int Iterations = 20;
-	float StepSize = 1.0 / Iterations;
+	const int Iterations = 256;
+	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
     float3 back = backS.Sample(mysampler, texC).xyz;
@@ -84,7 +85,8 @@ float4 RayCastPS(PS_IN input): SV_Target
 	}
     
 	float4 pos = float4(front, 0); 
-    float4 dst = float4(0, 0.08, 0.2, 0);
+    float4 dst = input.col + float4(0, 0.02, 0.1, 0);
+	dst.a = 0;
     float4 src = float4(0, 0, 0, 0);
 	
 	float4 neighbors[6] = {

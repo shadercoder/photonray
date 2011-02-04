@@ -21,9 +21,9 @@ private:
 	
 	ID3D10Buffer*				mCB;
 	ID3D10BlendState*			pBlendState;
-	ID3D10RasterizerState*		pRasterizerState;
+	ID3D10RasterizerState*		pRasterizerStateBack;
+	ID3D10RasterizerState*		pRasterizerStateFront;
 	ID3D10DepthStencilState*	pDepthStencilState;
-	ID3D10Blob*					pBlob;
 
 	ID3D10Texture2D*			pFrontS;
 	ID3D10RenderTargetView*		pFrontSView;
@@ -38,17 +38,13 @@ private:
 	ID3D10Texture2D*			pDepthStencilBuffer;
 	ID3D10DepthStencilView*		pDepthStencilView;
 
-	ID3D10Buffer*				pVBQuad;
-	ID3D10Buffer*				pIBQuad;
-
-
 	UINT screenWidth;
 	UINT screenHeight;
 	UINT volumeResolution;
 
 	gQuad quad;
 	DenseField field;
-
+	
 	HRESULT onCreate();
 	HRESULT createTexture2D();
 	HRESULT createTexture3D();

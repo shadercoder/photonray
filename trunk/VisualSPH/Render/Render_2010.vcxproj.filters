@@ -78,6 +78,7 @@
     <None Include="directx.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="settings_readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />
