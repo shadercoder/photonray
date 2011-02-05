@@ -12,7 +12,7 @@ void ParticlesContainer::init(string& _pathToFolder, string& _filePattern, int _
 	getFrame(first);
 }
 
-ParticlesContainer::ParticlesContainer(void)
+ParticlesContainer::ParticlesContainer(void): DIMENSIONS(8)
 {
 }
 
@@ -25,12 +25,13 @@ void ParticlesContainer::open(int curr)
 {
 	char fileName[50];
 	sprintf_s(fileName, 50, "%s%05d%s", pathToFolder, curr, filePattern);
-	
-	//fopen_s(&pIn, fileName, "r");
-	//if (NULL == pIn)
-	//{
-	//	return;
-	//}
+	errno_t err;
+	err = fopen_s(&pIn, fileName, "r");
+	if (err != 0)
+	{
+		//TODO: add exception
+		return;
+	}
 }
 void ParticlesContainer::close()
 {
@@ -38,42 +39,25 @@ void ParticlesContainer::close()
 }
 Particle* ParticlesContainer::getFrame(int num)
 {
-//	open(num);
+	open(num);
 	// Пропустить первую строчку
-	//char junk[128];
-	char fileName[64] = {};
-	sprintf_s(fileName, 64, "%s%05d%s", pathToFolder, curr, filePattern);
-	ifstream fin(fileName);
-	if (fin.fail())
-	{
-		return NULL;
-	}
-
-	string junk;
+	char junk[128];
 	for(int i = 0; i < DIMENSIONS; ++i)
 	{
-//		fscanf_s(pIn, "%s", junk);
-		fin >> junk;
+		fscanf_s(pIn, "%s", junk, _countof(junk));
 	}
 	// все в буффер 
 	int sz = 0;
-	//for(;fscanf(pIn, "%f %f %f %f %f %f %f %f", &data[sz][0], &data[sz][1], &data[sz][2], &data[sz][3], &data[sz][4], &data[sz][5], &data[sz][6], &data[sz][7]) == DIMENSIONS; ++sz);
-	//particleCount = sz;
-	float x,y,z, tmp;
-	//for(;fscanf_s(pIn, "%f %f %f %f %f %f %f %f", &x, &y, &z, &tmp, &tmp, &tmp, &tmp, &tmp) == DIMENSIONS; )
-	while(!fin.eof())
+	float data[8] = {};
+	Particle current;
+	float scale = 64.0f;
+	for(;fscanf_s(pIn, "%f %f %f %f %f %f %f %f", &data[0], &data[1], &data[2], &data[3], &data[4], &data[5], &data[6], &data[7]) == DIMENSIONS; ++sz)
 	{
-		fin >> x >> y >> z >> tmp >> tmp >> tmp >> tmp >> tmp;
-		particleBuff[sz++] = Particle(x * 60 , y * 60, (z - 1.) * 60, 0,0,0,0,0);
+		current = Particle(data[0] * scale, data[1] * scale, (data[2] - 1.0f) * scale, data[3], data[4], data[5], data[6], data[7]);
+		particleBuff.push_back(current);
 	}
 	particleCount = sz;
-
-	//for (int i = 0; i < particleCount; ++i)
-	//{
-	//	particleBuff[i] = Particle(data[i][0], data[i][1], data[i][2], data[i][3], data[i][4], data[i][5], data[i][6], data[i][7]);
-	//}
-	//close();
-	fin.close();
+	close();
 	return (&particleBuff[0]);
 }
 
@@ -95,9 +79,11 @@ int ParticlesContainer::getNumCurrFrame()
 	return curr;
 }
 
-const Particle* ParticlesContainer::getParticles() const
+//const Particle* ParticlesContainer::getParticles() const
+const vector<Particle>& ParticlesContainer::getParticles() const
 {
-	return (&particleBuff[0]);
+	//return (&particleBuff[0]);
+	return particleBuff;
 }
 
 int ParticlesContainer::getParticlesCount() const

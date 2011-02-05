@@ -1,10 +1,11 @@
 #pragma once
+#include <vector>
 #include "GObject.h"
 #include "gQuad.h"
 #include "DenseField.h"
 #include "Particle.h"
 #define THRESHOLD 5.0f
-
+using namespace std;
 struct VS_CONSTANT_BUFFER
 {
     D3DXMATRIX mWorldViewProj;      //mWorldViewProj will probably be global to all shaders in a project.
@@ -53,7 +54,8 @@ private:
 	static float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
 public:
 	UINT mNumMetaballs;
-	void updateVolume(const Particle* particles, int numParticles);
+	//void updateVolume(const Particle* particles, int numParticles);
+	void updateVolume(const vector<Particle>& particles, int numParticles);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj);
 	void onFrameResize(int width, int height);

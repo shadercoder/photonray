@@ -72,7 +72,7 @@ PS_IN QuadVS(VS_IN input)
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 256;
+	const int Iterations = 64;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
@@ -107,7 +107,7 @@ float4 RayCastPS(PS_IN input): SV_Target
 		[unroll]
 		for (int j = 0; j < 6; ++j)
 		{
-			value += 0.12f * volume.Sample(mysampler, pos + neighbors[j]).r;
+			value += 0.12f * volume.Sample(mysampler, pos + neighbors[j] * StepSize).r;
 		}
         src = (float4) value;
         //src.a *= 0.5f; //reduce the alpha to have a more transparent result          

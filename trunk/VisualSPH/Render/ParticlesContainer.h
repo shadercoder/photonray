@@ -1,15 +1,13 @@
 #pragma once
-#include <cstdio>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <fstream>
+#include <vector>
 #include "Particle.h"
 
 using namespace std;
 
-const int MAX_PARTICLES = 1 << 14;
-const int DIMENSIONS = 8;
-
-// Input Stream Particle System 
 class ParticlesContainer 
 {
 public:
@@ -20,12 +18,15 @@ public:
 	Particle* getNextFrame();
 	int getNumCurrFrame();
 
-	const Particle* getParticles() const;
+	//const Particle* getParticles() const;
+	const vector<Particle>& getParticles() const;
 	int getParticlesCount() const;
 
 private:
 //	float data[MAX_PARTICLES][DIMENSIONS];
-	Particle particleBuff[MAX_PARTICLES];
+	//Particle particleBuff[MAX_PARTICLES];	
+	const int DIMENSIONS;
+	vector<Particle> particleBuff;
 	
 	int particleCount;
 	int curr, first, last, step;
