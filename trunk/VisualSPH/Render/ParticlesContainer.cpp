@@ -40,6 +40,7 @@ void ParticlesContainer::close()
 Particle* ParticlesContainer::getFrame(int num)
 {
 	open(num);
+	particleBuff.clear();
 	// Пропустить первую строчку
 	char junk[128];
 	for(int i = 0; i < DIMENSIONS; ++i)
