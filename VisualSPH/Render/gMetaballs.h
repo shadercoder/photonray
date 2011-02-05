@@ -4,7 +4,7 @@
 #include "gQuad.h"
 #include "DenseField.h"
 #include "Particle.h"
-#define THRESHOLD 5.0f
+
 using namespace std;
 struct VS_CONSTANT_BUFFER
 {
@@ -46,17 +46,17 @@ private:
 	gQuad quad;
 	DenseField field;
 	float scale;
-	
+	float metaballsSize;
+
 	HRESULT onCreate();
 	HRESULT createTexture2D();
 	HRESULT createTexture3D();
 
 	void drawBox();
-	static float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
+	float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
 public:
 	UINT mNumMetaballs;
-	//void updateVolume(const Particle* particles, int numParticles);
-	void updateVolume(const vector<Particle>& particles, int numParticles, float scale);
+	void updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj);
 	void onFrameResize(int width, int height);

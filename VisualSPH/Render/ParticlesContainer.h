@@ -18,14 +18,11 @@ public:
 	Particle* getNextFrame();
 	int getNumCurrFrame();
 
-	//const Particle* getParticles() const;
 	const vector<Particle>& getParticles() const;
 	int getParticlesCount() const;
 
 private:
-//	float data[MAX_PARTICLES][DIMENSIONS];
-	//Particle particleBuff[MAX_PARTICLES];	
-	const int DIMENSIONS;
+	const int DIMENSIONS; // length of input file line (in words)
 	vector<Particle> particleBuff;
 	
 	int particleCount;

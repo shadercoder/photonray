@@ -32,6 +32,7 @@ CDXUTTextHelper*                    g_pTxtHelper = NULL;
 
 D3DXMATRIX                          g_World;
 float                               g_fScale = 0.0f;
+float								g_fMetaballsSize = 0.0f;
 bool                                g_bSpinning = false;
 
 gMetaballs							metaballs;
@@ -48,6 +49,8 @@ Settings							appSettings;
 #define IDC_PUFF_SCALE          5
 #define IDC_PUFF_STATIC         6
 #define IDC_TOGGLEWARP          7
+#define IDC_META_STATIC			8
+#define IDC_META_SCALE			9
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -119,11 +122,11 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 void InitApp()
 {
     g_fScale = 1.0f;
+	g_fMetaballsSize = 1.0f;
     g_bSpinning = false;
 
 	appSettings.loadFromFile("settings.txt");
 	particlesContainer.init(appSettings.pathToFolder, appSettings.patternString, appSettings.firstFrame, appSettings.lastFrame, appSettings.stepFrame);	
-
 
     g_D3DSettingsDlg.Init( &g_DialogResourceManager );
     g_HUD.Init( &g_DialogResourceManager );
@@ -139,9 +142,14 @@ void InitApp()
 
     WCHAR sz[100];
     iY += 24;
-    swprintf_s( sz, 100, L"Scale: %0.2f", g_fScale );
+    swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
     g_SampleUI.AddStatic( IDC_PUFF_STATIC, sz, 35, iY += 24, 125, 22 );
     g_SampleUI.AddSlider( IDC_PUFF_SCALE, 50, iY += 24, 100, 22, 0, appSettings.volumeResolution * 100, ( int )( g_fScale * 100.0f ) );
+
+	iY += 24;
+	swprintf_s( sz, 100, L"Metaballs size: %0.2f", g_fMetaballsSize );
+	g_SampleUI.AddStatic( IDC_META_STATIC, sz, 35, iY += 24, 125, 22 );
+	g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 8 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
 
     iY += 24;
     g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Toggle Spinning", 35, iY += 24, 125, 22, g_bSpinning );
@@ -184,7 +192,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     g_Camera.SetViewParams( &Eye, &At );
 
 	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
-	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale);
+	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 
     return S_OK;
 }
@@ -315,9 +323,11 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
         D3DXMatrixRotationY( &g_World, 60.0f * DEG2RAD((float)fTime) );
     else
         D3DXMatrixRotationY( &g_World, DEG2RAD( 180.0f ) );
+	D3DXMATRIX mTranslate;
+	D3DXMatrixTranslation(&mTranslate, -0.5f, -0.5f, -0.5f);
     D3DXMATRIX mRot;
     D3DXMatrixRotationX( &mRot, DEG2RAD( -90.0f ) );
-    g_World = mRot * g_World;
+    g_World = mTranslate* mRot * g_World;
 	metaballs.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()));
 }
 
@@ -372,7 +382,7 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 			case 'N':
 				{
 					particlesContainer.getNextFrame();
-					metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale);
+					metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 				}
 
         }
@@ -405,11 +415,20 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
         {
             WCHAR sz[100];
             g_fScale = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
-            swprintf_s( sz, 100, L"Scale: %0.2f", g_fScale );
+            swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
             g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
-			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale);
+			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
             break;
         }
+		case IDC_META_SCALE:
+		{
+            WCHAR sz[100];
+			g_fMetaballsSize = ( float )( g_SampleUI.GetSlider( IDC_META_SCALE )->GetValue() * 0.01f );
+			swprintf_s( sz, 100, L"Metaballs scale: %0.2f", g_fMetaballsSize );
+			g_SampleUI.GetStatic( IDC_META_STATIC )->SetText( sz );
+			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+            break;
+		}
     }
 }
 
