@@ -34,16 +34,16 @@ float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 {	
 	D3DXVECTOR3 tmp = centerBall - cell;	
 	float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
-	if (len > THRESHOLD * THRESHOLD) {
+	if (len > metaballsSize * metaballsSize) {
 		return 0.0f;
 	}
 	return 1.0f / (len + 1e-5f);
 }
 
-
-void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale)
+void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
 	this->scale = scale;
+	this->metaballsSize = metaballsSize;
 	field.clear();
 	for (int i = 0; i < numParticles; ++i)
 	{
@@ -51,11 +51,11 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 		int y = particles[i].position.y * scale;
 		int z = particles[i].position.z * scale;
 		float val = 0.0f;
-		for (int dx = (int) -THRESHOLD; dx <= (int) THRESHOLD; ++dx)
+		for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
 		{
-			for (int dy = (int) -THRESHOLD; dy <= (int) THRESHOLD; ++dy)
+			for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
 			{
-				for (int dz = (int) -THRESHOLD; dz <= (int) THRESHOLD; ++dz)
+				for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
 				{
 					D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
 					if(field.isInside(x + dx, y + dy, z + dz))

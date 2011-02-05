@@ -41,13 +41,12 @@ Particle* ParticlesContainer::getFrame(int num)
 {
 	open(num);
 	particleBuff.clear();
-	// Пропустить первую строчку
+	// skip header
 	char junk[128];
 	for(int i = 0; i < DIMENSIONS; ++i)
 	{
 		fscanf_s(pIn, "%s", junk, _countof(junk));
 	}
-	// все в буффер 
 	int sz = 0;
 	float data[8] = {};
 	Particle current;	
@@ -79,10 +78,8 @@ int ParticlesContainer::getNumCurrFrame()
 	return curr;
 }
 
-//const Particle* ParticlesContainer::getParticles() const
 const vector<Particle>& ParticlesContainer::getParticles() const
 {
-	//return (&particleBuff[0]);
 	return particleBuff;
 }
 
