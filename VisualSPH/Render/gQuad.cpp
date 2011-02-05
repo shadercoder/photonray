@@ -164,6 +164,7 @@ void gQuad::draw()
 	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 	md3dDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	md3dDevice->VSSetConstantBuffers( 0, 1, &mCB);
+	md3dDevice->PSSetConstantBuffers( 0, 1, &mCB);
 	md3dDevice->OMSetBlendState(pBlendState, 0, 0xffffffff);
 	md3dDevice->OMSetDepthStencilState(pDepthStencilState, 0);	
 	md3dDevice->RSSetState(pRasterizerState);
@@ -187,6 +188,8 @@ void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D10ShaderResourceView* fr
 	CONSTANT_BUFFER* pConstData;
 	mCB->Map( D3D10_MAP_WRITE_DISCARD, NULL, ( void** )&pConstData );
 	pConstData->mWorldViewProj = mWorldViewProj;
+	pConstData->vLightPos = D3DXVECTOR4(-1, -1, -1, 0);
+	pConstData->vMaterial = D3DXVECTOR4(112. / 255., 147. / 255., 219. / 255., 0.8);
 	mCB->Unmap();
 	this->frontSRV = frontSRV;
 	this->backSRV = backSRV;

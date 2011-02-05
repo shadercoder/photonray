@@ -5,6 +5,8 @@
 struct CONSTANT_BUFFER
 {
 	D3DXMATRIX mWorldViewProj;   
+	D3DXVECTOR4 vLightPos;
+	D3DXVECTOR4 vMaterial;
 };
 
 class gQuad :
