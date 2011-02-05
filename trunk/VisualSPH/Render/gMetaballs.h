@@ -45,6 +45,7 @@ private:
 
 	gQuad quad;
 	DenseField field;
+	float scale;
 	
 	HRESULT onCreate();
 	HRESULT createTexture2D();
@@ -55,7 +56,7 @@ private:
 public:
 	UINT mNumMetaballs;
 	//void updateVolume(const Particle* particles, int numParticles);
-	void updateVolume(const vector<Particle>& particles, int numParticles);
+	void updateVolume(const vector<Particle>& particles, int numParticles, float scale);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj);
 	void onFrameResize(int width, int height);
