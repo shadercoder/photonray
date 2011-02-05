@@ -75,6 +75,7 @@ PS_IN QuadVS(VS_IN input)
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 64;
+	const float Threshold = 0.4;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
@@ -91,26 +92,36 @@ float4 RayCastPS(PS_IN input): SV_Target
 	float4 src = float4(0, 0, 0, 0);
 	
 	const float4 neighbors[6] = {
-		float4(0, 0, -1, 0),
-		float4(0, 0, 1, 0),
 		float4(0, -1, 0, 0),
 		float4(0, 1, 0, 0),
 		float4(-1, 0, 0, 0),		
 		float4(1, 0, 0, 0),			
+		float4(0, 0, -1, 0),
+		float4(0, 0, 1, 0),
 		};
     
-	float value = 0;
-	 
+	float value = 0;	 
     float3 Step = dir * StepSize;		
+	float4 halfStepBack = float4(-Step * 0.5, 0);
+	float3 light = normalize(vLightPos);
+	//float3 halfStepForward = Step * 0.5;
     for(int i = 0; i < Iterations; i++)
     {		
         value = volume.Sample(mysampler, pos).r;
-		if (value > 0.5)
+		if (value > Threshold)
 		{
+			pos += halfStepBack;
+			value = volume.Sample(mysampler, pos).r;
+			float k;
+			if (value > Threshold) k = 0.5;
+			else k = -0.5;
+			pos += halfStepBack * k;
+			value = volume.Sample(mysampler, pos).r;			
 			[unroll]
 			for (int j = 0; j < 6; ++j)
 			{
-				value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * StepSize).r;
+				//value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * StepSize).r;
+				value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * Step).r;
 			}
 			//src = (float4) value;
 			//src.a = 1.0;
@@ -118,7 +129,6 @@ float4 RayCastPS(PS_IN input): SV_Target
 	        float N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
 	        float U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
 	        float3 normal = normalize(float3(E - value, N - value, U - value));
-			float3 light = normalize(vLightPos);
 			float3 color = saturate(max(0, dot(normal, light)) * vDiffuseMaterial);
 			src = float4(color, 1);
 			//src.a *= 0.5f; //reduce the alpha to have a more transparent result          
