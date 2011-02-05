@@ -22,12 +22,18 @@ public:
 	
 	bool isInside(int i, int j, int k)
 	{
-		int res = arrayIndexFromCoordinate(i, j, k);
+		if (i >= 0 && j >= 0 && k >= 0 && i < xSize && j < ySize && k < zSize)
+		{
+			return true;
+		}
+		return false;
+		/*int res = arrayIndexFromCoordinate(i, j, k);
 		if (res >= 0 && res < size)
 		{
 			return true;
 		}
 		return false;
+		*/
 	}
 
 	int getDataSize() const

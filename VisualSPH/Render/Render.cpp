@@ -118,8 +118,12 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-    g_fScale = 0.0f;
+    g_fScale = 1.0f;
     g_bSpinning = false;
+
+	appSettings.loadFromFile("settings.txt");
+	particlesContainer.init(appSettings.pathToFolder, appSettings.patternString, appSettings.firstFrame, appSettings.lastFrame, appSettings.stepFrame);	
+
 
     g_D3DSettingsDlg.Init( &g_DialogResourceManager );
     g_HUD.Init( &g_DialogResourceManager );
@@ -137,13 +141,11 @@ void InitApp()
     iY += 24;
     swprintf_s( sz, 100, L"Scale: %0.2f", g_fScale );
     g_SampleUI.AddStatic( IDC_PUFF_STATIC, sz, 35, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_PUFF_SCALE, 50, iY += 24, 100, 22, 0, 2000, ( int )( g_fScale * 100.0f ) );
+    g_SampleUI.AddSlider( IDC_PUFF_SCALE, 50, iY += 24, 100, 22, 0, appSettings.volumeResolution * 100, ( int )( g_fScale * 100.0f ) );
 
     iY += 24;
     g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Toggle Spinning", 35, iY += 24, 125, 22, g_bSpinning );
 
-	appSettings.loadFromFile("settings.txt");
-	particlesContainer.init(appSettings.pathToFolder, appSettings.patternString, appSettings.firstFrame, appSettings.lastFrame, appSettings.stepFrame);	
 }
 
 
@@ -182,7 +184,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     g_Camera.SetViewParams( &Eye, &At );
 
 	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
-	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount());
+	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale);
 
     return S_OK;
 }
@@ -370,7 +372,7 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 			case 'N':
 				{
 					particlesContainer.getNextFrame();
-					metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount());
+					metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale);
 				}
 
         }
@@ -405,6 +407,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
             g_fScale = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
             swprintf_s( sz, 100, L"Scale: %0.2f", g_fScale );
             g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
+			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale);
             break;
         }
     }

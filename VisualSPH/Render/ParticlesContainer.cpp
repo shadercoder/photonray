@@ -50,11 +50,10 @@ Particle* ParticlesContainer::getFrame(int num)
 	// βρε β ασττεπ 
 	int sz = 0;
 	float data[8] = {};
-	Particle current;
-	float scale = 64.0f;
+	Particle current;	
 	for(;fscanf_s(pIn, "%f %f %f %f %f %f %f %f", &data[0], &data[1], &data[2], &data[3], &data[4], &data[5], &data[6], &data[7]) == DIMENSIONS; ++sz)
 	{
-		current = Particle(data[0] * scale, data[1] * scale, (data[2] - 1.0f) * scale, data[3], data[4], data[5], data[6], data[7]);
+		current = Particle(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
 		particleBuff.push_back(current);
 	}
 	particleCount = sz;
