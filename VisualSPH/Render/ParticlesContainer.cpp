@@ -9,6 +9,7 @@ void ParticlesContainer::init(string& _pathToFolder, string& _filePattern, int _
 	last = _last;
 	step = _step;
 	curr = first;
+	particleBuff.resize(1 << 12);
 	getFrame(first);
 }
 
