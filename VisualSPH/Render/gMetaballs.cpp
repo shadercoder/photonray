@@ -41,7 +41,7 @@ float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 }
 
 
-void gMetaballs::updateVolume(const Particle* particles, int numParticles)
+void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles)
 {
 	field.clear();
 	for (int i = 0; i < numParticles; ++i)
