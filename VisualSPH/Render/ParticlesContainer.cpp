@@ -13,7 +13,7 @@ void ParticlesContainer::init(string& _pathToFolder, string& _filePattern, int _
 	getFrame(first);
 }
 
-ParticlesContainer::ParticlesContainer(void): DIMENSIONS(8)
+ParticlesContainer::ParticlesContainer(void): DIMENSIONS(10)
 {
 }
 
@@ -46,16 +46,26 @@ Particle* ParticlesContainer::getFrame(int num)
 	particleBuff.clear();
 	// skip header
 	char junk[128];
+	for(int i = 0; i < 6; ++i)
+	{
+		fscanf_s(pIn, "%s", junk, _countof(junk));
+	}
+	float xmin, xmax, ymin, ymax, zmin, zmax;
+	fscanf_s(pIn, "%f %f %f %f %f %f", &xmin, &xmax, &ymin, &ymax, &zmin, &zmax);
 	for(int i = 0; i < DIMENSIONS; ++i)
 	{
 		fscanf_s(pIn, "%s", junk, _countof(junk));
 	}
 	int sz = 0;
-	float data[8] = {};
+	float data[10] = {};
 	Particle current;	
-	for(;fscanf_s(pIn, "%f %f %f %f %f %f %f %f", &data[0], &data[1], &data[2], &data[3], &data[4], &data[5], &data[6], &data[7]) == DIMENSIONS; ++sz)
+	float x, y, z;
+	for(;fscanf_s(pIn, "%f %f %f %f %f %f %f %f %f %f", &data[0], &data[1], &data[2], &data[3], &data[4], &data[5], &data[6], &data[7], &data[8], &data[9]) == DIMENSIONS; ++sz)
 	{
-		current = Particle(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+		x = data[0] - xmin;
+		y = data[1] - ymin;
+		z = data[2] - zmin;
+		current = Particle(x, y, z, data[3], data[4], data[5], data[6], data[7]);
 		particleBuff.push_back(current);
 	}
 	particleCount = sz;
