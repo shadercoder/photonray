@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "d3dUtil.h"
 #include "Particle.h"
 
 using namespace std;
@@ -28,7 +29,7 @@ private:
 	int particleCount;
 	int curr, first, last, step;
 	FILE* pIn;
-
+	D3DXVECTOR3 volumeSize;
 	void open(int cur);
 	void close();
 	
