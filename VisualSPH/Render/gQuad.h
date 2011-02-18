@@ -5,7 +5,8 @@
 struct CONSTANT_BUFFER
 {
 	D3DXMATRIX mWorldViewProj;   
-	D3DXVECTOR4 vLightPos;
+	D3DXVECTOR4 vLightPos1;
+	D3DXVECTOR4 vLightPos2;
 	D3DXVECTOR4 vMaterial;
 };
 
@@ -26,10 +27,12 @@ private:
 	ID3D10ShaderResourceView*	frontSRV;
 	ID3D10ShaderResourceView*	backSRV;
 	ID3D10ShaderResourceView*	volume;
+	ID3D10ShaderResourceView*	pNoiseSRV;
 public:
 	gQuad(void);
 	~gQuad(void);
 	void setVolume(ID3D10ShaderResourceView* _vol);
+	void setNoise(ID3D10ShaderResourceView* _pNoiseSRV);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D10ShaderResourceView* frontSRV, ID3D10ShaderResourceView* backSRV);
 	HRESULT init(ID3D10Device* device);//, ID3D10ShaderResourceView* frontS, ID3D10ShaderResourceView* backS);

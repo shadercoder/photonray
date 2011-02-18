@@ -1,12 +1,14 @@
 Texture2D frontS;
 Texture2D backS;
 Texture3D volume;
+Texture2D noise;
 SamplerState mysampler;
 
 cbuffer everyFrame
 {
     row_major float4x4 mWorldViewProj;		
-	float4 vLightPos;
+	float4 vLightPos1;
+	float4 vLightPos2;
 	float4 vDiffuseMaterial;
 };
 
@@ -71,7 +73,6 @@ PS_IN QuadVS(VS_IN input)
 	return output;
 }
 
-
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 64;
@@ -85,34 +86,36 @@ float4 RayCastPS(PS_IN input): SV_Target
 	{
 		return input.col;
 	}
-    
-	float4 pos = float4(front, 0); 
+    	
     float4 dst = input.col + float4(0, 0.02, 0.1, 0);
 	dst.a = 0;
-	float4 src = float4(0, 0, 0, 0);
-	
-	const float4 neighbors[6] = {
-		float4(0, -1, 0, 0),
-		float4(0, 1, 0, 0),
-		float4(-1, 0, 0, 0),		
-		float4(1, 0, 0, 0),			
-		float4(0, 0, -1, 0),
-		float4(0, 0, 1, 0),
-		};
-    
+  
 	float value = 0;	 
     float3 Step = dir * StepSize;		
 	float4 halfStepBack = float4(-Step * 0.5, 0);
-	float3 light = normalize(vLightPos);
-	//float3 halfStepForward = Step * 0.5;
-    for(int i = 0; i < Iterations; i++)
+	float3 light1 = normalize(vLightPos1);	
+	float3 light2 = normalize(vLightPos2);	
+	float4 pos = float4(front - Step * noise.Sample(mysampler, float2(((int) (front.x * 1000)) % 32 / 32.0, ((int) (front.y * 1000)) % 32 / 32.0)).r, 0); 
+	//float4 pos = float4(front, 0);
+
+	const float4 neighbors[6] = {
+		float4(0, -1, 0, 0) * StepSize,
+		float4(0, 1, 0, 0) * StepSize,
+		float4(-1, 0, 0, 0) * StepSize,		
+		float4(1, 0, 0, 0) * StepSize,			
+		float4(0, 0, -1, 0) * StepSize,
+		float4(0, 0, 1, 0) * StepSize,
+		};
+	float E, N, U;
+	float k;
+	float3 normal, color;
+    for(int i = 0; i < Iterations; ++i)
     {		
         value = volume.Sample(mysampler, pos).r;
 		if (value > Threshold)
 		{
 			pos += halfStepBack;
-			value = volume.Sample(mysampler, pos).r;
-			float k;
+			value = volume.Sample(mysampler, pos).r;			
 			if (value > Threshold) k = 0.5;
 			else k = -0.5;
 			pos += halfStepBack * k;
@@ -121,26 +124,14 @@ float4 RayCastPS(PS_IN input): SV_Target
 			for (int j = 0; j < 6; ++j)
 			{
 				//value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * StepSize).r;
-				value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * Step).r;
+				value += 0.025f * volume.Sample(mysampler, pos + neighbors[j]).r;
 			}
-			//src = (float4) value;
-			//src.a = 1.0;
-			float E = volume.Sample(mysampler, pos + float4(StepSize, 0, 0, 0)).r;
-	        float N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
-	        float U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
-	        float3 normal = normalize(float3(E - value, N - value, U - value));
-			float3 color = saturate(max(0, dot(normal, light)) * vDiffuseMaterial);
-			src = float4(color, 1);
-			//src.a *= 0.5f; //reduce the alpha to have a more transparent result          
-		    //Front to back blending
-			//dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
-			//dst.a   = dst.a   + (1 - dst.a) * src.a;  
-			//src.rgb *= src.a;
-			//dst = (1.0f - dst.a) * src + dst;     
-			dst = float4(color, 1);
-     
-			//break from the loop when alpha gets high enough
-			//if(dst.a >= 0.9f)
+			E = volume.Sample(mysampler, pos + float4(StepSize * 0.5, 0, 0, 0)).r;
+	        N = volume.Sample(mysampler, pos + float4(0, StepSize * 0.5, 0, 0)).r;
+	        U = volume.Sample(mysampler, pos + float4(0, 0, StepSize * 0.5, 0)).r;
+	        normal = normalize(float3(E - value, N - value, U - value));
+			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial);
+			dst = float4(color, 1);     
 			break;     
 		} 
 		//advance the current position

@@ -273,6 +273,11 @@ void RenderText()
 	g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
 	g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
 	g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
+	wchar_t text[32] = {};
+	swprintf_s(text, 32, L"Frame: %d",particlesContainer.getNumCurrFrame());
+	g_pTxtHelper->DrawTextLine(text);
+	swprintf_s(text, 32, L"Particles: %d",particlesContainer.getParticlesCount());
+	g_pTxtHelper->DrawTextLine(text);
 	g_pTxtHelper->End();
 }
 
@@ -383,12 +388,14 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 			{
 				particlesContainer.getFrame(appSettings.firstFrame);
 				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				break;
 			}
 		case 'n':
 		case 'N':
 			{
 				particlesContainer.getNextFrame();
 				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				break;
 			}
 
 		}
@@ -437,4 +444,3 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		}
 	}
 }
-

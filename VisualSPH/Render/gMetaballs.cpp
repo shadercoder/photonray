@@ -25,6 +25,8 @@ gMetaballs::~gMetaballs(void)
 	SAFE_RELEASE(pBackSRV);
 	SAFE_RELEASE(pVolume);
 	SAFE_RELEASE(volumeSRV);
+	SAFE_RELEASE(pNoise);
+	SAFE_RELEASE(pNoiseSRV);
 	SAFE_RELEASE(pRenderTargetView);
 	SAFE_RELEASE(pDepthStencilBuffer);
 	SAFE_RELEASE(pDepthStencilView);
@@ -33,7 +35,8 @@ gMetaballs::~gMetaballs(void)
 float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 {	
 	D3DXVECTOR3 tmp = centerBall - cell;	
-	float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
+	//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
+	float len = D3DXVec3Dot(&tmp, &tmp);
 	if (len > metaballsSize * metaballsSize) {
 		return 0.0f;
 	}
@@ -47,10 +50,9 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 	field.clear();
 	for (int i = 0; i < numParticles; ++i)
 	{
-		int x = particles[i].position.x * scale;
-		int y = particles[i].position.y * scale;
-		int z = particles[i].position.z * scale;
-		float val = 0.0f;
+		int x = (int) (particles[i].position.x * scale);
+		int y = (int) (particles[i].position.y * scale);
+		int z = (int) (particles[i].position.z * scale);
 		for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
 		{
 			for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
@@ -95,6 +97,7 @@ void gMetaballs::init(ID3D10Device* device, int _screenWidth, int _screenHeight,
 	createTexture2D();
 	createTexture3D();
 	quad.init(md3dDevice);
+	quad.setNoise(pNoiseSRV);
 }
 
 void gMetaballs::onFrameResize(int width, int height)
@@ -135,7 +138,7 @@ HRESULT gMetaballs::createTexture2D()
 
 	D3D10_SHADER_RESOURCE_VIEW_DESC viewDesc;
 	viewDesc.Format = desc.Format;
-	viewDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2DARRAY;
+	viewDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
 	viewDesc.Texture2DArray.MostDetailedMip = 0;
 	viewDesc.Texture2DArray.MipLevels = desc.MipLevels;
 	viewDesc.Texture2DArray.FirstArraySlice = 0;
@@ -160,6 +163,38 @@ HRESULT gMetaballs::createTexture2D()
 
 	hr = md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &pDepthStencilBuffer);
 	hr = md3dDevice->CreateDepthStencilView(pDepthStencilBuffer, 0, &pDepthStencilView);
+
+	ZeroMemory( &desc, sizeof(desc) );
+	desc.Width = 32;
+	desc.Height = 32;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R32_FLOAT;
+	desc.SampleDesc.Count = 1;
+	desc.Usage = D3D10_USAGE_DEFAULT;
+	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+	D3D10_SUBRESOURCE_DATA noiseInit;
+	noiseInit.SysMemPitch = sizeof(float) * 32;
+	float* pNoiseData = new float[32 * 32];
+	for (int i = 0; i < 32; ++i)
+	{
+		for (int j = 0; j < 32; ++j)
+		{
+			pNoiseData[i * 32 + j] = RandF();
+		}
+	}
+	noiseInit.pSysMem = (void*) pNoiseData;
+	HR(md3dDevice->CreateTexture2D(&desc, &noiseInit, &pNoise ));
+
+	viewDesc.Format = desc.Format;
+	viewDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+	viewDesc.Texture2DArray.MostDetailedMip = 0;
+	viewDesc.Texture2DArray.MipLevels = desc.MipLevels;
+	viewDesc.Texture2DArray.FirstArraySlice = 0;
+	viewDesc.Texture2DArray.ArraySize = 0;
+
+	md3dDevice->CreateShaderResourceView(pNoise, 0, &pNoiseSRV);
+
 	return hr;
 }
 
@@ -201,7 +236,6 @@ HRESULT gMetaballs::onCreate()
 {
 	HRESULT hr;
 	DWORD dwShaderFlags = 0;
-	char* strPath = "./shaders/metaballs.sh";
 #if defined( DEBUG ) || defined( _DEBUG )
 	dwShaderFlags |= D3D10_SHADER_DEBUG;
 #endif
@@ -348,7 +382,6 @@ HRESULT gMetaballs::onCreate()
 
 void gMetaballs::drawBox()
 {
-	HRESULT hr;
 	UINT strides[1] = { sizeof( Vertex ) };
 	UINT offsets[1] = {0};
 	md3dDevice->IASetVertexBuffers( 0, 1, &mVB, strides, offsets );
