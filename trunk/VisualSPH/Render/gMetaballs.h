@@ -35,6 +35,10 @@ private:
 
 	ID3D10Texture3D*			pVolume;
 	ID3D10ShaderResourceView*	volumeSRV;
+
+	ID3D10Texture2D*			pNoise;
+	ID3D10ShaderResourceView*	pNoiseSRV;
+
 	ID3D10RenderTargetView*		pRenderTargetView;
 	ID3D10Texture2D*			pDepthStencilBuffer;
 	ID3D10DepthStencilView*		pDepthStencilView;

@@ -178,6 +178,7 @@ void gQuad::draw()
 	md3dDevice->PSSetShaderResources(0, 1, &frontSRV);
 	md3dDevice->PSSetShaderResources(1, 1, &backSRV);
 	md3dDevice->PSSetShaderResources(2, 1, &volume);
+	md3dDevice->PSSetShaderResources(3, 1, &pNoiseSRV);
 
 	md3dDevice->DrawIndexed( mNumIndices, 0, 0 );
 }
@@ -188,7 +189,8 @@ void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D10ShaderResourceView* fr
 	CONSTANT_BUFFER* pConstData;
 	mCB->Map( D3D10_MAP_WRITE_DISCARD, NULL, ( void** )&pConstData );
 	pConstData->mWorldViewProj = mWorldViewProj;
-	pConstData->vLightPos = D3DXVECTOR4(-1, -1, -1, 0);
+	pConstData->vLightPos1 = D3DXVECTOR4(-1, -1, -1, 0);
+	pConstData->vLightPos2 = D3DXVECTOR4(1, 1, 1, 0);
 	pConstData->vMaterial = D3DXVECTOR4(112. / 255., 147. / 255., 219. / 255., 0.8);
 	mCB->Unmap();
 	this->frontSRV = frontSRV;
@@ -198,4 +200,9 @@ void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D10ShaderResourceView* fr
 void gQuad::setVolume(ID3D10ShaderResourceView* _vol)
 {
 	volume = _vol;
+}
+
+void gQuad::setNoise(ID3D10ShaderResourceView* _pNoiseSRV)
+{
+	pNoiseSRV = _pNoiseSRV;
 }

@@ -34,10 +34,12 @@ void ParticlesContainer::open(int curr)
 		return;
 	}
 }
+
 void ParticlesContainer::close()
 {
 	fclose(pIn);
 }
+
 Particle* ParticlesContainer::getFrame(int num)
 {
 	open(num);
@@ -58,6 +60,7 @@ Particle* ParticlesContainer::getFrame(int num)
 	}
 	particleCount = sz;
 	close();
+	curr = num;
 	return (&particleBuff[0]);
 }
 

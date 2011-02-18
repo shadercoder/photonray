@@ -1,11 +1,15 @@
 #pragma once
 #include <stdlib.h>
 #include <stdexcept>
+#include <vector>
+
+using namespace std;
 
 class DenseField
 {
 private:
-	float* data;
+	//float* data;
+	vector<float> data;
 	int size;
 public:
 	int xSize, ySize, zSize;
@@ -16,8 +20,10 @@ public:
 		this->ySize = ySize;
 		this->zSize = zSize;
 		size = xSize * ySize * zSize;
-		data = new float[size];
-		memset(data, 0, sizeof(float) * size);
+		//data = new float[size];
+		data.reserve(size);
+		data.resize(size);
+		memset(&data[0], 0, sizeof(float) * size);
 	}
 	
 	bool isInside(int i, int j, int k)
@@ -41,9 +47,9 @@ public:
 		return size;
 	}
 		
-	float* getData() const
+	const float* getData() const
 	{
-		return data;
+		return &data[0];
 	}
 
 	const float& value(int i, int j, int k)
@@ -80,7 +86,7 @@ public:
 
 	void clear()
 	{
-		memset(data, 0, sizeof(float) * size);
+		memset(&data[0], 0, sizeof(float) * size);
 	}
 
 	DenseField(void)
@@ -90,6 +96,6 @@ public:
 	~DenseField(void)
 	{
 		//delete[] data;
-		SAFE_DELETE_ARRAY(data);
+		//SAFE_DELETE_ARRAY(data);
 	}
 };
