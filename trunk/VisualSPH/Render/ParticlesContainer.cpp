@@ -56,6 +56,10 @@ Particle* ParticlesContainer::getFrame(int num)
 	{
 		fscanf_s(pIn, "%s", junk, _countof(junk));
 	}
+	float xsize = xmax - xmin;
+	float ysize = ymax - ymin;
+	float zsize = zmax - zmin;
+	//float k = 1.0f / max(max(xsize, ysize), zsize);
 	int sz = 0;
 	float data[10] = {};
 	Particle current;	
@@ -65,6 +69,9 @@ Particle* ParticlesContainer::getFrame(int num)
 		x = data[0] - xmin;
 		y = data[1] - ymin;
 		z = data[2] - zmin;
+		//x *= k;
+		//y *= k;
+		//z *= k;
 		current = Particle(x, y, z, data[3], data[4], data[5], data[6], data[7]);
 		particleBuff.push_back(current);
 	}

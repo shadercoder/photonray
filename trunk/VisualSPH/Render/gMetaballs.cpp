@@ -194,7 +194,7 @@ HRESULT gMetaballs::createTexture2D()
 	viewDesc.Texture2DArray.ArraySize = 0;
 
 	md3dDevice->CreateShaderResourceView(pNoise, 0, &pNoiseSRV);
-
+	SAFE_DELETE_ARRAY(pNoiseData);
 	return hr;
 }
 
@@ -229,6 +229,8 @@ HRESULT gMetaballs::createTexture3D()
 
 	HR(md3dDevice->CreateTexture3D(&volume_desc, &densityField, &pVolume));
 	HR(md3dDevice->CreateShaderResourceView(pVolume, &densityFieldSRVdesc, &volumeSRV));
+
+	SAFE_DELETE_ARRAY(fieldData);
 	return hr;
 }
 

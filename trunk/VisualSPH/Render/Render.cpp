@@ -334,6 +334,7 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 	D3DXMatrixRotationX( &mRot, DEG2RAD( -90.0f ) );
 	g_World = mTranslate* mRot * g_World;
 	metaballs.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()));
+	
 }
 
 
