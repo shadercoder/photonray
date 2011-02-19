@@ -10,6 +10,7 @@ cbuffer everyFrame
 	float4 vLightPos1;
 	float4 vLightPos2;
 	float4 vDiffuseMaterial;
+	float4 eye;
 };
 
 struct VS_INPUT 
@@ -76,7 +77,7 @@ PS_IN QuadVS(VS_IN input)
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 64;
-	const float Threshold = 0.4;
+	const float Threshold = 0.05;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
@@ -108,7 +109,7 @@ float4 RayCastPS(PS_IN input): SV_Target
 		};
 	float E, N, U;
 	float k;
-	float3 normal, color;
+	float3 normal, color;	
     for(int i = 0; i < Iterations; ++i)
     {		
         value = volume.Sample(mysampler, pos).r;
@@ -126,11 +127,11 @@ float4 RayCastPS(PS_IN input): SV_Target
 				//value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * StepSize).r;
 				value += 0.025f * volume.Sample(mysampler, pos + neighbors[j]).r;
 			}
-			E = volume.Sample(mysampler, pos + float4(StepSize * 0.5, 0, 0, 0)).r;
-	        N = volume.Sample(mysampler, pos + float4(0, StepSize * 0.5, 0, 0)).r;
-	        U = volume.Sample(mysampler, pos + float4(0, 0, StepSize * 0.5, 0)).r;
+			E = volume.Sample(mysampler, pos + float4(StepSize, 0, 0, 0)).r;
+	        N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
+	        U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
 	        normal = normalize(float3(E - value, N - value, U - value));
-			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial);
+			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial);			
 			dst = float4(color, 1);     
 			break;     
 		} 
