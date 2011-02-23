@@ -11,7 +11,10 @@
 #include "SDKmesh.h"
 #include "resource.h"
 
+#include "Axis.h"
+
 #include "gMetaballs.h"
+#include "gParticlesRender.h"
 #include "ParticlesContainer.h"
 #include "Settings.h"
 
@@ -36,6 +39,7 @@ float								g_fMetaballsSize = 0.0f;
 bool                                g_bSpinning = false;
 
 gMetaballs							metaballs;
+gParticlesRender					particleRender;
 ParticlesContainer					particlesContainer;
 Settings							appSettings;
 
@@ -191,8 +195,11 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
 	D3DXVECTOR3 At( 0.0f, 0.0f, 0.0f );
 	g_Camera.SetViewParams( &Eye, &At );
 
-	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
-	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+	//metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
+	//metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+
+	particleRender.init(pd3dDevice);
+	particleRender.updateParticles(particlesContainer.getParticles());
 
 	return S_OK;
 }
@@ -220,7 +227,7 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	g_HUD.SetSize( 170, 170 );
 	g_SampleUI.SetLocation( pBufferSurfaceDesc->Width - 170, pBufferSurfaceDesc->Height - 300 );
 	g_SampleUI.SetSize( 170, 300 );
-	metaballs.onFrameResize(pBufferSurfaceDesc->Width, pBufferSurfaceDesc->Height);
+	//metaballs.onFrameResize(pBufferSurfaceDesc->Width, pBufferSurfaceDesc->Height);
 	return S_OK;
 }
 
@@ -250,8 +257,9 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	//
 	ID3D10DepthStencilView* pDSV = DXUTGetD3D10DepthStencilView();
 	pd3dDevice->ClearDepthStencilView( pDSV, D3D10_CLEAR_DEPTH, 1.0, 0 );
-
-	metaballs.draw();
+	
+	//metaballs.draw();
+	particleRender.draw();
 
 	//
 	// Render the UI
@@ -332,8 +340,10 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 	D3DXMatrixTranslation(&mTranslate, -0.5f, -0.5f, -0.5f);
 	D3DXMATRIX mRot;
 	D3DXMatrixRotationX( &mRot, DEG2RAD( -90.0f ) );
-	g_World = mTranslate* mRot * g_World;
-	metaballs.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()));
+	g_World = mTranslate * mRot * g_World;
+	//metaballs.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()));
+	D3DXMATRIX view =  (*g_Camera.GetViewMatrix());
+	particleRender.onFrameMove(g_World * view * (*g_Camera.GetProjMatrix()), view);
 	
 }
 
@@ -388,14 +398,14 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 		case 'R':
 			{
 				particlesContainer.getFrame(appSettings.firstFrame);
-				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				//metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 				break;
 			}
 		case 'n':
 		case 'N':
 			{
 				particlesContainer.getNextFrame();
-				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				//metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 				break;
 			}
 
@@ -431,7 +441,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_fScale = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
 			swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
 			g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
-			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+			//metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 			break;
 		}
 	case IDC_META_SCALE:
@@ -440,7 +450,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_fMetaballsSize = ( float )( g_SampleUI.GetSlider( IDC_META_SCALE )->GetValue() * 0.01f );
 			swprintf_s( sz, 100, L"Metaballs scale: %0.2f", g_fMetaballsSize );
 			g_SampleUI.GetStatic( IDC_META_STATIC )->SetText( sz );
-			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+			//metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 			break;
 		}
 	}

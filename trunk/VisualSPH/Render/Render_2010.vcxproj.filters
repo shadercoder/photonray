@@ -79,6 +79,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="settings_readme.txt" />
+    <None Include="particles.sh">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />
@@ -92,6 +95,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="ParticlesContainer.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="gParticlesRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -113,6 +117,7 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="gParticlesRender.h" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

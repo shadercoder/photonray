@@ -19,5 +19,5 @@ struct Vertex2D
 struct VertexParticle
 {
 	D3DXVECTOR3 pos;
-	D3DXVECTOR2 size;
+	D3DXCOLOR   color;
 };
