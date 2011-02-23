@@ -6,12 +6,11 @@
 #include "Particle.h"
 
 using namespace std;
+
 struct VS_CONSTANT_BUFFER
 {
     D3DXMATRIX mWorldViewProj;      //mWorldViewProj will probably be global to all shaders in a project.
 };
-
-
 
 class gMetaballs :	public GObject
 {

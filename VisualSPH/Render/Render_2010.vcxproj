@@ -378,8 +378,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gParticlesRender.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="gParticlesRender.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Vertex.h" />
     <None Include="directx.ico" />
@@ -411,6 +413,7 @@
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
     <None Include="metaballs.sh" />
+    <None Include="particles.sh" />
     <None Include="settings.txt" />
     <None Include="settings_readme.txt" />
   </ItemGroup>
