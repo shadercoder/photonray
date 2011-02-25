@@ -19,5 +19,20 @@ void Settings::loadFromFile(char* fileName)
 	fin >> cameraLookAt.x >> cameraLookAt.y >> cameraLookAt.z;
 	fin >> screenWidth >> screenHeight;
 	fin >> volumeResolution;
+	string _renderState;
+	fin >> _renderState;
+	if (_renderState.compare(_METABALLS) == 0)
+	{
+		renderState = METABALLS;
+	}
+	else 
+	if (_renderState.compare(_PARTICLES) == 0)
+	{
+		renderState = PARTICLES;
+	}
+	else 
+	{
+		printf("render type must be specified\n");
+	}
 	fin.close();
 }
