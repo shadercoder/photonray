@@ -78,14 +78,14 @@ float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 64;
 	const float Threshold = 0.45;
-	float StepSize = 1.0 / Iterations;
+	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
     float3 back = backS.Sample(mysampler, texC).xyz;
     float3 dir = normalize(back - front);
     if (dot(front, back) == 0)
 	{
-		return input.col;
+		discard;
 	}
     	
     float4 dst = input.col + float4(0, 0.02, 0.1, 0);
@@ -117,7 +117,7 @@ float4 RayCastPS(PS_IN input): SV_Target
 	        N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
 	        U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
 	        normal = normalize(float3(E - value, N - value, U - value));
-			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial);			
+			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial * 0.5 + 0.5);			
 			dst = float4(color, 1);     
 			break;     
 		} 

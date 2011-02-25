@@ -232,7 +232,19 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	g_HUD.SetSize( 170, 170 );
 	g_SampleUI.SetLocation( pBufferSurfaceDesc->Width - 170, pBufferSurfaceDesc->Height - 300 );
 	g_SampleUI.SetSize( 170, 300 );
-	metaballs.onFrameResize(pBufferSurfaceDesc->Width, pBufferSurfaceDesc->Height);
+	switch(appSettings.renderState)
+	{
+	case METABALLS:
+		{
+			metaballs.onFrameResize(pBufferSurfaceDesc->Width, pBufferSurfaceDesc->Height);
+			break;
+		}
+	case PARTICLES:
+		{			
+			break;
+		}
+	}
+
 	return S_OK;
 }
 

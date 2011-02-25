@@ -348,9 +348,10 @@ HRESULT gMetaballs::onCreate()
 	DSDesc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ALL;
 	hr = md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState );
 
-	ID3D10Blob*	pBlob;
+	ID3D10Blob*	pBlob;	
 	// Compile the vertex shader from the file
 	ID3D10Blob* err;
+	
 	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "SimpleVS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 
 	if (FAILED(hr))
