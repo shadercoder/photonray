@@ -16,6 +16,11 @@ using namespace std;
 <screen resolution (width, height) int>
 */
 
+#define _METABALLS "metaballs"
+#define METABALLS 1
+#define _PARTICLES "particles"
+#define PARTICLES 2
+
 class Settings
 {
 public:
@@ -27,6 +32,7 @@ public:
 	int screenWidth, screenHeight;
 	int volumeResolution;
 	void loadFromFile(char* fileName);
+	int renderState;
 	Settings(void);
 	~Settings(void);
 };

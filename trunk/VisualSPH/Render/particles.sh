@@ -61,7 +61,7 @@ void GS(point VSParticleDrawOut input[1], inout TriangleStream<PSSceneIn> Sprite
     //
     for(int i=0; i < 4; ++i)
     {
-        float4 position = g_positions[i] * 0.02 * input[0].radius;
+        float4 position = g_positions[i] * 0.05 * input[0].radius;
         position = mul(position, ginvView) + input[0].pos;		
         output.pos = mul( position, gWVP );     
 		output.color = input[0].color;

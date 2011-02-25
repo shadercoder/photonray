@@ -77,8 +77,8 @@ PS_IN QuadVS(VS_IN input)
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 64;
-	const float Threshold = 0.05;
-	float StepSize = 1.7 / Iterations;
+	const float Threshold = 0.45;
+	float StepSize = 1.0 / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.Sample(mysampler, texC).xyz;
     float3 back = backS.Sample(mysampler, texC).xyz;
@@ -97,19 +97,10 @@ float4 RayCastPS(PS_IN input): SV_Target
 	float3 light1 = normalize(vLightPos1);	
 	float3 light2 = normalize(vLightPos2);	
 	float4 pos = float4(front - Step * noise.Sample(mysampler, float2(((int) (front.x * 1000)) % 32 / 32.0, ((int) (front.y * 1000)) % 32 / 32.0)).r, 0); 
-	//float4 pos = float4(front, 0);
 
-	const float4 neighbors[6] = {
-		float4(0, -1, 0, 0) * StepSize,
-		float4(0, 1, 0, 0) * StepSize,
-		float4(-1, 0, 0, 0) * StepSize,		
-		float4(1, 0, 0, 0) * StepSize,			
-		float4(0, 0, -1, 0) * StepSize,
-		float4(0, 0, 1, 0) * StepSize,
-		};
 	float E, N, U;
 	float k;
-	float3 normal, color;	
+	float3 normal, color;		
     for(int i = 0; i < Iterations; ++i)
     {		
         value = volume.Sample(mysampler, pos).r;
@@ -121,12 +112,7 @@ float4 RayCastPS(PS_IN input): SV_Target
 			else k = -0.5;
 			pos += halfStepBack * k;
 			value = volume.Sample(mysampler, pos).r;			
-			[unroll]
-			for (int j = 0; j < 6; ++j)
-			{
-				//value += 0.05f * volume.Sample(mysampler, pos + neighbors[j] * StepSize).r;
-				value += 0.025f * volume.Sample(mysampler, pos + neighbors[j]).r;
-			}
+
 			E = volume.Sample(mysampler, pos + float4(StepSize, 0, 0, 0)).r;
 	        N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
 	        U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
