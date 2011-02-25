@@ -222,8 +222,7 @@ void gParticlesRender::updateParticles(const vector<Particle>& particles)
 void gParticlesRender::onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View)
 {
 	D3DXMATRIX inv;
-	float det = D3DXMatrixDeterminant(&View);
-	D3DXMatrixInverse(&inv, &det, &View);
+	D3DXMatrixInverse(&inv, NULL, &View);
 	CONSTANT_BUFFER* pConstData;
 	mCB->Map( D3D10_MAP_WRITE_DISCARD, NULL, ( void** )&pConstData );
 	pConstData->mWorldViewProj = WorldViewProj;
