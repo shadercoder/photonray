@@ -7,4 +7,4 @@ _flu.txt
 0 0 0
 800 600
 128
-particles
+metaballs
