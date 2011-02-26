@@ -413,6 +413,7 @@
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
     <None Include="metaballs.sh" />
+    <None Include="Particle.dds" />
     <None Include="particles.sh" />
     <None Include="settings.txt" />
     <None Include="settings_readme.txt" />
