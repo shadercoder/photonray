@@ -125,7 +125,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
 	// Compile the pixel shader from file
-	HR(D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL ));
+	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();

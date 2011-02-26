@@ -76,7 +76,7 @@ PS_IN QuadVS(VS_IN input)
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 64;
+	const int Iterations = 256;
 	const float Threshold = 0.45;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
@@ -112,11 +112,10 @@ float4 RayCastPS(PS_IN input): SV_Target
 			else k = -0.5;
 			pos += halfStepBack * k;
 			value = volume.Sample(mysampler, pos).r;			
-
 			E = volume.Sample(mysampler, pos + float4(StepSize, 0, 0, 0)).r;
-	        N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
-	        U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
-	        normal = normalize(float3(E - value, N - value, U - value));
+			N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
+			U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
+			normal = normalize(float3(E - value, N - value, U - value));
 			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial * 0.5 + 0.5);			
 			dst = float4(color, 1);     
 			break;     
@@ -125,7 +124,7 @@ float4 RayCastPS(PS_IN input): SV_Target
 		pos.xyz += Step;     
 		//break if the position is greater than <1, 1, 1>
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
-			break;
+			return dst;
 	}
     return dst;
 }
