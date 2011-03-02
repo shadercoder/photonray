@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace VisualSPH_GUI
 {
@@ -31,6 +32,10 @@ namespace VisualSPH_GUI
             }
         }
 
+        private void PushToConfigFile()
+        {
+           //  StreamWriter configFile = new StreamWriter("config.file");
+        }
         private void txtFilePattern_TextChanged(object sender, EventArgs e)
         {
 
@@ -93,7 +98,11 @@ namespace VisualSPH_GUI
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-
+            if (txtHeighFile.Text != String.Empty)
+            {
+                PushToConfigFile();
+                System.Diagnostics.Process.Start(Application.StartupPath + "\\Render.exe");
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -103,12 +112,17 @@ namespace VisualSPH_GUI
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-
+            Application.Exit();
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
