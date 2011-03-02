@@ -112,7 +112,7 @@ namespace VisualSPH_GUI
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            Application.Exit();   // exit button
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -122,7 +122,12 @@ namespace VisualSPH_GUI
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            Application.Exit();  // exit button
+        }
+
+        private void cmbGridResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
