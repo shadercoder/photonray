@@ -76,7 +76,7 @@ PS_IN QuadVS(VS_IN input)
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 256;
+	const int Iterations = 64;
 	const float Threshold = 0.45;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 

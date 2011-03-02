@@ -153,7 +153,7 @@
             // lblStep
             // 
             this.lblStep.AutoSize = true;
-            this.lblStep.Location = new System.Drawing.Point(154, 20);
+            this.lblStep.Location = new System.Drawing.Point(154, 21);
             this.lblStep.Name = "lblStep";
             this.lblStep.Size = new System.Drawing.Size(29, 13);
             this.lblStep.TabIndex = 2;
@@ -165,19 +165,19 @@
             this.lblLastName.AutoSize = true;
             this.lblLastName.Location = new System.Drawing.Point(80, 20);
             this.lblLastName.Name = "lblLastName";
-            this.lblLastName.Size = new System.Drawing.Size(56, 13);
+            this.lblLastName.Size = new System.Drawing.Size(27, 13);
             this.lblLastName.TabIndex = 1;
-            this.lblLastName.Text = "Last name";
+            this.lblLastName.Text = "Last";
             this.lblLastName.Click += new System.EventHandler(this.lblLastName_Click);
             // 
             // lblStartName
             // 
             this.lblStartName.AutoSize = true;
-            this.lblStartName.Location = new System.Drawing.Point(7, 20);
+            this.lblStartName.Location = new System.Drawing.Point(7, 21);
             this.lblStartName.Name = "lblStartName";
-            this.lblStartName.Size = new System.Drawing.Size(58, 13);
+            this.lblStartName.Size = new System.Drawing.Size(29, 13);
             this.lblStartName.TabIndex = 0;
-            this.lblStartName.Text = "Start name";
+            this.lblStartName.Text = "Start";
             this.lblStartName.Click += new System.EventHandler(this.lblStartName_Click);
             // 
             // lblPlayParameters
@@ -307,7 +307,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
