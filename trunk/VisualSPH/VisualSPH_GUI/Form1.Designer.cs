@@ -101,6 +101,10 @@
             // cmbView
             // 
             this.cmbView.FormattingEnabled = true;
+            this.cmbView.Items.AddRange(new object[] {
+            "Частицы",
+            "Векторы",
+            "Меташары"});
             this.cmbView.Location = new System.Drawing.Point(7, 37);
             this.cmbView.Name = "cmbView";
             this.cmbView.Size = new System.Drawing.Size(121, 21);
@@ -226,6 +230,10 @@
             // cmbScreenResolution
             // 
             this.cmbScreenResolution.FormattingEnabled = true;
+            this.cmbScreenResolution.Items.AddRange(new object[] {
+            "800х600",
+            "1024х768",
+            "1280х1024"});
             this.cmbScreenResolution.Location = new System.Drawing.Point(27, 225);
             this.cmbScreenResolution.Name = "cmbScreenResolution";
             this.cmbScreenResolution.Size = new System.Drawing.Size(146, 21);
@@ -234,10 +242,15 @@
             // cmbGridResolution
             // 
             this.cmbGridResolution.FormattingEnabled = true;
+            this.cmbGridResolution.Items.AddRange(new object[] {
+            "64",
+            "128",
+            "256"});
             this.cmbGridResolution.Location = new System.Drawing.Point(267, 226);
             this.cmbGridResolution.Name = "cmbGridResolution";
             this.cmbGridResolution.Size = new System.Drawing.Size(143, 21);
             this.cmbGridResolution.TabIndex = 11;
+            this.cmbGridResolution.SelectedIndexChanged += new System.EventHandler(this.cmbGridResolution_SelectedIndexChanged);
             // 
             // btnSave
             // 
