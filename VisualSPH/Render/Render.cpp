@@ -55,6 +55,7 @@ Settings							appSettings;
 #define IDC_TOGGLEWARP          7
 #define IDC_META_STATIC			8
 #define IDC_META_SCALE			9
+#define IDC_RENDERTYPE			10
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -143,6 +144,10 @@ void InitApp()
 	g_HUD.AddButton( IDC_TOGGLEWARP, L"Toggle WARP (F4)", 35, iY += 24, 125, 22, VK_F4 );
 
 	g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
+	g_SampleUI.AddComboBox( IDC_RENDERTYPE, 35, iY += 24, 120, 22, 0, false);
+	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->SetDropHeight(40);
+	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"0 Metaballs", (void*) 0);
+	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"1 Particles", (void*) 1);
 
 	switch (appSettings.renderState)
 	{
@@ -516,6 +521,21 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetStatic( IDC_META_STATIC )->SetText( sz );
 			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 			break;
+		}
+	case IDC_RENDERTYPE:
+		{
+			if (nEvent == EVENT_COMBOBOX_SELECTION_CHANGED)
+			{
+				int renderType = (int) g_SampleUI.GetComboBox(IDC_RENDERTYPE)->GetSelectedIndex();
+				if (renderType == 0)
+				{
+					appSettings.renderState = METABALLS;
+				}
+				else
+				{
+					appSettings.renderState = PARTICLES;
+				}
+			}			
 		}
 	}
 }
