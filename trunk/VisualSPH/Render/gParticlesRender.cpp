@@ -75,13 +75,21 @@ HRESULT gParticlesRender::init(ID3D10Device* device)
 	// Create a blend state to disable alpha blending
 	D3D10_BLEND_DESC BlendState;
 	ZeroMemory( &BlendState, sizeof( D3D10_BLEND_DESC ) );
+	//BlendState.AlphaToCoverageEnable = FALSE;
+	//BlendState.BlendEnable[0] = FALSE;
 	BlendState.AlphaToCoverageEnable = TRUE;
-	BlendState.BlendEnable[0] = FALSE;
+	BlendState.BlendEnable[0] = TRUE;
+	BlendState.SrcBlend = D3D10_BLEND_SRC_ALPHA;
+	BlendState.DestBlend = D3D10_BLEND_INV_SRC_ALPHA;
+	BlendState.BlendOp = D3D10_BLEND_OP_ADD;
+	BlendState.SrcBlendAlpha = D3D10_BLEND_ZERO;
+	BlendState.DestBlendAlpha = D3D10_BLEND_INV_SRC_ALPHA;
+	BlendState.BlendOpAlpha = D3D10_BLEND_OP_ADD;
 	BlendState.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_ALL;
 	HR(md3dDevice->CreateBlendState(&BlendState, &pBlendState));
 
 	// Create a rasterizer state to disable culling
-	D3D10_RASTERIZER_DESC RSDesc;
+	D3D10_RASTERIZER_DESC RSDesc;	
 	RSDesc.FillMode = D3D10_FILL_SOLID;
 	RSDesc.CullMode = D3D10_CULL_NONE;
 	RSDesc.FrontCounterClockwise = TRUE;
@@ -183,7 +191,7 @@ void gParticlesRender::draw()
 	md3dDevice->GSSetConstantBuffers(1, 1, &mCBImmute);
 	//md3dDevice->PSSetConstantBuffers(0, 1, &mCB);	
 
-	md3dDevice->OMSetBlendState(pBlendState, 0, 0xffffffff);
+	md3dDevice->OMSetBlendState(pBlendState, 0, 0xFFFFFFFF);
 	md3dDevice->OMSetDepthStencilState(pDepthStencilState, 0);	
 	md3dDevice->RSSetState(pRasterizerState);
 
