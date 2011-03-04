@@ -57,6 +57,7 @@
             this.menuHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblRenderType = new System.Windows.Forms.Label();
             this.grpView.SuspendLayout();
             this.grpFrames.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -64,7 +65,7 @@
             // 
             // txtHeighFile
             // 
-            this.txtHeighFile.Location = new System.Drawing.Point(24, 38);
+            this.txtHeighFile.Location = new System.Drawing.Point(17, 40);
             this.txtHeighFile.Name = "txtHeighFile";
             this.txtHeighFile.Size = new System.Drawing.Size(149, 20);
             this.txtHeighFile.TabIndex = 0;
@@ -73,7 +74,7 @@
             // 
             this.btnBrowse.Location = new System.Drawing.Point(179, 38);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(75, 23);
+            this.btnBrowse.Size = new System.Drawing.Size(69, 23);
             this.btnBrowse.TabIndex = 1;
             this.btnBrowse.Text = "Browse";
             this.btnBrowse.UseVisualStyleBackColor = true;
@@ -81,7 +82,7 @@
             // 
             // txtFilePattern
             // 
-            this.txtFilePattern.Location = new System.Drawing.Point(24, 77);
+            this.txtFilePattern.Location = new System.Drawing.Point(17, 77);
             this.txtFilePattern.Name = "txtFilePattern";
             this.txtFilePattern.Size = new System.Drawing.Size(149, 20);
             this.txtFilePattern.TabIndex = 2;
@@ -89,10 +90,15 @@
             // 
             // grpView
             // 
+            this.grpView.Controls.Add(this.lblRenderType);
             this.grpView.Controls.Add(this.cmbView);
-            this.grpView.Location = new System.Drawing.Point(282, 122);
+            this.grpView.Controls.Add(this.cmbGridResolution);
+            this.grpView.Controls.Add(this.lblGridResolution);
+            this.grpView.Controls.Add(this.cmbScreenResolution);
+            this.grpView.Controls.Add(this.lblScreenResolution);
+            this.grpView.Location = new System.Drawing.Point(17, 275);
             this.grpView.Name = "grpView";
-            this.grpView.Size = new System.Drawing.Size(147, 71);
+            this.grpView.Size = new System.Drawing.Size(159, 149);
             this.grpView.TabIndex = 3;
             this.grpView.TabStop = false;
             this.grpView.Text = "View";
@@ -105,9 +111,9 @@
             "Частицы",
             "Векторы",
             "Меташары"});
-            this.cmbView.Location = new System.Drawing.Point(7, 37);
+            this.cmbView.Location = new System.Drawing.Point(6, 34);
             this.cmbView.Name = "cmbView";
-            this.cmbView.Size = new System.Drawing.Size(121, 21);
+            this.cmbView.Size = new System.Drawing.Size(143, 21);
             this.cmbView.TabIndex = 0;
             // 
             // grpFrames
@@ -118,9 +124,9 @@
             this.grpFrames.Controls.Add(this.lblStep);
             this.grpFrames.Controls.Add(this.lblLastName);
             this.grpFrames.Controls.Add(this.lblStartName);
-            this.grpFrames.Location = new System.Drawing.Point(54, 122);
+            this.grpFrames.Location = new System.Drawing.Point(17, 129);
             this.grpFrames.Name = "grpFrames";
-            this.grpFrames.Size = new System.Drawing.Size(212, 71);
+            this.grpFrames.Size = new System.Drawing.Size(159, 140);
             this.grpFrames.TabIndex = 4;
             this.grpFrames.TabStop = false;
             this.grpFrames.Text = "Frames";
@@ -128,23 +134,23 @@
             // 
             // txtStep
             // 
-            this.txtStep.Location = new System.Drawing.Point(157, 37);
+            this.txtStep.Location = new System.Drawing.Point(6, 115);
             this.txtStep.Name = "txtStep";
-            this.txtStep.Size = new System.Drawing.Size(49, 20);
+            this.txtStep.Size = new System.Drawing.Size(55, 20);
             this.txtStep.TabIndex = 5;
             this.txtStep.TextChanged += new System.EventHandler(this.txtStep_TextChanged);
             // 
             // txtLastName
             // 
-            this.txtLastName.Location = new System.Drawing.Point(83, 37);
+            this.txtLastName.Location = new System.Drawing.Point(6, 76);
             this.txtLastName.Name = "txtLastName";
-            this.txtLastName.Size = new System.Drawing.Size(53, 20);
+            this.txtLastName.Size = new System.Drawing.Size(55, 20);
             this.txtLastName.TabIndex = 4;
             this.txtLastName.TextChanged += new System.EventHandler(this.txtLastName_TextChanged);
             // 
             // txtStartName
             // 
-            this.txtStartName.Location = new System.Drawing.Point(10, 37);
+            this.txtStartName.Location = new System.Drawing.Point(6, 37);
             this.txtStartName.Name = "txtStartName";
             this.txtStartName.Size = new System.Drawing.Size(55, 20);
             this.txtStartName.TabIndex = 3;
@@ -153,7 +159,7 @@
             // lblStep
             // 
             this.lblStep.AutoSize = true;
-            this.lblStep.Location = new System.Drawing.Point(154, 21);
+            this.lblStep.Location = new System.Drawing.Point(9, 99);
             this.lblStep.Name = "lblStep";
             this.lblStep.Size = new System.Drawing.Size(29, 13);
             this.lblStep.TabIndex = 2;
@@ -163,7 +169,7 @@
             // lblLastName
             // 
             this.lblLastName.AutoSize = true;
-            this.lblLastName.Location = new System.Drawing.Point(80, 20);
+            this.lblLastName.Location = new System.Drawing.Point(9, 60);
             this.lblLastName.Name = "lblLastName";
             this.lblLastName.Size = new System.Drawing.Size(27, 13);
             this.lblLastName.TabIndex = 1;
@@ -173,7 +179,7 @@
             // lblStartName
             // 
             this.lblStartName.AutoSize = true;
-            this.lblStartName.Location = new System.Drawing.Point(7, 21);
+            this.lblStartName.Location = new System.Drawing.Point(9, 21);
             this.lblStartName.Name = "lblStartName";
             this.lblStartName.Size = new System.Drawing.Size(29, 13);
             this.lblStartName.TabIndex = 0;
@@ -183,7 +189,7 @@
             // lblPlayParameters
             // 
             this.lblPlayParameters.AutoSize = true;
-            this.lblPlayParameters.Location = new System.Drawing.Point(23, 106);
+            this.lblPlayParameters.Location = new System.Drawing.Point(17, 113);
             this.lblPlayParameters.Name = "lblPlayParameters";
             this.lblPlayParameters.Size = new System.Drawing.Size(82, 13);
             this.lblPlayParameters.TabIndex = 5;
@@ -192,7 +198,7 @@
             // lblFilePattern
             // 
             this.lblFilePattern.AutoSize = true;
-            this.lblFilePattern.Location = new System.Drawing.Point(23, 61);
+            this.lblFilePattern.Location = new System.Drawing.Point(17, 62);
             this.lblFilePattern.Name = "lblFilePattern";
             this.lblFilePattern.Size = new System.Drawing.Size(59, 13);
             this.lblFilePattern.TabIndex = 6;
@@ -202,7 +208,7 @@
             // lblFolder
             // 
             this.lblFolder.AutoSize = true;
-            this.lblFolder.Location = new System.Drawing.Point(24, 25);
+            this.lblFolder.Location = new System.Drawing.Point(17, 25);
             this.lblFolder.Name = "lblFolder";
             this.lblFolder.Size = new System.Drawing.Size(36, 13);
             this.lblFolder.TabIndex = 7;
@@ -212,7 +218,7 @@
             // lblScreenResolution
             // 
             this.lblScreenResolution.AutoSize = true;
-            this.lblScreenResolution.Location = new System.Drawing.Point(24, 209);
+            this.lblScreenResolution.Location = new System.Drawing.Point(7, 98);
             this.lblScreenResolution.Name = "lblScreenResolution";
             this.lblScreenResolution.Size = new System.Drawing.Size(89, 13);
             this.lblScreenResolution.TabIndex = 8;
@@ -221,7 +227,7 @@
             // lblGridResolution
             // 
             this.lblGridResolution.AutoSize = true;
-            this.lblGridResolution.Location = new System.Drawing.Point(264, 209);
+            this.lblGridResolution.Location = new System.Drawing.Point(7, 58);
             this.lblGridResolution.Name = "lblGridResolution";
             this.lblGridResolution.Size = new System.Drawing.Size(74, 13);
             this.lblGridResolution.TabIndex = 9;
@@ -234,9 +240,9 @@
             "800х600",
             "1024х768",
             "1280х1024"});
-            this.cmbScreenResolution.Location = new System.Drawing.Point(27, 225);
+            this.cmbScreenResolution.Location = new System.Drawing.Point(6, 114);
             this.cmbScreenResolution.Name = "cmbScreenResolution";
-            this.cmbScreenResolution.Size = new System.Drawing.Size(146, 21);
+            this.cmbScreenResolution.Size = new System.Drawing.Size(143, 21);
             this.cmbScreenResolution.TabIndex = 10;
             // 
             // cmbGridResolution
@@ -246,7 +252,7 @@
             "64",
             "128",
             "256"});
-            this.cmbGridResolution.Location = new System.Drawing.Point(267, 226);
+            this.cmbGridResolution.Location = new System.Drawing.Point(6, 74);
             this.cmbGridResolution.Name = "cmbGridResolution";
             this.cmbGridResolution.Size = new System.Drawing.Size(143, 21);
             this.cmbGridResolution.TabIndex = 11;
@@ -254,9 +260,9 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(162, 266);
+            this.btnSave.Location = new System.Drawing.Point(17, 447);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 38);
+            this.btnSave.Size = new System.Drawing.Size(69, 23);
             this.btnSave.TabIndex = 12;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -264,9 +270,9 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(254, 266);
+            this.btnStart.Location = new System.Drawing.Point(109, 447);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(75, 38);
+            this.btnStart.Size = new System.Drawing.Size(69, 23);
             this.btnStart.TabIndex = 13;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -274,9 +280,9 @@
             // 
             // btnExit
             // 
-            this.btnExit.Location = new System.Drawing.Point(345, 266);
+            this.btnExit.Location = new System.Drawing.Point(200, 447);
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(84, 38);
+            this.btnExit.Size = new System.Drawing.Size(69, 23);
             this.btnExit.TabIndex = 14;
             this.btnExit.Text = "Exit";
             this.btnExit.UseVisualStyleBackColor = true;
@@ -291,7 +297,7 @@
             this.menuAbout});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(441, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(284, 24);
             this.menuStrip1.TabIndex = 16;
             this.menuStrip1.Text = "menuStrip1";
             this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -337,19 +343,24 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "About";
             // 
+            // lblRenderType
+            // 
+            this.lblRenderType.AutoSize = true;
+            this.lblRenderType.Location = new System.Drawing.Point(7, 18);
+            this.lblRenderType.Name = "lblRenderType";
+            this.lblRenderType.Size = new System.Drawing.Size(65, 13);
+            this.lblRenderType.TabIndex = 12;
+            this.lblRenderType.Text = "Render type";
+            // 
             // FrmVisualSPH
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(441, 318);
+            this.ClientSize = new System.Drawing.Size(284, 497);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.cmbGridResolution);
-            this.Controls.Add(this.cmbScreenResolution);
-            this.Controls.Add(this.lblGridResolution);
-            this.Controls.Add(this.lblScreenResolution);
             this.Controls.Add(this.lblFolder);
             this.Controls.Add(this.lblFilePattern);
             this.Controls.Add(this.lblPlayParameters);
@@ -362,6 +373,7 @@
             this.Text = "VisualSPH";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.grpView.ResumeLayout(false);
+            this.grpView.PerformLayout();
             this.grpFrames.ResumeLayout(false);
             this.grpFrames.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
@@ -402,6 +414,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuHelp;
         private System.Windows.Forms.ToolStripMenuItem menuAbout;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.Label lblRenderType;
     }
 }
 

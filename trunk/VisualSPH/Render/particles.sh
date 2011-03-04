@@ -43,7 +43,7 @@ VSParticleDrawOut VS(VSParticleIn input)
     // Pass the point through
     //    
 	output.pos = float4(input.pos, 1);			
-    output.radius = 0.5;
+    output.radius = 0.025;
     output.color = input.col;//float4(0,0.2,1,1);    
     return output;
 }
@@ -59,9 +59,9 @@ void GS(point VSParticleDrawOut input[1], inout TriangleStream<PSSceneIn> Sprite
     //
     // Emit two new triangles
     //
-    for(int i=0; i < 4; ++i)
+    for(int i = 0; i < 4; ++i)
     {
-        float4 position = g_positions[i] * 0.05 * input[0].radius;
+        float4 position = g_positions[i] * input[0].radius;
         position = mul(position, ginvView) + input[0].pos;		
         output.pos = mul( position, gWVP );     
 		output.color = input[0].color;
