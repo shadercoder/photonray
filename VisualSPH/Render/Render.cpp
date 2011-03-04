@@ -143,11 +143,13 @@ void InitApp()
 	g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 35, iY += 24, 125, 22, VK_F3 );
 	g_HUD.AddButton( IDC_TOGGLEWARP, L"Toggle WARP (F4)", 35, iY += 24, 125, 22, VK_F4 );
 
+	D3DXCOLOR bg( 0.0f, 0.125f, 0.3f, 0.2f);
+	//g_SampleUI.SetBackgroundColors(bg, bg, bg, bg);
 	g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 	g_SampleUI.AddComboBox( IDC_RENDERTYPE, 35, iY += 24, 120, 22, 0, false);
 	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->SetDropHeight(40);
-	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"0 Metaballs", (void*) 0);
-	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"1 Particles", (void*) 1);
+	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"Metaballs", (void*) 0);
+	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"Particles", (void*) 1);
 
 	switch (appSettings.renderState)
 	{
@@ -203,9 +205,9 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
 	D3DXMatrixIdentity( &g_World );
 
 	// Initialize the camera
-	D3DXVECTOR3 Eye( 2.0f, 2.0f, 0.0f );
-	D3DXVECTOR3 At( 0.0f, 0.0f, 0.0f );
-	g_Camera.SetViewParams( &Eye, &At );
+	//D3DXVECTOR3 Eye( appSettings.cameraPos, 2.0f, 0.0f );
+	//D3DXVECTOR3 At( 0.0f, 0.0f, 0.0f );
+	g_Camera.SetViewParams( &appSettings.cameraPos, &appSettings.cameraLookAt);
 
 	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
 	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
@@ -262,7 +264,9 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	//
 	// Clear the back buffer
 	//
-	float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; // red, green, blue, alpha
+	//141 182 205
+	float ClearColor[4] = { 0.552f, 0.713f, 0.803f, 1.0f };
+	//float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; // red, green, blue, alpha
 	ID3D10RenderTargetView* pRTV = DXUTGetD3D10RenderTargetView();
 	pd3dDevice->ClearRenderTargetView( pRTV, ClearColor );
 

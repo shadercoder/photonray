@@ -69,7 +69,7 @@ PS_IN QuadVS(VS_IN input)
 	output.pos = float4(input.pos, 0);
 	output.textcoord = input.textcoord;
 	//output.col = input.col;
-	output.col = float4(0.0f, 0.125f, 0.3f, 1.0f);
+	output.col = float4(0.552f, 0.713f, 0.803f, 1.0f);
 	output.pos = mul(float4(input.pos, 1), mWorldViewProj);
 	return output;
 }
