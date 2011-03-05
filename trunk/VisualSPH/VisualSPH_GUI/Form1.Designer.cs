@@ -69,7 +69,6 @@
             this.txtHeighFile.Name = "txtHeighFile";
             this.txtHeighFile.Size = new System.Drawing.Size(149, 20);
             this.txtHeighFile.TabIndex = 0;
-            this.txtHeighFile.Text = "./frames/2/";
             // 
             // btnBrowse
             // 
@@ -324,26 +323,26 @@
             this.menuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem});
             this.menuFile.Name = "menuFile";
-            this.menuFile.Size = new System.Drawing.Size(35, 20);
+            this.menuFile.Size = new System.Drawing.Size(37, 20);
             this.menuFile.Text = "File";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // menuParameters
             // 
             this.menuParameters.Name = "menuParameters";
-            this.menuParameters.Size = new System.Drawing.Size(74, 20);
+            this.menuParameters.Size = new System.Drawing.Size(78, 20);
             this.menuParameters.Text = "Parameters";
             // 
             // menuHelp
             // 
             this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size(40, 20);
+            this.menuHelp.Size = new System.Drawing.Size(44, 20);
             this.menuHelp.Text = "Help";
             // 
             // menuAbout
@@ -351,13 +350,13 @@
             this.menuAbout.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.menuAbout.Name = "menuAbout";
-            this.menuAbout.Size = new System.Drawing.Size(48, 20);
+            this.menuAbout.Size = new System.Drawing.Size(52, 20);
             this.menuAbout.Text = "About";
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "About";
             // 
             // FrmVisualSPH

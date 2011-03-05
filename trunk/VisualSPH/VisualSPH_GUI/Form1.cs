@@ -19,9 +19,7 @@ namespace VisualSPH_GUI
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
-
             FolderBrowserDialog folderBrowserDialog1 = new FolderBrowserDialog();
-            DialogResult dialogresult = folderBrowserDialog1.ShowDialog();
             string folderName = "";
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
@@ -33,7 +31,32 @@ namespace VisualSPH_GUI
 
         private void PushToConfigFile()
         {
-           //  StreamWriter configFile = new StreamWriter("config.file");
+            FileStream filestream = new FileStream(Application.StartupPath + "\\settings.txt", FileMode.OpenOrCreate, FileAccess.Write);
+
+            filestream.SetLength(0);
+
+            StreamWriter streamwriter = new StreamWriter(filestream);
+
+            streamwriter.Write(txtHeighFile.Text + "\\");
+            streamwriter.Write("\n");
+            streamwriter.Write(txtFilePattern.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtStartName.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtLastName.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtStep.Text);
+            streamwriter.Write("\n" + "5 5 1" + "\n" + "0 0 0");
+            streamwriter.Write("\n");
+            streamwriter.Write(cmbScreenResolution.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(cmbGridResolution.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(cmbView.Text);
+
+            streamwriter.Flush();
+            streamwriter.Close();
+            filestream.Close();
         }
         private void txtFilePattern_TextChanged(object sender, EventArgs e)
         {
@@ -106,34 +129,7 @@ namespace VisualSPH_GUI
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-
-            FileStream filestream = new FileStream("c:\\Documents and Settings\\Admin\\Мои документы\\Visual Studio 2010\\Projects\\VisualSPH(2)\\VisualSPH\\Render\\settings.txt", FileMode.OpenOrCreate, FileAccess.Write);
-
-            filestream.SetLength(0);
-
-            StreamWriter streamwriter = new StreamWriter(filestream);
-
-            streamwriter.Write(txtHeighFile.Text);
-            streamwriter.Write("\n");
-            streamwriter.Write(txtFilePattern.Text);
-            streamwriter.Write("\n");
-            streamwriter.Write(txtStartName.Text);
-            streamwriter.Write("\n");
-            streamwriter.Write(txtLastName.Text);
-            streamwriter.Write("\n");
-            streamwriter.Write(txtStep.Text);
-            streamwriter.Write("\n" + "5 5 1" + "\n" + "0 0 0");
-            streamwriter.Write("\n");
-            streamwriter.Write(cmbScreenResolution.Text);
-            streamwriter.Write("\n");
-            streamwriter.Write(cmbGridResolution.Text);
-            streamwriter.Write("\n");
-            streamwriter.Write(cmbView.Text);
-
-            streamwriter.Flush();
-            streamwriter.Close();
-            filestream.Close(); 
-
+            PushToConfigFile();
         }
 
         private void btnExit_Click(object sender, EventArgs e)
