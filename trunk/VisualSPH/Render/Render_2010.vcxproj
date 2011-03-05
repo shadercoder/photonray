@@ -162,8 +162,9 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy .\metaballs.sh ..\Debug
+copy .\particles.sh ..\Debug
+copy .\Particle.dds ..\Debug</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
@@ -245,8 +246,9 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy .\metaballs.sh ..\Release
+copy .\particles.sh ..\Release
+copy .\Particle.dds ..\Release</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">

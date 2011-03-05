@@ -15,6 +15,21 @@ private:
 		D3DXVECTOR4 vLightPos2;
 		D3DXVECTOR4 vMaterial;
 	};
+	struct Light
+	{
+		D3DXVECTOR4 pos;
+		D3DXCOLOR color;
+	};
+	struct Material
+	{
+		float Ka, Kd, Ks, A;
+	};
+	struct CBUFFER_IMMUTE
+	{
+		D3DXCOLOR ambientLight;
+		Light l1, l2;
+		Material material;
+	};
 
 	ID3D10VertexShader*			pVertexShader;
 	ID3D10InputLayout*			pVertexLayout;
@@ -26,6 +41,7 @@ private:
 	ID3D10Blob*					pBlob;
 
 	ID3D10Buffer*				mCB;
+	ID3D10Buffer*				mCB_Immute;
 	ID3D10ShaderResourceView*	frontSRV;
 	ID3D10ShaderResourceView*	backSRV;
 	ID3D10ShaderResourceView*	volume;

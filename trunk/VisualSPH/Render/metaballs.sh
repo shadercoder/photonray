@@ -4,6 +4,17 @@ Texture3D volume;
 Texture2D noise;
 SamplerState mysampler;
 
+struct DirectionalLight
+{
+	float4 dir;
+	float4 color;	
+};
+
+struct Material
+{
+	float Ka, Kd, Ks, A;
+};
+
 cbuffer everyFrame
 {
     row_major float4x4 mWorldViewProj;		
@@ -11,6 +22,14 @@ cbuffer everyFrame
 	float4 vLightPos2;
 	float4 vDiffuseMaterial;
 	float4 eye;
+};
+
+cbuffer Immute
+{
+	float4 ambientLight;
+	DirectionalLight l1;
+	DirectionalLight l2;
+	Material material;
 };
 
 struct VS_INPUT 
@@ -58,7 +77,7 @@ struct VS_IN
 };
 struct PS_IN 
 {
-	float4 pos : SV_Position;
+	float4 pos : SV_Position;	
 	float2 textcoord : TEXCOORD0;
 	float4 col : COLOR;
 };
@@ -74,9 +93,32 @@ PS_IN QuadVS(VS_IN input)
 	return output;
 }
 
+//--------------------------------------------------------------------------------------
+// Phong Lighting Reflection Model
+//--------------------------------------------------------------------------------------
+float4 calcPhongLighting( Material M, float4 LColor, float3 N, float3 L, float3 V, float3 R )
+{
+	float4 Ia = M.Ka * ambientLight;
+	float4 Id = M.Kd * saturate( dot(N,L) );
+	float4 Is = M.Ks * pow( saturate(dot(R,V)), M.A );	
+	return Ia + (Id + Is) * LColor;
+}
+
+//--------------------------------------------------------------------------------------
+// Blinn-Phong Lighting Reflection Model
+//--------------------------------------------------------------------------------------
+float4 calcBlinnPhongLighting( Material M, float4 LColor, float3 N, float3 L, float3 H )
+{
+	float4 Ia = M.Ka * ambientLight;
+	float4 Id = M.Kd * saturate( dot(N,L) * 0.5f + 0.5f );
+	float4 Is = M.Ks * pow( saturate(dot(N,H)), M.A );
+
+	return Ia + (Id + Is) * LColor;
+}
+
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 20;
+	const int Iterations = 64;
 	const float Threshold = 0.45;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
@@ -88,16 +130,16 @@ float4 RayCastPS(PS_IN input): SV_Target
 		discard;
 	}
     	
-    float4 dst = input.col + float4(0, 0.02, 0.1, 0);
+    float4 dst = float4( 0.552f, 0.713f, 0.803f, 1.0f );// = float4( 0.0f, 0.125f, 0.3f, 0.2f);
 	dst.a = 0;
   
 	float value = 0;	 
     float3 Step = dir * StepSize;		
 	float4 halfStepBack = float4(-Step * 0.5, 0);
-	float3 light1 = normalize(vLightPos1);	
-	float3 light2 = normalize(vLightPos2);	
+	float3 light1 = normalize(l1.dir);	
+	float3 light2 = normalize(l2.dir);	
 	float4 pos = float4(front - Step * noise.Sample(mysampler, float2(((int) (front.x * 1000)) % 32 / 32.0, ((int) (front.y * 1000)) % 32 / 32.0)).r, 0); 
-
+	
 	float E, N, U;
 	float k;
 	float3 normal, color;		
@@ -115,8 +157,13 @@ float4 RayCastPS(PS_IN input): SV_Target
 			E = volume.Sample(mysampler, pos + float4(StepSize, 0, 0, 0)).r;
 			N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
 			U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
-			normal = normalize(float3(E - value, N - value, U - value));
-			color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial * 0.5 + 0.5);			
+			normal = -normalize(float3(E - value, N - value, U - value));
+			float3 R = reflect(l1.dir, normal);
+			
+			//color = calcPhongLighting( material, l1.color, normal, -l1.dir, dir, R ) * float3(0.41f, 0.35f, 0.8f);
+			color = calcPhongLighting( material, l1.color, normal, -l1.dir, dir, R ) * float3(0.0f, 0.125f, 0.3f);
+
+			//color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial * 0.5 + 0.5);			
 			dst = float4(color, 1);     
 			break;     
 		} 
