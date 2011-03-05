@@ -24,8 +24,8 @@ ParticlesContainer::~ParticlesContainer(void)
 
 void ParticlesContainer::open(int curr)
 {
-	char fileName[50];
-	sprintf_s(fileName, 50, "%s%05d%s", pathToFolder, curr, filePattern);
+	char fileName[256];
+	sprintf_s(fileName, 256, "%s%05d%s", pathToFolder, curr, filePattern);
 	errno_t err;
 	err = fopen_s(&pIn, fileName, "r");
 	if (err != 0)
@@ -56,9 +56,9 @@ Particle* ParticlesContainer::getFrame(int num)
 	{
 		fscanf_s(pIn, "%s", junk, _countof(junk));
 	}
-	float xsize = xmax - xmin;
-	float ysize = ymax - ymin;
-	float zsize = zmax - zmin;
+	//float xsize = xmax - xmin;
+	//float ysize = ymax - ymin;
+	//float zsize = zmax - zmin;
 	//float k = 1.0f / max(max(xsize, ysize), zsize);
 	int sz = 0;
 	float data[10] = {};

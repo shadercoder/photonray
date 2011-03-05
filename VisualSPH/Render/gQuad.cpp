@@ -16,6 +16,7 @@ gQuad::~gQuad(void)
 	SAFE_RELEASE(pRasterizerState);
 	SAFE_RELEASE(pDepthStencilState);
 	SAFE_RELEASE(mCB);
+	SAFE_RELEASE(mCB_Immute);
 }
 
 HRESULT gQuad::init(ID3D10Device* device)
@@ -79,6 +80,26 @@ HRESULT gQuad::init(ID3D10Device* device)
 	cbDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
 	cbDesc.MiscFlags = 0;
 	HR(md3dDevice->CreateBuffer( &cbDesc, NULL, &mCB));
+	HR(md3dDevice->CreateBuffer( &cbDesc, NULL, &mCB_Immute));
+
+	CBUFFER_IMMUTE* pCBData;
+	mCB_Immute->Map(D3D10_MAP_WRITE_DISCARD, NULL, ( void** )&pCBData );
+	
+	pCBData->ambientLight = D3DXCOLOR(1.0f, 1.0f , 1.0f, 1.0f);
+
+	pCBData->l1.pos = D3DXVECTOR4(-1, -1, -1, 0);
+	pCBData->l1.color = D3DXCOLOR(1.0f, 1.0f , 1.0f, 1.0f);
+
+	pCBData->l2.pos = D3DXVECTOR4(1, 1, 1, 0);
+	pCBData->l2.color = D3DXCOLOR(255. / 255., 255. / 255., 255. / 255., 1.0f);
+
+	pCBData->material.Ka = 0.1f;
+	pCBData->material.Kd = 0.5f;
+	pCBData->material.Ks = 0.5f;
+	pCBData->material.A = 30.f;
+
+	mCB_Immute->Unmap();
+
 
 	// Create a blend state to disable alpha blending
 	D3D10_BLEND_DESC BlendState;
@@ -164,7 +185,8 @@ void gQuad::draw()
 	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 	md3dDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	md3dDevice->VSSetConstantBuffers( 0, 1, &mCB);
-	md3dDevice->PSSetConstantBuffers( 0, 1, &mCB);
+	//md3dDevice->PSSetConstantBuffers( 0, 1, &mCB);
+	md3dDevice->PSSetConstantBuffers( 0, 1, &mCB_Immute);
 	md3dDevice->OMSetBlendState(pBlendState, 0, 0xffffffff);
 	md3dDevice->OMSetDepthStencilState(pDepthStencilState, 0);	
 	md3dDevice->RSSetState(pRasterizerState);
@@ -191,8 +213,10 @@ void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D10ShaderResourceView* fr
 	pConstData->mWorldViewProj = mWorldViewProj;
 	pConstData->vLightPos1 = D3DXVECTOR4(-1, -1, -1, 0);
 	pConstData->vLightPos2 = D3DXVECTOR4(1, 1, 1, 0);
-	pConstData->vMaterial = D3DXVECTOR4(112. / 255., 147. / 255., 219. / 255., 0.8);
+	//106 90 205
+	pConstData->vMaterial = D3DXVECTOR4(0.41f, 0.35f, 0.8f, 1.0f);
 	mCB->Unmap();
+
 	this->frontSRV = frontSRV;
 	this->backSRV = backSRV;
 }
