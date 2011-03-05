@@ -32,7 +32,12 @@
             this.btnBrowse = new System.Windows.Forms.Button();
             this.txtFilePattern = new System.Windows.Forms.TextBox();
             this.grpView = new System.Windows.Forms.GroupBox();
+            this.lblRenderType = new System.Windows.Forms.Label();
             this.cmbView = new System.Windows.Forms.ComboBox();
+            this.cmbGridResolution = new System.Windows.Forms.ComboBox();
+            this.lblGridResolution = new System.Windows.Forms.Label();
+            this.cmbScreenResolution = new System.Windows.Forms.ComboBox();
+            this.lblScreenResolution = new System.Windows.Forms.Label();
             this.grpFrames = new System.Windows.Forms.GroupBox();
             this.txtStep = new System.Windows.Forms.TextBox();
             this.txtLastName = new System.Windows.Forms.TextBox();
@@ -43,10 +48,6 @@
             this.lblPlayParameters = new System.Windows.Forms.Label();
             this.lblFilePattern = new System.Windows.Forms.Label();
             this.lblFolder = new System.Windows.Forms.Label();
-            this.lblScreenResolution = new System.Windows.Forms.Label();
-            this.lblGridResolution = new System.Windows.Forms.Label();
-            this.cmbScreenResolution = new System.Windows.Forms.ComboBox();
-            this.cmbGridResolution = new System.Windows.Forms.ComboBox();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
@@ -57,7 +58,6 @@
             this.menuHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblRenderType = new System.Windows.Forms.Label();
             this.grpView.SuspendLayout();
             this.grpFrames.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -69,6 +69,7 @@
             this.txtHeighFile.Name = "txtHeighFile";
             this.txtHeighFile.Size = new System.Drawing.Size(149, 20);
             this.txtHeighFile.TabIndex = 0;
+            this.txtHeighFile.Text = "./frames/2/";
             // 
             // btnBrowse
             // 
@@ -86,6 +87,7 @@
             this.txtFilePattern.Name = "txtFilePattern";
             this.txtFilePattern.Size = new System.Drawing.Size(149, 20);
             this.txtFilePattern.TabIndex = 2;
+            this.txtFilePattern.Text = "_flu.txt";
             this.txtFilePattern.TextChanged += new System.EventHandler(this.txtFilePattern_TextChanged);
             // 
             // grpView
@@ -104,17 +106,72 @@
             this.grpView.Text = "View";
             this.grpView.Enter += new System.EventHandler(this.grpView_Enter);
             // 
+            // lblRenderType
+            // 
+            this.lblRenderType.AutoSize = true;
+            this.lblRenderType.Location = new System.Drawing.Point(7, 18);
+            this.lblRenderType.Name = "lblRenderType";
+            this.lblRenderType.Size = new System.Drawing.Size(65, 13);
+            this.lblRenderType.TabIndex = 12;
+            this.lblRenderType.Text = "Render type";
+            // 
             // cmbView
             // 
             this.cmbView.FormattingEnabled = true;
             this.cmbView.Items.AddRange(new object[] {
-            "Частицы",
-            "Векторы",
-            "Меташары"});
+            "particles",
+            "vectors",
+            "metaballs"});
             this.cmbView.Location = new System.Drawing.Point(6, 34);
             this.cmbView.Name = "cmbView";
             this.cmbView.Size = new System.Drawing.Size(143, 21);
             this.cmbView.TabIndex = 0;
+            this.cmbView.Text = "particles";
+            // 
+            // cmbGridResolution
+            // 
+            this.cmbGridResolution.FormattingEnabled = true;
+            this.cmbGridResolution.Items.AddRange(new object[] {
+            "64",
+            "128",
+            "256"});
+            this.cmbGridResolution.Location = new System.Drawing.Point(6, 74);
+            this.cmbGridResolution.Name = "cmbGridResolution";
+            this.cmbGridResolution.Size = new System.Drawing.Size(143, 21);
+            this.cmbGridResolution.TabIndex = 11;
+            this.cmbGridResolution.Text = "128";
+            this.cmbGridResolution.SelectedIndexChanged += new System.EventHandler(this.cmbGridResolution_SelectedIndexChanged);
+            // 
+            // lblGridResolution
+            // 
+            this.lblGridResolution.AutoSize = true;
+            this.lblGridResolution.Location = new System.Drawing.Point(7, 58);
+            this.lblGridResolution.Name = "lblGridResolution";
+            this.lblGridResolution.Size = new System.Drawing.Size(74, 13);
+            this.lblGridResolution.TabIndex = 9;
+            this.lblGridResolution.Text = "Grid resolution";
+            // 
+            // cmbScreenResolution
+            // 
+            this.cmbScreenResolution.FormattingEnabled = true;
+            this.cmbScreenResolution.Items.AddRange(new object[] {
+            "800 600",
+            "1024 768",
+            "1280 1024"});
+            this.cmbScreenResolution.Location = new System.Drawing.Point(6, 114);
+            this.cmbScreenResolution.Name = "cmbScreenResolution";
+            this.cmbScreenResolution.Size = new System.Drawing.Size(143, 21);
+            this.cmbScreenResolution.TabIndex = 10;
+            this.cmbScreenResolution.Text = "800 600";
+            // 
+            // lblScreenResolution
+            // 
+            this.lblScreenResolution.AutoSize = true;
+            this.lblScreenResolution.Location = new System.Drawing.Point(7, 98);
+            this.lblScreenResolution.Name = "lblScreenResolution";
+            this.lblScreenResolution.Size = new System.Drawing.Size(89, 13);
+            this.lblScreenResolution.TabIndex = 8;
+            this.lblScreenResolution.Text = "Screen resolution";
             // 
             // grpFrames
             // 
@@ -138,6 +195,7 @@
             this.txtStep.Name = "txtStep";
             this.txtStep.Size = new System.Drawing.Size(55, 20);
             this.txtStep.TabIndex = 5;
+            this.txtStep.Text = "1";
             this.txtStep.TextChanged += new System.EventHandler(this.txtStep_TextChanged);
             // 
             // txtLastName
@@ -146,6 +204,7 @@
             this.txtLastName.Name = "txtLastName";
             this.txtLastName.Size = new System.Drawing.Size(55, 20);
             this.txtLastName.TabIndex = 4;
+            this.txtLastName.Text = "10";
             this.txtLastName.TextChanged += new System.EventHandler(this.txtLastName_TextChanged);
             // 
             // txtStartName
@@ -154,6 +213,7 @@
             this.txtStartName.Name = "txtStartName";
             this.txtStartName.Size = new System.Drawing.Size(55, 20);
             this.txtStartName.TabIndex = 3;
+            this.txtStartName.Text = "0";
             this.txtStartName.TextChanged += new System.EventHandler(this.txtStartName_TextChanged);
             // 
             // lblStep
@@ -215,49 +275,6 @@
             this.lblFolder.Text = "Folder";
             this.lblFolder.Click += new System.EventHandler(this.lblFolder_Click);
             // 
-            // lblScreenResolution
-            // 
-            this.lblScreenResolution.AutoSize = true;
-            this.lblScreenResolution.Location = new System.Drawing.Point(7, 98);
-            this.lblScreenResolution.Name = "lblScreenResolution";
-            this.lblScreenResolution.Size = new System.Drawing.Size(89, 13);
-            this.lblScreenResolution.TabIndex = 8;
-            this.lblScreenResolution.Text = "Screen resolution";
-            // 
-            // lblGridResolution
-            // 
-            this.lblGridResolution.AutoSize = true;
-            this.lblGridResolution.Location = new System.Drawing.Point(7, 58);
-            this.lblGridResolution.Name = "lblGridResolution";
-            this.lblGridResolution.Size = new System.Drawing.Size(74, 13);
-            this.lblGridResolution.TabIndex = 9;
-            this.lblGridResolution.Text = "Grid resolution";
-            // 
-            // cmbScreenResolution
-            // 
-            this.cmbScreenResolution.FormattingEnabled = true;
-            this.cmbScreenResolution.Items.AddRange(new object[] {
-            "800х600",
-            "1024х768",
-            "1280х1024"});
-            this.cmbScreenResolution.Location = new System.Drawing.Point(6, 114);
-            this.cmbScreenResolution.Name = "cmbScreenResolution";
-            this.cmbScreenResolution.Size = new System.Drawing.Size(143, 21);
-            this.cmbScreenResolution.TabIndex = 10;
-            // 
-            // cmbGridResolution
-            // 
-            this.cmbGridResolution.FormattingEnabled = true;
-            this.cmbGridResolution.Items.AddRange(new object[] {
-            "64",
-            "128",
-            "256"});
-            this.cmbGridResolution.Location = new System.Drawing.Point(6, 74);
-            this.cmbGridResolution.Name = "cmbGridResolution";
-            this.cmbGridResolution.Size = new System.Drawing.Size(143, 21);
-            this.cmbGridResolution.TabIndex = 11;
-            this.cmbGridResolution.SelectedIndexChanged += new System.EventHandler(this.cmbGridResolution_SelectedIndexChanged);
-            // 
             // btnSave
             // 
             this.btnSave.Location = new System.Drawing.Point(17, 447);
@@ -307,26 +324,26 @@
             this.menuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem});
             this.menuFile.Name = "menuFile";
-            this.menuFile.Size = new System.Drawing.Size(37, 20);
+            this.menuFile.Size = new System.Drawing.Size(35, 20);
             this.menuFile.Text = "File";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // menuParameters
             // 
             this.menuParameters.Name = "menuParameters";
-            this.menuParameters.Size = new System.Drawing.Size(78, 20);
+            this.menuParameters.Size = new System.Drawing.Size(74, 20);
             this.menuParameters.Text = "Parameters";
             // 
             // menuHelp
             // 
             this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size(44, 20);
+            this.menuHelp.Size = new System.Drawing.Size(40, 20);
             this.menuHelp.Text = "Help";
             // 
             // menuAbout
@@ -334,23 +351,14 @@
             this.menuAbout.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.menuAbout.Name = "menuAbout";
-            this.menuAbout.Size = new System.Drawing.Size(52, 20);
+            this.menuAbout.Size = new System.Drawing.Size(48, 20);
             this.menuAbout.Text = "About";
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.aboutToolStripMenuItem.Text = "About";
-            // 
-            // lblRenderType
-            // 
-            this.lblRenderType.AutoSize = true;
-            this.lblRenderType.Location = new System.Drawing.Point(7, 18);
-            this.lblRenderType.Name = "lblRenderType";
-            this.lblRenderType.Size = new System.Drawing.Size(65, 13);
-            this.lblRenderType.TabIndex = 12;
-            this.lblRenderType.Text = "Render type";
             // 
             // FrmVisualSPH
             // 
