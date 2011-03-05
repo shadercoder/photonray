@@ -19,17 +19,16 @@ namespace VisualSPH_GUI
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
-            openFileDialog1.InitialDirectory = "c:\\";
-            openFileDialog1.Filter = "Text files (*.txt)|*.txt";
-            openFileDialog1.Title = "Select a Text filese";
-            openFileDialog1.RestoreDirectory = true;
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            FolderBrowserDialog folderBrowserDialog1 = new FolderBrowserDialog();
+            DialogResult dialogresult = folderBrowserDialog1.ShowDialog();
+            string folderName = "";
+            DialogResult result = folderBrowserDialog1.ShowDialog();
+            if (result == DialogResult.OK)
             {
-                txtHeighFile.Text = openFileDialog1.FileName;
+               folderName = folderBrowserDialog1.SelectedPath;
             }
+            txtHeighFile.Text = folderName;
         }
 
         private void PushToConfigFile()
@@ -107,6 +106,33 @@ namespace VisualSPH_GUI
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+
+            FileStream filestream = new FileStream("c:\\Documents and Settings\\Admin\\Мои документы\\Visual Studio 2010\\Projects\\VisualSPH(2)\\VisualSPH\\Render\\settings.txt", FileMode.OpenOrCreate, FileAccess.Write);
+
+            filestream.SetLength(0);
+
+            StreamWriter streamwriter = new StreamWriter(filestream);
+
+            streamwriter.Write(txtHeighFile.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtFilePattern.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtStartName.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtLastName.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(txtStep.Text);
+            streamwriter.Write("\n" + "5 5 1" + "\n" + "0 0 0");
+            streamwriter.Write("\n");
+            streamwriter.Write(cmbScreenResolution.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(cmbGridResolution.Text);
+            streamwriter.Write("\n");
+            streamwriter.Write(cmbView.Text);
+
+            streamwriter.Flush();
+            streamwriter.Close();
+            filestream.Close(); 
 
         }
 
