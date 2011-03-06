@@ -35,7 +35,6 @@ gMetaballs::~gMetaballs(void)
 float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 {	
 	D3DXVECTOR3 tmp = centerBall - cell;	
-	//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
 	float len = D3DXVec3Dot(&tmp, &tmp);
 	if (len > metaballsSize * metaballsSize) {
 		return 0.0f;
@@ -48,26 +47,29 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 	this->scale = scale;
 	this->metaballsSize = metaballsSize;
 	field.clear();
-	for (int i = 0; i < numParticles; ++i)
-	{
-		int x = (int) (particles[i].position.x * scale);
-		int y = (int) (particles[i].position.y * scale);
-		int z = (int) (particles[i].position.z * scale);
-		for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
-		{
-			for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
-			{
-				for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
-				{
-					D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
-					if(field.isInside(x + dx, y + dy, z + dz))
-					{
-						field.lvalue(x + dx, y + dy, z + dz) += calcMetaball(particles[i].position * scale, cell);
-					}
-				}
-			}
-		}
-	}
+	//for (int i = 0; i < numParticles; ++i)
+	//{
+	//	int x = (int) (particles[i].position.x * scale);
+	//	int y = (int) (particles[i].position.y * scale);
+	//	int z = (int) (particles[i].position.z * scale);
+	//	for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
+	//	{
+	//		for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
+	//		{
+	//			for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
+	//			{
+	//				D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
+	//				if(field.isInside(x + dx, y + dy, z + dz))
+	//				{
+	//					field.lvalue(x + dx, y + dy, z + dz) += calcMetaball(particles[i].position * scale, cell);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	//---------------------Changed here----------------------//
+	parallel_for(blocked_range<size_t>(0, numParticles), CalcField(&field, &particles[0], metaballsSize, scale));
+
 	D3D10_MAPPED_TEXTURE3D pMT;
 	HR(pVolume->Map(D3D10CalcSubresource(0, 0, 1), D3D10_MAP_WRITE_DISCARD, 0, &pMT));	
 	int strideI = pMT.DepthPitch / sizeof(float);
