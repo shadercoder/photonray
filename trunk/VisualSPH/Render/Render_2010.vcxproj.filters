@@ -88,6 +88,7 @@
     <None Include="Particle.dds">
       <Filter>Textures</Filter>
     </None>
+    <None Include="segments.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />

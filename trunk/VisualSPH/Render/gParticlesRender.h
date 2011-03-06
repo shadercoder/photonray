@@ -2,6 +2,7 @@
 #include "gobject.h"
 #include "Particle.h"
 #include <vector>
+#include "For_Color.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ private:
 	ID3D10Buffer*				mCB;
 	ID3D10Buffer*				mCBImmute;
 	ID3D10ShaderResourceView*	pTexParticleSRV;
+	For_color					painter;
 public:
 	gParticlesRender(void);
 	~gParticlesRender(void);

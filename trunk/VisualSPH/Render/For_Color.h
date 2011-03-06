@@ -33,7 +33,7 @@ public:
 		N = 0; 
 	}
 	int	InitSpectr(char*);
-	D3DXCOLOR GetColor(Particle& temp);
+	D3DXCOLOR GetColor(const Particle* temp);
 };
 
 #endif

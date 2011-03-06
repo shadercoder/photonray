@@ -14,6 +14,7 @@ gParticlesRender::~gParticlesRender(void)
 HRESULT gParticlesRender::init(ID3D10Device* device)
 {
 	HRESULT hr;
+	painter.InitSpectr("segments.txt");
 	md3dDevice = device;
 	DWORD dwShaderFlags = 0;
 #if defined( DEBUG ) || defined( _DEBUG )
@@ -220,8 +221,7 @@ void gParticlesRender::updateParticles(const vector<Particle>& particles)
 	for (size_t i = 0; i < particles.size(); ++i)
 	{
 		vertices[i].pos = particles[i].position;
-		// TODO : add gradient
-		vertices[i].color = BLUE;
+		vertices[i].color = painter.GetColor(&particles[i]);
 	}
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));	
