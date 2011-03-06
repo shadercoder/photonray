@@ -21,7 +21,7 @@ private:
 	float metaballsSize;
 	float scale;
 	const float threadshold;
-	static float calcMetaball(const D3DXVECTOR3 centerBall, const D3DXVECTOR3 cell, const float threadshold)
+	inline static float calcMetaball(const D3DXVECTOR3 centerBall, const D3DXVECTOR3 cell, const float threadshold)
 	{	
 		D3DXVECTOR3 tmp = centerBall - cell;	
 		//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
@@ -48,11 +48,11 @@ public:
 			int x = (int) (particles[i].position.x * scale);
 			int y = (int) (particles[i].position.y * scale);
 			int z = (int) (particles[i].position.z * scale);
-			for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
+			for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
 			{
-				for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
+				for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
 				{
-					for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
+					for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
 					{
 						D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
 						if(field->isInside(x + dx, y + dy, z + dz))
