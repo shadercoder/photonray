@@ -4,8 +4,68 @@
 #include "gQuad.h"
 #include "DenseField.h"
 #include "Particle.h"
+#include <algorithm>
+#include "tbb/tbb.h"
+#include "tbb/parallel_for.h"
+#include "tbb/blocked_range.h"
+
+using namespace tbb;
 
 using namespace std;
+
+class CalcField
+{
+private:
+	DenseField* field;
+	const Particle* particles;		
+	float metaballsSize;
+	float scale;
+	const float threadshold;
+	static float calcMetaball(const D3DXVECTOR3 centerBall, const D3DXVECTOR3 cell, const float threadshold)
+	{	
+		D3DXVECTOR3 tmp = centerBall - cell;	
+		//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
+		float len = D3DXVec3Dot(&tmp, &tmp);
+		if (len > threadshold) {
+			return 0.0f;
+		}
+		return 1.0f / (len + 1e-5f);
+	}
+public:	
+	CalcField(DenseField* field, const Particle* particles, float metaballsSize, float scale)
+		:threadshold(metaballsSize * metaballsSize)
+	{
+		this->field = field;
+		this->particles = particles;		
+		this->metaballsSize = metaballsSize;
+		this->scale = scale;		
+	}
+	
+	void operator()(const blocked_range<size_t>& r) const
+	{
+		for (size_t i = r.begin(); i != r.end(); ++i)
+		{
+			int x = (int) (particles[i].position.x * scale);
+			int y = (int) (particles[i].position.y * scale);
+			int z = (int) (particles[i].position.z * scale);
+			for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
+			{
+				for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
+				{
+					for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
+					{
+						D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
+						if(field->isInside(x + dx, y + dy, z + dz))
+						{
+							field->lvalue(x + dx, y + dy, z + dz) += calcMetaball(particles[i].position * scale, cell, threadshold);
+						}
+					}
+				}
+			}			
+		}
+	}
+};
+
 
 struct VS_CONSTANT_BUFFER
 {
@@ -57,7 +117,7 @@ private:
 
 	void drawBox();
 	float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
-public:
+public:	
 	UINT mNumMetaballs;
 	void updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize);
 	void draw();
