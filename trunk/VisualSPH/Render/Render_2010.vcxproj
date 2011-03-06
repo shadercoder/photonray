@@ -380,9 +380,11 @@ copy .\Particle.dds ..\Release</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="For_Color.cpp" />
     <ClCompile Include="gParticlesRender.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="For_Color.h" />
     <ClInclude Include="gParticlesRender.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Vertex.h" />
