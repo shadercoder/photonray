@@ -164,7 +164,10 @@
     <PostBuildEvent>
       <Command>copy .\metaballs.sh ..\Debug
 copy .\particles.sh ..\Debug
-copy .\Particle.dds ..\Debug</Command>
+copy .\Particle.dds ..\Debug
+copy .\segments.txt ..\Debug
+copy ..\lib\tbb_debug.dll ..\Debug
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
@@ -248,7 +251,9 @@ copy .\Particle.dds ..\Debug</Command>
     <PostBuildEvent>
       <Command>copy .\metaballs.sh ..\Release
 copy .\particles.sh ..\Release
-copy .\Particle.dds ..\Release</Command>
+copy .\Particle.dds ..\Release
+copy .\segments.txt ..\Release
+copy ..\lib\tbb.dll ..\Release</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
