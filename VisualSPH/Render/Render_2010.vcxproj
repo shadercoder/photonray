@@ -419,6 +419,7 @@ copy .\Particle.dds ..\Release</Command>
     <None Include="metaballs.sh" />
     <None Include="Particle.dds" />
     <None Include="particles.sh" />
+    <None Include="segments.txt" />
     <None Include="settings.txt" />
     <None Include="settings_readme.txt" />
   </ItemGroup>
