@@ -115,12 +115,13 @@ float4 calcBlinnPhongLighting( Material M, float4 LColor, float3 N, float3 L, fl
 	return Ia + (Id + Is) * LColor;
 }
 
-float3 calcGradient(float4 pos, float value, float StepSize)
+float3 calcGradient(float3 pos, float value, float StepSize)
 {
-	float E = volume.Sample(mysampler, pos + float4(StepSize, 0, 0, 0)).r;
-	float N = volume.Sample(mysampler, pos + float4(0, StepSize, 0, 0)).r;
-	float U = volume.Sample(mysampler, pos + float4(0, 0, StepSize, 0)).r;
-	return normalize(float3(E - value, N - value, U - value));	
+	float E = volume.SampleLevel(mysampler, pos + float3(StepSize, 0, 0), 0).r;
+	float N = volume.SampleLevel(mysampler, pos + float3(0, StepSize, 0), 0).r;
+	float U = volume.SampleLevel(mysampler, pos + float3(0, 0, StepSize), 0).r;
+	float3 ret = normalize(float3(E - value, N - value, U - value));	
+	return ret;
 }
 
 float4 RayCastPS(PS_IN input): SV_Target
@@ -129,8 +130,8 @@ float4 RayCastPS(PS_IN input): SV_Target
 	const float Threshold = 0.45;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
-    float3 front = frontS.Sample(mysampler, texC).xyz;
-    float3 back = backS.Sample(mysampler, texC).xyz;
+    float3 front = frontS.SampleLevel(mysampler, texC, 0).xyz;
+    float3 back = backS.SampleLevel(mysampler, texC, 0).xyz;
     float3 dir = normalize(back - front);
     if (dot(front, back) == 0)
 	{
@@ -142,31 +143,31 @@ float4 RayCastPS(PS_IN input): SV_Target
   
 	float value = 0;	 
     float3 Step = dir * StepSize;		
-	float4 halfStepBack = float4(-Step * 0.5, 0);
+	float3 halfStepBack = float3(-Step * 0.5);
 	float3 light1 = normalize(l1.dir);	
 	float3 light2 = normalize(l2.dir);	
-	float4 pos = float4(front - Step * noise.Sample(mysampler, float2(((int) (front.x * 1000)) % 32 / 32.0, ((int) (front.y * 1000)) % 32 / 32.0)).r, 0); 
+	float3 pos = float3(front - Step * noise.SampleLevel(mysampler, float2(((uint) (front.x * (uint)1000)) % (uint)32 / 32.0, ((uint) (front.y * (uint)1000)) % (uint)32 / 32.0), 0).r); 
 	
 	//float E, N, U;
 	float k;
 	float3 normal, color;		
     for(int i = 0; i < Iterations; ++i)
     {		
-        value = volume.Sample(mysampler, pos).r;
+        value = volume.SampleLevel(mysampler, pos, 0).r;
 		if (value > Threshold)
 		{
 			pos += halfStepBack;
-			value = volume.Sample(mysampler, pos).r;			
+			value = volume.SampleLevel(mysampler, pos, 0).r;			
 			if (value > Threshold) k = 0.5;
 			else k = -0.5;
 			pos += halfStepBack * k;
-			value = volume.Sample(mysampler, pos).r;			
+			value = volume.SampleLevel(mysampler, pos, 0).r;			
 			
 			normal = calcGradient(pos, value, StepSize);
-			float3 R = reflect(l1.dir, normal);						
-			color = calcPhongLighting( material, l1.color, normal, -l1.dir, dir, R ) * float3(0.0f, 0.125f, 0.3f);
-			R = reflect(l2.dir, normal);						
-			color += calcPhongLighting( material, l2.color, normal, -l2.dir, dir, R ) * float3(0.0f, 0.125f, 0.3f);
+			float3 R = reflect(light1, normal);						
+			color = calcPhongLighting( material, l1.color, normal, -light1, dir, R ) * float3(0.0f, 0.125f, 0.3f);
+			R = reflect(light2, normal);						
+			color += calcPhongLighting( material, l2.color, normal, -light2, dir, R ) * float3(0.0f, 0.125f, 0.3f);
 
 			//color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial * 0.5 + 0.5);			
 			dst = float4(color, 1);     

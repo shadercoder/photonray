@@ -21,14 +21,14 @@
 #include <crtdbg.h>
 #endif
 
-#include <D3D10.h>
+#include <d3d10.h>
 #include <d3dx10.h>
 #include <dxerr.h>
 #include <cassert>
 
 
 //*****************************************************************************
-// Simple d3d error checker for book demos.
+// Simple d3d error checker 
 //*****************************************************************************
 
 #if defined(DEBUG) | defined(_DEBUG)
@@ -138,3 +138,4 @@ const D3DXCOLOR BEACH_SAND(1.0f, 0.96f, 0.62f, 1.0f);
 const D3DXCOLOR LIGHT_YELLOW_GREEN(0.48f, 0.77f, 0.46f, 1.0f);
 const D3DXCOLOR DARK_YELLOW_GREEN(0.1f, 0.48f, 0.19f, 1.0f);
 const D3DXCOLOR DARKBROWN(0.45f, 0.39f, 0.34f, 1.0f);
+

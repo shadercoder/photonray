@@ -15,6 +15,9 @@
     <Filter Include="Textures">
       <UniqueIdentifier>{a2a3ca29-911a-4c96-848c-763b0b85e60a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="builder">
+      <UniqueIdentifier>{af90c60b-a507-4f07-ac7b-56fd51e8827b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="DXUT\Optional\directx.ico">
@@ -89,6 +92,9 @@
       <Filter>Textures</Filter>
     </None>
     <None Include="segments.txt" />
+    <None Include="build_shaders.bat">
+      <Filter>builder</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />
@@ -127,6 +133,7 @@
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="gParticlesRender.h" />
     <ClInclude Include="For_Color.h" />
+    <ClInclude Include="ShaderUtils.h" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
