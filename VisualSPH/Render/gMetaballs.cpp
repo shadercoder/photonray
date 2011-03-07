@@ -68,7 +68,7 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 	//	}
 	//}
 	//---------------------Changed here----------------------//
-	parallel_for(blocked_range<size_t>(0, numParticles), CalcField(&field, &particles[0], metaballsSize, scale));
+	parallel_for(blocked_range<size_t>(0, numParticles), CalcField(&field, &particles[0], metaballsSize, scale), auto_partitioner());
 
 	D3D10_MAPPED_TEXTURE3D pMT;
 	HR(pVolume->Map(D3D10CalcSubresource(0, 0, 1), D3D10_MAP_WRITE_DISCARD, 0, &pMT));	

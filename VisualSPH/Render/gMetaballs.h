@@ -54,7 +54,7 @@ public:
 				{
 					for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
 					{
-						D3DXVECTOR3 cell(x + dx, y + dy, z + dz);
+						D3DXVECTOR3 cell((float) (x + dx), (float) (y + dy), (float) (z + dz));
 						if(field->isInside(x + dx, y + dy, z + dz))
 						{
 							field->lvalue(x + dx, y + dy, z + dz) += calcMetaball(particles[i].position * scale, cell, threadshold);

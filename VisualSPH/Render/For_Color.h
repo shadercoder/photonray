@@ -1,11 +1,8 @@
-#ifndef __FOR_COLOR__
-#define __FOR_COLOR__
-
+#pragma once 
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include <d3d10.h>
-#include <D3DX10.h>
+#include "d3dUtil.h"
 #include "Particle.h"
 
 
@@ -35,5 +32,3 @@ public:
 	int	InitSpectr(char*);
 	D3DXCOLOR GetColor(const Particle* temp);
 };
-
-#endif

@@ -226,6 +226,9 @@ copy ..\lib\tbb_debug.dll ..\Debug
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;TBB_USE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>DXUT.h</PrecompiledHeaderFile>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
     </ClCompile>
     <Link>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
@@ -392,7 +395,9 @@ copy ..\lib\tbb.dll ..\Release</Command>
     <ClInclude Include="For_Color.h" />
     <ClInclude Include="gParticlesRender.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="ShaderUtils.h" />
     <ClInclude Include="Vertex.h" />
+    <None Include="build_shaders.bat" />
     <None Include="directx.ico" />
     <None Include="DXUT\Optional\directx.ico" />
     <ClInclude Include="Axis.h" />

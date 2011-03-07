@@ -1,8 +1,7 @@
 #pragma once
 #include "GObject.h"
 #include "Vertex.h"
-
-
+//#include "ShaderUtils.h"
 
 class gQuad :
 	public GObject

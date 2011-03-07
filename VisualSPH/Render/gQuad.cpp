@@ -1,6 +1,6 @@
 #include "DXUT.h"
 #include "gQuad.h"
-
+#include "ShaderUtils.h"
 gQuad::gQuad(void)
 {
 }
@@ -131,6 +131,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 
 	// Compile the vertex shader from the file
 	ID3D10Blob* err;
+	
 	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "QuadVS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 
 	if (FAILED(hr))
@@ -139,22 +140,33 @@ HRESULT gQuad::init(ID3D10Device* device)
 		MessageBoxA(0, message, "Error happens!", MB_OK);
 		return S_FALSE;
 	}
-	// Create the vertex shader
-	HR(md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexShader ));
+	// Create the vertex shader	
+	//HR(md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexShader ));
 	// Create input layout
-	HR(md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout ));
+	//HR(md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout ));
+	HR(CreateVertexShaderAndInputLayoutFromAssembly(md3dDevice, "metaVS.vs", &pVertexShader, (D3D10_INPUT_ELEMENT_DESC*) &layout, numElements, &pVertexLayout));
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
 	// Compile the pixel shader from file
-	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
-	if (FAILED(hr))
-	{
-		const char* message = (const char*)err->GetBufferPointer();
-		MessageBoxA(0, message, "Error happens!", MB_OK);
-		return S_FALSE;
-	}	
+	//FILE* in;
+	//char* shaderCode = new char[2 * 1024 * 1024];
+	//in = fopen("metaPS.ps", "rb+");
+	//size_t size = fread_s(shaderCode, 2 * 1024 * 1024, sizeof(char), 2 * 1024 * 1024, in);
+
+	//hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
+	//fclose(in);
+	//size_t y = pBlob->GetBufferSize();
+	//char* c = (char*) pBlob->GetBufferPointer();
+	//if (FAILED(hr))
+	//{
+	//	const char* message = (const char*)err->GetBufferPointer();
+	//	MessageBoxA(0, message, "Error happens!", MB_OK);
+	//	return S_FALSE;
+	//}	
 	// Create the pixel shader
-	HR(md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pPixelShader ));
+	HR(CreatePixelShaderFromAssembly(md3dDevice, "metaPS.ps", &pPixelShader));
+	//HR(md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pPixelShader ));
+	//HR(md3dDevice->CreatePixelShader( shaderCode, size, &pPixelShader ));
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
 	// Create sampler state
@@ -164,7 +176,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 	samplerDesc.AddressV = D3D10_TEXTURE_ADDRESS_BORDER;
 	samplerDesc.AddressW = D3D10_TEXTURE_ADDRESS_BORDER;	
 	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.MaxAnisotropy = 8;
 	samplerDesc.ComparisonFunc = D3D10_COMPARISON_NEVER; //D3D10_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
 	samplerDesc.BorderColor[1] = 0;

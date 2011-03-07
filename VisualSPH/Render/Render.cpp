@@ -12,7 +12,6 @@
 #include "resource.h"
 
 #include "Axis.h"
-
 #include "gMetaballs.h"
 #include "gParticlesRender.h"
 #include "ParticlesContainer.h"
@@ -164,7 +163,7 @@ void InitApp()
 			iY += 24;
 			swprintf_s( sz, 100, L"Metaballs size: %0.2f", g_fMetaballsSize );
 			g_SampleUI.AddStatic( IDC_META_STATIC, sz, 35, iY += 24, 125, 22 );
-			g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 16 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
+			g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 32 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
 			break;
 		}
 	}
@@ -510,21 +509,27 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 	case IDC_PUFF_SCALE:
 		{
-			WCHAR sz[100];
-			g_fScale = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
-			swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
-			g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
-			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
-			break;
+			if (nEvent = EVENT_SLIDER_VALUE_CHANGED)
+			{
+				WCHAR sz[100];
+				g_fScale = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
+				swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
+				g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
+				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				break;
+			}
 		}
 	case IDC_META_SCALE:
 		{
-			WCHAR sz[100];
-			g_fMetaballsSize = ( float )( g_SampleUI.GetSlider( IDC_META_SCALE )->GetValue() * 0.01f );
-			swprintf_s( sz, 100, L"Metaballs scale: %0.2f", g_fMetaballsSize );
-			g_SampleUI.GetStatic( IDC_META_STATIC )->SetText( sz );
-			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
-			break;
+			if (nEvent = EVENT_SLIDER_VALUE_CHANGED)
+			{
+				WCHAR sz[100];
+				g_fMetaballsSize = ( float )( g_SampleUI.GetSlider( IDC_META_SCALE )->GetValue() * 0.01f );
+				swprintf_s( sz, 100, L"Metaballs scale: %0.2f", g_fMetaballsSize );
+				g_SampleUI.GetStatic( IDC_META_STATIC )->SetText( sz );
+				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				break;
+			}
 		}
 	case IDC_RENDERTYPE:
 		{
