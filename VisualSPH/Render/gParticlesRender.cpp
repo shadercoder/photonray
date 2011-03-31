@@ -206,7 +206,7 @@ void gParticlesRender::draw()
 	md3dDevice->Draw(mNumVertices, 0);
 }
 
-void gParticlesRender::updateParticles(const vector<Particle>& particles)
+void gParticlesRender::updateParticles(const vector<Particle>& particles, float scale)
 {
 	SAFE_RELEASE(mVB);
 	mNumVertices = particles.size();
@@ -220,7 +220,7 @@ void gParticlesRender::updateParticles(const vector<Particle>& particles)
 	vector<VertexParticle> vertices(particles.size());
 	for (size_t i = 0; i < particles.size(); ++i)
 	{
-		vertices[i].pos = particles[i].position;
+		vertices[i].pos = particles[i].position * scale * 0.2;
 		vertices[i].color = painter.GetColor(&particles[i]);
 	}
 	vinitData.pSysMem = &vertices[0];

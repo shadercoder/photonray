@@ -40,7 +40,7 @@ public:
 	gParticlesRender(void);
 	~gParticlesRender(void);
 
-	void updateParticles(const vector<Particle>& particles);
+	void updateParticles(const vector<Particle>& particles, float scale);
 	void onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View);
 	void draw();
 	HRESULT init(ID3D10Device* device);
