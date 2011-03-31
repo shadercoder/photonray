@@ -36,6 +36,7 @@ D3DXMATRIX                          g_World;
 float                               g_fScale = 0.0f;
 float								g_fMetaballsSize = 0.0f;
 bool                                g_bSpinning = false;
+bool								g_Capture = false;
 
 ParticlesContainer					particlesContainer;
 gMetaballs							metaballs;
@@ -281,12 +282,49 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	return S_OK;
 }
 
+void CaptureScreen(ID3D10Device* pd3dDevice, char* fileName)
+{
+	HRESULT hr;
+	ID3D10RenderTargetView* pRTV = DXUTGetD3D10RenderTargetView();	
+	ID3D10Resource *backbufferRes;
+	pRTV->GetResource(&backbufferRes);
+	D3D10_RENDER_TARGET_VIEW_DESC rtDesc;
+	pRTV->GetDesc(&rtDesc);
+	
+	D3D10_TEXTURE2D_DESC texDesc;
+	texDesc.ArraySize = 1;
+	texDesc.BindFlags = 0;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.Width = appSettings.screenWidth;  // must be same as backbuffer
+	texDesc.Height = appSettings.screenHeight; // must be same as backbuffer
+	texDesc.MipLevels = 1;
+	texDesc.MiscFlags = 0;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D10_USAGE_DEFAULT;
+
+	ID3D10Texture2D *texture;
+	HR( pd3dDevice->CreateTexture2D(&texDesc, 0, &texture) );
+	pd3dDevice->CopyResource(texture, backbufferRes);
+
+	V( D3DX10SaveTextureToFileA(texture, D3DX10_IFF_BMP, fileName) );
+	texture->Release();
+	backbufferRes->Release();
+}
 
 //--------------------------------------------------------------------------------------
 // Render the scene using the D3D10 device
 //--------------------------------------------------------------------------------------
 void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float fElapsedTime, void* pUserContext )
 {
+	if (g_Capture)
+	{
+		char fileName[64] = {};
+		sprintf_s(fileName, "frame%d.bmp", particlesContainer.getNumCurrFrame());
+		CaptureScreen(pd3dDevice, fileName);
+		g_Capture = FALSE;
+	}
 	//
 	// Clear the back buffer
 	//
@@ -325,6 +363,7 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 			break;
 		}
 	}
+
 
 
 	//
@@ -526,6 +565,11 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 						break;
 					}
 				}				
+				break;
+			}
+		case VK_F9:
+			{
+				g_Capture = true;
 				break;
 			}
 		}
