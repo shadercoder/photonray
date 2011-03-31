@@ -134,7 +134,7 @@ float3 calcWaterColor( Material M, float4 LColor, float3 N, float3 L, float3 V, 
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 256;
+	const int Iterations = 512;
 	const float Threshold = 0.45;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
