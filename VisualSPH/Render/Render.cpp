@@ -571,11 +571,13 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				{
 					appSettings.renderState = METABALLS;
 					EnableMetaballsGUI();
+					metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 				}
-				else
+				else if (renderType == 1)
 				{
-					appSettings.renderState = PARTICLES;
-					DisableMetaballsGUI();
+					appSettings.renderState = PARTICLES;					
+					DisableMetaballsGUI();			
+					particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
 				}
 			}			
 		}
