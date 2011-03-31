@@ -94,6 +94,19 @@ Particle* ParticlesContainer::getNextFrame()
 	return getFrame(curr);
 }
 
+Particle* ParticlesContainer::getPrevFrame()
+{
+	if ((curr - step) < first)
+	{
+		curr = last - (last - first) % step;
+	} 
+	else
+	{
+		curr -= step;
+	}	
+	return getFrame(curr);
+}
+
 int ParticlesContainer::getNumCurrFrame()
 {
 	return curr;
