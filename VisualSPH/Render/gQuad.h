@@ -10,9 +10,6 @@ private:
 	struct CONSTANT_BUFFER
 	{
 		D3DXMATRIX mWorldViewProj;   
-		D3DXVECTOR4 vLightPos1;
-		D3DXVECTOR4 vLightPos2;
-		D3DXVECTOR4 vMaterial;
 	};
 	struct Light
 	{

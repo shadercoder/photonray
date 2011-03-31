@@ -18,10 +18,6 @@ struct Material
 cbuffer everyFrame
 {
     row_major float4x4 mWorldViewProj;		
-	float4 vLightPos1;
-	float4 vLightPos2;
-	float4 vDiffuseMaterial;
-	float4 eye;
 };
 
 cbuffer Immute
@@ -124,6 +120,18 @@ float3 calcGradient(float3 pos, float value, float StepSize)
 	return ret;
 }
 
+float3 calcWaterColor( Material M, float4 LColor, float3 N, float3 L, float3 V, float3 R )
+{
+	float4 Ia = M.Ka * ambientLight;
+	float4 Id = M.Kd * saturate( dot(N,L) );
+	float4 Is = M.Ks * pow( saturate(dot(R,V)), M.A );	
+	// calculating fresnel factor 
+	float r=(1.2-1.0)/(1.2+1.0);
+	float fresnel_factor = max(0.0,min(1.0,r+(1.0-r)*pow(1.0-dot(N, -V),4)));
+	return Ia + (Id + Is * fresnel_factor * 3.5f) * LColor;
+}
+
+
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 256;
@@ -133,11 +141,12 @@ float4 RayCastPS(PS_IN input): SV_Target
     float3 front = frontS.SampleLevel(mysampler, texC, 0).xyz;
     float3 back = backS.SampleLevel(mysampler, texC, 0).xyz;
     float3 dir = normalize(back - front);
-    if (dot(front, back) == 0)
+
+	if (all(front == back))
 	{
 		discard;
 	}
-    	
+
     float4 dst = float4( 0.552f, 0.713f, 0.803f, 1.0f );// = float4( 0.0f, 0.125f, 0.3f, 0.2f);
 	dst.a = 0;
   
@@ -151,6 +160,7 @@ float4 RayCastPS(PS_IN input): SV_Target
 	//float E, N, U;
 	float k;
 	float3 normal, color;		
+	float3 R;
     for(int i = 0; i < Iterations; ++i)
     {		
         value = volume.SampleLevel(mysampler, pos, 0).r;
@@ -164,12 +174,11 @@ float4 RayCastPS(PS_IN input): SV_Target
 			value = volume.SampleLevel(mysampler, pos, 0).r;			
 			
 			normal = calcGradient(pos, value, StepSize);
-			float3 R = reflect(light1, normal);						
-			color = calcPhongLighting( material, l1.color, normal, -light1, dir, R ) * float3(0.0f, 0.125f, 0.3f);
+			R = reflect(light1, normal);						
+			color = calcWaterColor( material, l1.color, normal, -light1, dir, R ) * float3(0.1,0.4,0.7);
 			R = reflect(light2, normal);						
-			color += calcPhongLighting( material, l2.color, normal, -light2, dir, R ) * float3(0.0f, 0.125f, 0.3f);
+			color += calcWaterColor( material, l2.color, normal, -light2, dir, R ) * float3(0.1,0.4,0.7);
 
-			//color = saturate((max(0, dot(normal, light1)) + max(0, dot(normal, light2))) * vDiffuseMaterial * 0.5 + 0.5);			
 			dst = float4(color, 1);     
 			break;     
 		} 

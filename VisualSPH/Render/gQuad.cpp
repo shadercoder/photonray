@@ -80,6 +80,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 	cbDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
 	cbDesc.MiscFlags = 0;
 	HR(md3dDevice->CreateBuffer( &cbDesc, NULL, &mCB));
+	cbDesc.ByteWidth = sizeof( CBUFFER_IMMUTE);
 	HR(md3dDevice->CreateBuffer( &cbDesc, NULL, &mCB_Immute));
 
 	CBUFFER_IMMUTE* pCBData;
@@ -223,10 +224,11 @@ void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D10ShaderResourceView* fr
 	CONSTANT_BUFFER* pConstData;
 	mCB->Map( D3D10_MAP_WRITE_DISCARD, NULL, ( void** )&pConstData );
 	pConstData->mWorldViewProj = mWorldViewProj;
-	pConstData->vLightPos1 = D3DXVECTOR4(-1, -1, -1, 0);
-	pConstData->vLightPos2 = D3DXVECTOR4(1, 1, 1, 0);
+	//pConstData->vLightPos1 = D3DXVECTOR4(-1, -1, -1, 0);
+	//pConstData->vLightPos2 = D3DXVECTOR4(1, 1, 1, 0);
 	//106 90 205
-	pConstData->vMaterial = D3DXVECTOR4(0.41f, 0.35f, 0.8f, 1.0f);
+	//pConstData->vMaterial = D3DXVECTOR4(0.41f, 0.35f, 0.8f, 1.0f);
+	//pConstData->vMaterial = D3DXVECTOR4(0.1f, 0.4f, 0.7f, 1.0f);
 	mCB->Unmap();
 
 	this->frontSRV = frontSRV;
