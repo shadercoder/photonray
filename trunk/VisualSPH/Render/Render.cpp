@@ -41,6 +41,7 @@ ParticlesContainer					particlesContainer;
 gMetaballs							metaballs;
 gParticlesRender					particleRender;
 Settings							appSettings;
+Axis								axis;
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -186,8 +187,8 @@ void InitGUI()
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-	g_fScale = 1.0f;
-	g_fMetaballsSize = 1.0f;
+	g_fScale = 128.0f;
+	g_fMetaballsSize = 25.2f;
 	g_bSpinning = false;
 
 	appSettings.loadFromFile("settings.txt");
@@ -235,6 +236,9 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
 	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 	particleRender.init(pd3dDevice);
 	particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
+
+	axis.init(pd3dDevice);
+
 	return S_OK;
 }
 
@@ -305,6 +309,8 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	//
 	ID3D10DepthStencilView* pDSV = DXUTGetD3D10DepthStencilView();
 	pd3dDevice->ClearDepthStencilView( pDSV, D3D10_CLEAR_DEPTH, 1.0, 0 );
+
+	//axis.draw();
 
 	switch(appSettings.renderState)
 	{
