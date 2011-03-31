@@ -17,6 +17,7 @@ public:
 	~ParticlesContainer(void);
 	Particle* getFrame(int num);
 	Particle* getNextFrame();
+	Particle* getPrevFrame();
 	int getNumCurrFrame();
 
 	const vector<Particle>& getParticles() const;

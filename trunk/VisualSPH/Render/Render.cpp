@@ -503,7 +503,25 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 				}				
 				break;
 			}
-
+		case 'b':
+		case 'B':
+			{
+				particlesContainer.getPrevFrame();
+				switch(appSettings.renderState)
+				{
+				case METABALLS:
+					{
+						metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);						
+						break;
+					}
+				case PARTICLES:
+					{
+						particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
+						break;
+					}
+				}				
+				break;
+			}
 		}
 	}
 }
