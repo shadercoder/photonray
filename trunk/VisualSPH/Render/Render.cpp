@@ -49,8 +49,8 @@ Settings							appSettings;
 #define IDC_TOGGLEREF           2
 #define IDC_CHANGEDEVICE        3
 #define IDC_TOGGLESPIN          4
-#define IDC_PUFF_SCALE          5
-#define IDC_PUFF_STATIC         6
+#define IDC_VOLUME_SCALE          5
+#define IDC_VOLUME_STATIC         6
 #define IDC_TOGGLEWARP          7
 #define IDC_META_STATIC			8
 #define IDC_META_SCALE			9
@@ -119,19 +119,21 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 	return DXUTGetExitCode();
 }
 
-
-//--------------------------------------------------------------------------------------
-// Initialize the app 
-//--------------------------------------------------------------------------------------
-void InitApp()
+void DisableMetaballsGUI()
 {
-	g_fScale = 1.0f;
-	g_fMetaballsSize = 1.0f;
-	g_bSpinning = false;
+	g_SampleUI.GetStatic(IDC_META_STATIC)->SetVisible(FALSE);
+	g_SampleUI.GetSlider(IDC_META_SCALE)->SetVisible(FALSE);
+}
 
-	appSettings.loadFromFile("settings.txt");
-	particlesContainer.init(appSettings.pathToFolder, appSettings.patternString, appSettings.firstFrame, appSettings.lastFrame, appSettings.stepFrame);	
+void EnableMetaballsGUI()
+{
+	g_SampleUI.GetStatic(IDC_META_STATIC)->SetVisible(TRUE);
+	g_SampleUI.GetSlider(IDC_META_SCALE)->SetVisible(TRUE);
+}
 
+
+void InitGUI()
+{
 	g_D3DSettingsDlg.Init( &g_DialogResourceManager );
 	g_HUD.Init( &g_DialogResourceManager );
 	g_SampleUI.Init( &g_DialogResourceManager );
@@ -148,29 +150,50 @@ void InitApp()
 	g_SampleUI.AddComboBox( IDC_RENDERTYPE, 35, iY += 24, 120, 22, 0, false);
 	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->SetDropHeight(40);
 	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"Metaballs", (void*) 0);
-	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"Particles", (void*) 1);
+	g_SampleUI.GetComboBox( IDC_RENDERTYPE)->AddItem( L"Particles", (void*) 1);	
+		
+		
+	WCHAR sz[100];
+	iY += 24;
+	swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
+	g_SampleUI.AddStatic( IDC_VOLUME_STATIC, sz, 35, iY += 24, 125, 22 );			
+	g_SampleUI.AddSlider( IDC_VOLUME_SCALE, 50, iY += 24, 100, 22, 0, appSettings.volumeResolution * 100, ( int )( g_fScale * 100.0f ) );
+
+	iY += 24;
+	swprintf_s( sz, 100, L"Metaballs size: %0.2f", g_fMetaballsSize );
+	g_SampleUI.AddStatic( IDC_META_STATIC, sz, 35, iY += 24, 125, 22 );
+	g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 32 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
 
 	switch (appSettings.renderState)
 	{
-	case METABALLS:
-		{
-			WCHAR sz[100];
-			iY += 24;
-			swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
-			g_SampleUI.AddStatic( IDC_PUFF_STATIC, sz, 35, iY += 24, 125, 22 );
-			g_SampleUI.AddSlider( IDC_PUFF_SCALE, 50, iY += 24, 100, 22, 0, appSettings.volumeResolution * 100, ( int )( g_fScale * 100.0f ) );
-
-			iY += 24;
-			swprintf_s( sz, 100, L"Metaballs size: %0.2f", g_fMetaballsSize );
-			g_SampleUI.AddStatic( IDC_META_STATIC, sz, 35, iY += 24, 125, 22 );
-			g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 32 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
+	case PARTICLES:
+		{		
+			DisableMetaballsGUI();
+			g_SampleUI.GetComboBox( IDC_RENDERTYPE)->SetSelectedByIndex(1);
 			break;
 		}
+	case METABALLS:
+		{
+			g_SampleUI.GetComboBox( IDC_RENDERTYPE)->SetSelectedByIndex(0);
+			break;
+		}
+
 	}
+}
 
-	iY += 24;
-	g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Toggle Spinning", 35, iY += 24, 125, 22, g_bSpinning );
+//--------------------------------------------------------------------------------------
+// Initialize the app 
+//--------------------------------------------------------------------------------------
+void InitApp()
+{
+	g_fScale = 1.0f;
+	g_fMetaballsSize = 1.0f;
+	g_bSpinning = false;
 
+	appSettings.loadFromFile("settings.txt");
+	particlesContainer.init(appSettings.pathToFolder, appSettings.patternString, appSettings.firstFrame, appSettings.lastFrame, appSettings.stepFrame);	
+
+	InitGUI();
 }
 
 
@@ -211,7 +234,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
 	metaballs.init(pd3dDevice, appSettings.screenWidth, appSettings.screenHeight, appSettings.volumeResolution);
 	metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
 	particleRender.init(pd3dDevice);
-	particleRender.updateParticles(particlesContainer.getParticles());
+	particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
 	return S_OK;
 }
 
@@ -230,7 +253,7 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	// Setup the camera's projection parameters
 	float fAspectRatio = static_cast<float>( pBufferSurfaceDesc->Width ) /
 		static_cast<float>( pBufferSurfaceDesc->Height );
-	g_Camera.SetProjParams( D3DX_PI / 4, fAspectRatio, 0.1f, 5000.0f );
+	g_Camera.SetProjParams( D3DX_PI / 4, fAspectRatio, 0.01f, 100000.0f );
 	g_Camera.SetWindow( pBufferSurfaceDesc->Width, pBufferSurfaceDesc->Height );
 	g_Camera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
 
@@ -455,7 +478,7 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 					}
 				case PARTICLES:
 					{
-						particleRender.updateParticles(particlesContainer.getParticles());
+						particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
 						break;
 					}
 				}
@@ -474,7 +497,7 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
 					}
 				case PARTICLES:
 					{
-						particleRender.updateParticles(particlesContainer.getParticles());
+						particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
 						break;
 					}
 				}				
@@ -507,15 +530,23 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			break;
 		}
 
-	case IDC_PUFF_SCALE:
+	case IDC_VOLUME_SCALE:
 		{
 			if (nEvent = EVENT_SLIDER_VALUE_CHANGED)
 			{
 				WCHAR sz[100];
-				g_fScale = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
+				g_fScale = ( float )( g_SampleUI.GetSlider( IDC_VOLUME_SCALE )->GetValue() * 0.01f );
 				swprintf_s( sz, 100, L"Volume scale: %0.2f", g_fScale );
-				g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
-				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				g_SampleUI.GetStatic( IDC_VOLUME_STATIC )->SetText( sz );
+				if (appSettings.renderState == METABALLS)
+				{
+					metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);
+				}
+				else if (appSettings.renderState == PARTICLES)
+				{
+					particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
+				}
+
 				break;
 			}
 		}
@@ -539,10 +570,12 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				if (renderType == 0)
 				{
 					appSettings.renderState = METABALLS;
+					EnableMetaballsGUI();
 				}
 				else
 				{
 					appSettings.renderState = PARTICLES;
+					DisableMetaballsGUI();
 				}
 			}			
 		}
