@@ -432,6 +432,7 @@ copy ..\lib\tbb.dll ..\Release</Command>
     <None Include="segments.txt" />
     <None Include="settings.txt" />
     <None Include="settings_readme.txt" />
+    <None Include="simple.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gMetaballs.cpp" />

@@ -3,6 +3,7 @@
 #include "gobject.h"
 #include "Particle.h"
 #include "For_Color.h"
+#include "Vertex.h"
 
 using namespace std;
 

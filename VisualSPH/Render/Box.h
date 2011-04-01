@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GObject.h"
+#include "Vertex.h"
 
 class Box: public GObject
 {

@@ -95,6 +95,9 @@
     <None Include="build_shaders.bat">
       <Filter>builder</Filter>
     </None>
+    <None Include="simple.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />

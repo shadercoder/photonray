@@ -124,17 +124,24 @@ float3 calcWaterColor( Material M, float4 LColor, float3 N, float3 L, float3 V, 
 {
 	float4 Ia = M.Ka * ambientLight;
 	float4 Id = M.Kd * saturate( dot(N,L) );
-	float4 Is = M.Ks * pow( saturate(dot(R,V)), M.A );	
+	//float4 Is = M.Ks * pow( saturate(dot(R,V)), M.A );	
+	float3 reflected_eye_to_pixel_vector=-V+2*dot(V,N)*N;
+	float3 pixel_to_light_vector = -L;
 	// calculating fresnel factor 
 	float r=(1.2-1.0)/(1.2+1.0);
 	float fresnel_factor = max(0.0,min(1.0,r+(1.0-r)*pow(1.0-dot(N, -V),4)));
-	return Ia + (Id + Is * fresnel_factor * 3.5f) * LColor;
+	float g_WaterSpecularPower = 1000.0f;
+	float g_WaterSpecularIntensity = 350.f;
+	float3 g_WaterSpecularColor= float3(1.0f, 1.0f, 1.0f);
+	float specular_factor = fresnel_factor*pow(max(0, dot(pixel_to_light_vector, reflected_eye_to_pixel_vector)), g_WaterSpecularPower);
+	
+	return Ia + (Id + g_WaterSpecularIntensity * specular_factor * g_WaterSpecularColor * fresnel_factor) * LColor;
 }
 
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 512;
+	const int Iterations = 128;
 	const float Threshold = 0.45;
 	float StepSize = 1.7 / Iterations;
 	float2 texC = input.textcoord; 
@@ -175,10 +182,10 @@ float4 RayCastPS(PS_IN input): SV_Target
 			
 			normal = calcGradient(pos, value, StepSize);
 			R = reflect(light1, normal);						
-			color = calcWaterColor( material, l1.color, normal, -light1, dir, R ) * float3(0.1,0.4,0.7);
+			color = calcWaterColor( material, l1.color, normal, -light1, dir, R );// * float3(0.1,0.4,0.7);
 			R = reflect(light2, normal);						
-			color += calcWaterColor( material, l2.color, normal, -light2, dir, R ) * float3(0.1,0.4,0.7);
-
+			color += calcWaterColor( material, l2.color, normal, -light2, dir, R );// * float3(0.1,0.4,0.7);
+			color *= float3(0.1,0.4,0.7);
 			dst = float4(color, 1);     
 			break;     
 		} 

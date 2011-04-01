@@ -34,7 +34,7 @@ private:
 	ID3D10BlendState*			pBlendState;
 	ID3D10RasterizerState*		pRasterizerState;
 	ID3D10DepthStencilState*	pDepthStencilState;
-	ID3D10Blob*					pBlob;
+	
 
 	ID3D10Buffer*				mCB;
 	ID3D10Buffer*				mCB_Immute;

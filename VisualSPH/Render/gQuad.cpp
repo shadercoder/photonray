@@ -131,6 +131,7 @@ HRESULT gQuad::init(ID3D10Device* device)
 	HR(md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState));
 
 	// Compile the vertex shader from the file
+	ID3D10Blob*	pBlob;
 	ID3D10Blob* err;
 	
 	hr = D3DX10CompileFromFile(L"metaballs.sh", NULL, NULL, "QuadVS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
