@@ -188,8 +188,8 @@ void InitGUI()
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-	g_fScale = 128.0f;
-	g_fMetaballsSize = 25.2f;
+	g_fScale = 60.0f;
+	g_fMetaballsSize = 5.2f;
 	g_bSpinning = false;
 
 	appSettings.loadFromFile("settings.txt");
@@ -348,7 +348,7 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	ID3D10DepthStencilView* pDSV = DXUTGetD3D10DepthStencilView();
 	pd3dDevice->ClearDepthStencilView( pDSV, D3D10_CLEAR_DEPTH, 1.0, 0 );
 
-	//axis.draw();
+	axis.draw();
 
 	switch(appSettings.renderState)
 	{
@@ -447,6 +447,7 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 	D3DXMatrixRotationX( &mRot, DEG2RAD( -90.0f ) );
 	g_World = mTranslate * mRot * g_World;	
 	D3DXMATRIX view =  g_World * (*g_Camera.GetViewMatrix());
+	axis.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()));
 	switch(appSettings.renderState)
 	{
 	case METABALLS:
