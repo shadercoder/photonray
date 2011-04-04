@@ -24,12 +24,10 @@ private:
 	inline static float calcMetaball(const D3DXVECTOR3& centerBall, const D3DXVECTOR3& cell, const float threadshold)
 	{	
 		D3DXVECTOR3 tmp = centerBall - cell;	
-		//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
 		float len = D3DXVec3Dot(&tmp, &tmp);
-		/*
 		if (len > threadshold) {
 			return 0.0f;
-		}*/
+		}
 		return 1.0f / (len + 1e-5f);
 	}
 public:	
