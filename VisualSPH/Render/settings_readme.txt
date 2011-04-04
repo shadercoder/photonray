@@ -7,3 +7,4 @@
 <camera look at (x,y,z) float>
 <screen resolution (width, height) int>
 <image quality (cube grid resolutions: 64, 128, 256) int>
+<render type (metaballs, particles)>
