@@ -348,21 +348,21 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	ID3D10DepthStencilView* pDSV = DXUTGetD3D10DepthStencilView();
 	pd3dDevice->ClearDepthStencilView( pDSV, D3D10_CLEAR_DEPTH, 1.0, 0 );
 
-	axis.draw();
+	//axis.draw();
 
-	//switch(appSettings.renderState)
-	//{
-	//case METABALLS:
-	//	{
-	//		metaballs.draw();
-	//		break;
-	//	}
-	//case PARTICLES:
-	//	{
-	//		particleRender.draw();
-	//		break;
-	//	}
-	//}
+	switch(appSettings.renderState)
+	{
+	case METABALLS:
+		{
+			metaballs.draw();
+			break;
+		}
+	case PARTICLES:
+		{
+			particleRender.draw();
+			break;
+		}
+	}
 
 	//
 	// Render the UI
@@ -372,28 +372,28 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 
 	RenderText();
 
-	if (particlesContainer.getNumCurrFrame() >= appSettings.lastFrame)
-	{
-		exit(0);
-	}
-	else
-	{
-		particlesContainer.getNextFrame();
-		switch(appSettings.renderState)
-		{
-		case METABALLS:
-			{
-				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);						
-				break;
-			}
-		case PARTICLES:
-			{
-				particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
-				break;
-			}
-		}				
+	//if (particlesContainer.getNumCurrFrame() >= appSettings.lastFrame)
+	//{
+	//	exit(0);
+	//}
+	//else
+	//{
+	//	particlesContainer.getNextFrame();
+	//	switch(appSettings.renderState)
+	//	{
+	//	case METABALLS:
+	//		{
+	//			metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);						
+	//			break;
+	//		}
+	//	case PARTICLES:
+	//		{
+	//			particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
+	//			break;
+	//		}
+	//	}				
 
-	}
+	//}
 }
 
 
