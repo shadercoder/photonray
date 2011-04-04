@@ -188,8 +188,8 @@ void InitGUI()
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-	g_fScale = 60.0f;
-	g_fMetaballsSize = 5.2f;
+	g_fScale = 128.0f;
+	g_fMetaballsSize = 32.0f;
 	g_bSpinning = false;
 
 	appSettings.loadFromFile("settings.txt");
@@ -350,21 +350,19 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 
 	axis.draw();
 
-	switch(appSettings.renderState)
-	{
-	case METABALLS:
-		{
-			metaballs.draw();
-			break;
-		}
-	case PARTICLES:
-		{
-			particleRender.draw();
-			break;
-		}
-	}
-
-
+	//switch(appSettings.renderState)
+	//{
+	//case METABALLS:
+	//	{
+	//		metaballs.draw();
+	//		break;
+	//	}
+	//case PARTICLES:
+	//	{
+	//		particleRender.draw();
+	//		break;
+	//	}
+	//}
 
 	//
 	// Render the UI
@@ -373,6 +371,29 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	g_SampleUI.OnRender( fElapsedTime );
 
 	RenderText();
+
+	if (particlesContainer.getNumCurrFrame() >= appSettings.lastFrame)
+	{
+		exit(0);
+	}
+	else
+	{
+		particlesContainer.getNextFrame();
+		switch(appSettings.renderState)
+		{
+		case METABALLS:
+			{
+				metaballs.updateVolume(particlesContainer.getParticles(), particlesContainer.getParticlesCount(), g_fScale, g_fMetaballsSize);						
+				break;
+			}
+		case PARTICLES:
+			{
+				particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
+				break;
+			}
+		}				
+
+	}
 }
 
 

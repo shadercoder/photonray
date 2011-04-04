@@ -112,6 +112,9 @@ void gMetaballs::onFrameResize(int width, int height)
 	SAFE_RELEASE(pBackS);
 	SAFE_RELEASE(pBackSRV);
 	SAFE_RELEASE(pBackSView);
+	SAFE_RELEASE(pBackGroundS);
+	SAFE_RELEASE(pBackGroundSRV);
+	SAFE_RELEASE(pBackGroundSView);
 	SAFE_RELEASE(pDepthStencilBuffer);
 	SAFE_RELEASE(pDepthStencilView);	
 	createTexture2D();
@@ -137,6 +140,8 @@ HRESULT gMetaballs::createTexture2D()
 	hr = md3dDevice->CreateRenderTargetView(pFrontS, 0, &pFrontSView);
 	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackS );
 	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackSView);
+	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackGroundS );
+	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackGroundSView);
 
 	D3D10_SHADER_RESOURCE_VIEW_DESC viewDesc;
 	viewDesc.Format = desc.Format;
@@ -148,6 +153,7 @@ HRESULT gMetaballs::createTexture2D()
 
 	md3dDevice->CreateShaderResourceView(pFrontS, 0, &pFrontSRV);
 	md3dDevice->CreateShaderResourceView(pBackS, 0, &pBackSRV);
+	md3dDevice->CreateShaderResourceView(pBackGroundS, 0, &pBackGroundSRV);
 
 	D3D10_TEXTURE2D_DESC depthStencilDesc;
 
