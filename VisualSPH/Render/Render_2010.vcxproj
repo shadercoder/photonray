@@ -40,6 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Intel Parallel Composer 2011</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -50,6 +51,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Intel Parallel Composer 2011</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -60,6 +62,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Intel Parallel Composer 2011</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -427,6 +430,11 @@ copy ..\lib\tbb.dll ..\Release</Command>
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
     <None Include="metaballs.sh" />
+    <None Include="My Amplifier Results\r008hs\r008hs.ampl" />
+    <None Include="My Amplifier Results\r009hs\r009hs.ampl" />
+    <None Include="My Amplifier Results\r010hs\r010hs.ampl" />
+    <None Include="My Amplifier Results\r011hs\r011hs.ampl" />
+    <None Include="My Amplifier Results\r012cc\r012cc.ampl" />
     <None Include="Particle.dds" />
     <None Include="particles.sh" />
     <None Include="segments.txt" />

@@ -81,7 +81,7 @@ public:
 
 	int arrayIndexFromCoordinate(int i, int j, int k)
 	{
-		return (k * xSize * ySize + i * ySize + j);
+		return (i * xSize * ySize + j * ySize + k);
 	}
 
 	void clear()

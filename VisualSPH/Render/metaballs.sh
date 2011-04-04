@@ -2,6 +2,8 @@ Texture2D frontS;
 Texture2D backS;
 Texture3D volume;
 Texture2D noise;
+Texture2D background;
+
 SamplerState mysampler;
 
 struct DirectionalLight

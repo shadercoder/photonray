@@ -21,14 +21,15 @@ private:
 	float metaballsSize;
 	float scale;
 	const float threadshold;
-	inline static float calcMetaball(const D3DXVECTOR3 centerBall, const D3DXVECTOR3 cell, const float threadshold)
+	inline static float calcMetaball(const D3DXVECTOR3& centerBall, const D3DXVECTOR3& cell, const float threadshold)
 	{	
 		D3DXVECTOR3 tmp = centerBall - cell;	
 		//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
 		float len = D3DXVec3Dot(&tmp, &tmp);
+		/*
 		if (len > threadshold) {
 			return 0.0f;
-		}
+		}*/
 		return 1.0f / (len + 1e-5f);
 	}
 public:	
@@ -48,11 +49,11 @@ public:
 			int x = (int) (particles[i].position.x * scale);
 			int y = (int) (particles[i].position.y * scale);
 			int z = (int) (particles[i].position.z * scale);
-			for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
+			for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
 			{
-				for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
+				for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
 				{
-					for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
+					for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
 					{
 						D3DXVECTOR3 cell((float) (x + dx), (float) (y + dy), (float) (z + dz));
 						if(field->isInside(x + dx, y + dy, z + dz))
@@ -84,6 +85,10 @@ private:
 	ID3D10RasterizerState*		pRasterizerStateBack;
 	ID3D10RasterizerState*		pRasterizerStateFront;
 	ID3D10DepthStencilState*	pDepthStencilState;
+
+	ID3D10Texture2D*			pBackGroundS;
+	ID3D10RenderTargetView*		pBackGroundSView;
+	ID3D10ShaderResourceView*	pBackGroundSRV;
 
 	ID3D10Texture2D*			pFrontS;
 	ID3D10RenderTargetView*		pFrontSView;
