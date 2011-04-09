@@ -430,11 +430,6 @@ copy ..\lib\tbb.dll ..\Release</Command>
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
     <None Include="metaballs.sh" />
-    <None Include="My Amplifier Results\r008hs\r008hs.ampl" />
-    <None Include="My Amplifier Results\r009hs\r009hs.ampl" />
-    <None Include="My Amplifier Results\r010hs\r010hs.ampl" />
-    <None Include="My Amplifier Results\r011hs\r011hs.ampl" />
-    <None Include="My Amplifier Results\r012cc\r012cc.ampl" />
     <None Include="Particle.dds" />
     <None Include="particles.sh" />
     <None Include="segments.txt" />
