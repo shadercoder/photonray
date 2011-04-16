@@ -10,6 +10,7 @@
 #include "SDKmisc.h"
 #include "SDKmesh.h"
 #include "resource.h"
+#include <time.h>
 
 #include "Axis.h"
 #include "gMetaballs.h"
@@ -164,7 +165,7 @@ void InitGUI()
 	iY += 24;
 	swprintf_s( sz, 100, L"Metaballs size: %0.2f", g_fMetaballsSize );
 	g_SampleUI.AddStatic( IDC_META_STATIC, sz, 35, iY += 24, 125, 22 );
-	g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 32 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
+	g_SampleUI.AddSlider( IDC_META_SCALE, 50, iY += 24, 100, 22, 1, 128 * 100, ( int )( g_fMetaballsSize * 100.0f ) );
 
 	switch (appSettings.renderState)
 	{
@@ -188,8 +189,8 @@ void InitGUI()
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-	g_fScale = 128.0f;
-	g_fMetaballsSize = 32.0f;
+	g_fScale = 140.0f;
+	g_fMetaballsSize = 20.0f;
 	g_bSpinning = false;
 
 	appSettings.loadFromFile("settings.txt");
@@ -308,7 +309,7 @@ void CaptureScreen(ID3D10Device* pd3dDevice, char* fileName)
 	HR( pd3dDevice->CreateTexture2D(&texDesc, 0, &texture) );
 	pd3dDevice->CopyResource(texture, backbufferRes);
 
-	V( D3DX10SaveTextureToFileA(texture, D3DX10_IFF_BMP, fileName) );
+	V( D3DX10SaveTextureToFileA(texture, D3DX10_IFF_PNG, fileName) );
 	texture->Release();
 	backbufferRes->Release();
 }
@@ -321,7 +322,11 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	if (g_Capture)
 	{
 		char fileName[64] = {};
-		sprintf_s(fileName, "frame%d.bmp", particlesContainer.getNumCurrFrame());
+		char date[32] = {};
+		char time[32] = {};
+		_strdate_s(date, sizeof(date));
+		_strtime_s(time, sizeof(time));
+		sprintf_s(fileName, "frame%d-(%c%c_%c%c_%c%c-%c%c_%c%c_%c%c).png", particlesContainer.getNumCurrFrame(), date[0], date[1], date[3], date[4], date[6], date[7], time[0], time[1], time[3], time[4], time[6], time[7]);
 		CaptureScreen(pd3dDevice, fileName);
 		g_Capture = FALSE;
 	}
@@ -348,7 +353,7 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	ID3D10DepthStencilView* pDSV = DXUTGetD3D10DepthStencilView();
 	pd3dDevice->ClearDepthStencilView( pDSV, D3D10_CLEAR_DEPTH, 1.0, 0 );
 
-	//axis.draw();
+	axis.draw();
 
 	switch(appSettings.renderState)
 	{
@@ -364,19 +369,16 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 		}
 	}
 
+
+
 	//
 	// Render the UI
 	//
 	g_HUD.OnRender( fElapsedTime );
 	g_SampleUI.OnRender( fElapsedTime );
 
-	RenderText();
-
-	//if (particlesContainer.getNumCurrFrame() >= appSettings.lastFrame)
-	//{
-	//	exit(0);
-	//}
-	//else
+	// For debug only
+	//if(particlesContainer.getNumCurrFrame() + 1 < appSettings.lastFrame)
 	//{
 	//	particlesContainer.getNextFrame();
 	//	switch(appSettings.renderState)
@@ -391,9 +393,13 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 	//			particleRender.updateParticles(particlesContainer.getParticles(), g_fScale);
 	//			break;
 	//		}
-	//	}				
-
+	//	}	
 	//}
+	//else
+	//{
+	//	exit(0);
+	//}
+	RenderText();
 }
 
 
@@ -622,7 +628,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 	case IDC_VOLUME_SCALE:
 		{
-			if (nEvent = EVENT_SLIDER_VALUE_CHANGED)
+			if (nEvent == EVENT_SLIDER_VALUE_CHANGED)
 			{
 				WCHAR sz[100];
 				g_fScale = ( float )( g_SampleUI.GetSlider( IDC_VOLUME_SCALE )->GetValue() * 0.01f );
@@ -642,7 +648,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		}
 	case IDC_META_SCALE:
 		{
-			if (nEvent = EVENT_SLIDER_VALUE_CHANGED)
+			if (nEvent == EVENT_SLIDER_VALUE_CHANGED)
 			{
 				WCHAR sz[100];
 				g_fMetaballsSize = ( float )( g_SampleUI.GetSlider( IDC_META_SCALE )->GetValue() * 0.01f );

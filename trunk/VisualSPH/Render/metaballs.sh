@@ -144,8 +144,8 @@ float3 calcWaterColor( Material M, float4 LColor, float3 N, float3 L, float3 V, 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 768;
-	const float Threshold = 0.45;
-	float StepSize = 1.7 / Iterations;
+	const float Threshold = 50.0f;
+	float StepSize = 1.7f / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.SampleLevel(mysampler, texC, 0).xyz;
     float3 back = backS.SampleLevel(mysampler, texC, 0).xyz;
@@ -175,13 +175,14 @@ float4 RayCastPS(PS_IN input): SV_Target
         value = volume.SampleLevel(mysampler, pos, 0).r;
 		if (value > Threshold)
 		{
+			/*
 			pos += halfStepBack;
 			value = volume.SampleLevel(mysampler, pos, 0).r;			
 			if (value > Threshold) k = 0.5;
 			else k = -0.5;
 			pos += halfStepBack * k;
 			value = volume.SampleLevel(mysampler, pos, 0).r;			
-			
+			*/
 			normal = calcGradient(pos, value, StepSize);
 			R = reflect(light1, normal);						
 			color = calcWaterColor( material, l1.color, normal, -light1, dir, R );// * float3(0.1,0.4,0.7);

@@ -24,11 +24,13 @@ private:
 	inline static float calcMetaball(const D3DXVECTOR3& centerBall, const D3DXVECTOR3& cell, const float threadshold)
 	{	
 		D3DXVECTOR3 tmp = centerBall - cell;	
+		//float len = pow(tmp.x, 2) + pow(tmp.y, 2) + pow(tmp.z, 2);
 		float len = D3DXVec3Dot(&tmp, &tmp);
 		if (len > threadshold) {
 			return 0.0f;
 		}
-		return 1.0f / (len + 1e-5f);
+		float res = powf(threadshold / (len + 1e-5f), 4.0f);
+		return res;
 	}
 public:	
 	CalcField(DenseField* field, const Particle* particles, float metaballsSize, float scale)
@@ -42,21 +44,23 @@ public:
 	
 	void operator()(const blocked_range<size_t>& r) const
 	{
+		float* fieldData = (float*) field->getData();
 		for (size_t i = r.begin(); i != r.end(); ++i)
 		{
-			int x = (int) (particles[i].position.x * scale);
-			int y = (int) (particles[i].position.y * scale);
-			int z = (int) (particles[i].position.z * scale);
-			for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
+			int x = (int) floor(particles[i].position.x * scale);
+			int y = (int) floor(particles[i].position.y * scale);
+			int z = (int) floor(particles[i].position.z * scale);
+			for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
 			{
-				for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
+				for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
 				{
-					for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
+					for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
 					{
 						D3DXVECTOR3 cell((float) (x + dx), (float) (y + dy), (float) (z + dz));
 						if(field->isInside(x + dx, y + dy, z + dz))
 						{
-							field->lvalue(x + dx, y + dy, z + dz) += calcMetaball(particles[i].position * scale, cell, threadshold);
+							//field->lvalue(x + dx, y + dy, z + dz) += calcMetaball(particles[i].position * scale, cell, threadshold);
+							fieldData[field->arrayIndexFromCoordinate(x + dx, y + dy, z + dz)] += calcMetaball(particles[i].position * scale, cell, threadshold);
 						}
 					}
 				}
