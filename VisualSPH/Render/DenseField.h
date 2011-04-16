@@ -79,9 +79,9 @@ public:
 		}
 	}
 
-	int arrayIndexFromCoordinate(int i, int j, int k)
+	inline int arrayIndexFromCoordinate(int i, int j, int k)
 	{
-		return (i * xSize * ySize + j * ySize + k);
+		return (i * ySize + j) * zSize + k;
 	}
 
 	void clear()

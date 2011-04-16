@@ -34,12 +34,15 @@ gMetaballs::~gMetaballs(void)
 
 float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 {	
+	/*
 	D3DXVECTOR3 tmp = centerBall - cell;	
 	float len = D3DXVec3Dot(&tmp, &tmp);
 	if (len > metaballsSize * metaballsSize) {
 		return 0.0f;
 	}
 	return 1.0f / (len + 1e-5f);
+	*/
+	return 0.0f;
 }
 
 void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
@@ -75,14 +78,18 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 	int strideI = pMT.DepthPitch / sizeof(float);
 	int strideJ = pMT.RowPitch / sizeof(float);
 	float* textureData = (float*) pMT.pData;	
+	const float* fieldData = field.getData();
 	for (int i = 0; i < field.xSize; ++i)
 	{
 		for (int j = 0; j < field.ySize; ++j)
 		{
-			for (int k = 0; k < field.zSize; ++k)
+			//textureData[i * strideI + j * strideJ] = field.value(i, j, k);
+			memcpy(&textureData[i * strideI + j * strideJ], fieldData + field.arrayIndexFromCoordinate(i, j, 0), sizeof(float) * field.zSize);
+			/*for (int k = 0; k < field.zSize; ++k)
 			{
-				textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);
+				//textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);				
 			}
+			*/
 		}		
 	}
 	pVolume->Unmap(D3D10CalcSubresource(0, 0, 1));
