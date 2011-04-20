@@ -133,7 +133,7 @@ private:
 	HRESULT createTexture3D();
 
 	HRESULT CreateVolumeBuffer();
-	HRESULT CreateParticleBuffer(Particle* p, int particleCount);
+	HRESULT CreateParticleBuffer(const Particle* p, int particleCount);
 
 	void drawBox();
 	float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
