@@ -45,26 +45,84 @@ float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 	return 0.0f;
 }
 
+//--------------------------------------------------------------------------------------
+// Create a CPU accessible buffer and download the content of a GPU buffer into it
+// This function is very useful for debugging CS programs
+//-------------------------------------------------------------------------------------- 
+ID3D11Buffer* CreateAndCopyToDebugBuf( ID3D11Device* pDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3D11Buffer* pBuffer )
+{
+    ID3D11Buffer* debugbuf = NULL;
+
+    D3D11_BUFFER_DESC desc;
+    ZeroMemory( &desc, sizeof(desc) );
+    pBuffer->GetDesc( &desc );
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.BindFlags = 0;
+    desc.MiscFlags = 0;
+    if ( SUCCEEDED(pDevice->CreateBuffer(&desc, NULL, &debugbuf)) )
+    {
+#if defined(DEBUG) || defined(PROFILE)
+        debugbuf->SetPrivateData( WKPDID_D3DDebugObjectName, sizeof( "Debug" ) - 1, "Debug" );
+#endif
+
+        pd3dImmediateContext->CopyResource( debugbuf, pBuffer );
+    }
+
+    return debugbuf;
+}
+
 void gMetaballs::updateVolumeGPU(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
+	CreateVolumeBuffer();
+	CreateParticleBuffer(&(particles[0]), numParticles);
 	const int BLOCK_SIZE = 256;
 	UINT UAVInitialCounts = 0;
 	md3dContext->CSSetUnorderedAccessViews(0, 1, &p_VolumeUAV, &UAVInitialCounts);
-	md3dContext->CSGetShaderResources(0, 1, &p_ParticlesSRV);
+	md3dContext->CSSetShaderResources(0, 1, &p_ParticlesSRV);
 	md3dContext->CSSetShader(p_MetaballsProcess, NULL, 0);
-	md3dContext->Dispatch(numParticles / BLOCK_SIZE, 1, 1);
+	md3dContext->Dispatch(numParticles, 1, 1);
+	
+	ID3D11Buffer* temp = CreateAndCopyToDebugBuf(md3dDevice, md3dContext, p_Volume);
+
+	D3D11_MAPPED_SUBRESOURCE pMT;	
+	D3D11_MAPPED_SUBRESOURCE mappedResourceFromCS;	
+	HR(md3dContext->Map(pVolume, 0, D3D11_MAP_WRITE_DISCARD, 0, &pMT)); 	
+	HR(md3dContext->Map(temp, 0, D3D11_MAP_READ, 0, &mappedResourceFromCS));
+	int strideI = pMT.DepthPitch / sizeof(float);
+	int strideJ = pMT.RowPitch / sizeof(float);
+	float* textureData = (float*) pMT.pData;	
+	float* volumeData = (float*) mappedResourceFromCS.pData;
+	//const float* fieldData = field.getData();
+	for (int i = 0; i < field.xSize; ++i)
+	{
+		for (int j = 0; j < field.ySize; ++j)
+		{
+			//textureData[i * strideI + j * strideJ] = field.value(i, j, k);
+			//memcpy(&textureData[i * strideI + j * strideJ], fieldData + field.arrayIndexFromCoordinate(i, j, 0), sizeof(float) * field.zSize);
+			for (int k = 0; k < field.zSize; ++k)
+			{
+				//textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);				
+				textureData[i * strideI + j * strideJ + k] = volumeData[(i * volumeResolution + j) * volumeResolution + k];				
+			}
+			
+		}		
+	}
+	md3dContext->Unmap(pVolume, 0);
+	md3dContext->Unmap(temp, 0);
+	SAFE_RELEASE(temp);
 }
 
 void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
 	updateVolumeGPU(particles, numParticles, scale, metaballsSize);
+	/*
 	this->scale = scale;
 	this->metaballsSize = metaballsSize;
 	field.clear();
 	parallel_for(blocked_range<size_t>(0, numParticles), CalcField(&field, &particles[0], metaballsSize, scale), auto_partitioner());
 
-	D3D11_MAPPED_SUBRESOURCE pMT;
-	
+	D3D11_MAPPED_SUBRESOURCE pMT;	
 	HR(md3dContext->Map(pVolume, 0, D3D11_MAP_WRITE_DISCARD, 0, &pMT)); 	
 	int strideI = pMT.DepthPitch / sizeof(float);
 	int strideJ = pMT.RowPitch / sizeof(float);
@@ -80,10 +138,11 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 			{
 				//textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);				
 			}
-			*/
+			
 		}		
-	}
+	}	
 	md3dContext->Unmap(pVolume, 0);
+	*/
 }
 
 void gMetaballs::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution)
@@ -97,6 +156,8 @@ void gMetaballs::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, in
 	onCreate();
 	createTexture2D();
 	createTexture3D();
+	CreateVolumeBuffer();
+	CreateParticleBuffer(NULL, 0);
 	quad.init(md3dDevice, md3dContext);
 	quad.setNoise(pNoiseSRV);
 }
@@ -484,7 +545,7 @@ HRESULT gMetaballs::CreateVolumeBuffer()
 	return S_OK;	
 }
 
-HRESULT gMetaballs::CreateParticleBuffer(Particle* p, int particleCount)
+HRESULT gMetaballs::CreateParticleBuffer(const Particle* p, int particleCount)
 {
 	HRESULT hr = S_OK;
 	SAFE_RELEASE(p_Particles);
@@ -497,7 +558,10 @@ HRESULT gMetaballs::CreateParticleBuffer(Particle* p, int particleCount)
 		particles[i].pos.y = p[i].position.y;
 		particles[i].pos.z = p[i].position.z;
 	}
-	V_RETURN(CreateStructuredBuffer<gParticle>(md3dDevice, particleCount, &p_Particles, &p_VolumeSRV, &p_VolumeUAV, particles));
+	if ( particleCount == 0)
+		V_RETURN(CreateStructuredBuffer<gParticle>(md3dDevice, 1, &p_Particles, &p_ParticlesSRV, &p_ParticlesUAV, NULL))
+	else
+		V_RETURN(CreateStructuredBuffer<gParticle>(md3dDevice, particleCount, &p_Particles, &p_ParticlesSRV, &p_ParticlesUAV, particles));
 	delete [] particles;
 	return S_OK;	
 }
