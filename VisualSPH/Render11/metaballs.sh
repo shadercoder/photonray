@@ -143,21 +143,23 @@ float3 calcWaterColor( Material M, float4 LColor, float3 N, float3 L, float3 V, 
 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
-	const int Iterations = 768;
+	const int Iterations = 512;
 	const float Threshold = 50.0f;
 	float StepSize = 1.7f / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.SampleLevel(mysampler, texC, 0).xyz;
     float3 back = backS.SampleLevel(mysampler, texC, 0).xyz;
     float3 dir = normalize(back - front);
-
+	
+	float4 dst = background.SampleLevel(mysampler, texC, 0).xyzw;	//float4( 0.552f, 0.713f, 0.803f, 1.0f );// = float4( 0.0f, 0.125f, 0.3f, 0.2f);
+	
 	if (all(front == back))
 	{
-		discard;
+		dst = background.SampleLevel(mysampler, texC, 0).xyzw;		
+		return dst;
 	}
-
-    float4 dst = float4( 0.552f, 0.713f, 0.803f, 1.0f );// = float4( 0.0f, 0.125f, 0.3f, 0.2f);
-	dst.a = 0;
+    
+	//dst.a = 0;
   
 	float value = 0;	 
     float3 Step = dir * StepSize;		
@@ -190,13 +192,16 @@ float4 RayCastPS(PS_IN input): SV_Target
 			color += calcWaterColor( material, l2.color, normal, -light2, dir, R );// * float3(0.1,0.4,0.7);
 			color *= float3(0.1,0.4,0.7);
 			dst = float4(color, 1);     
-			break;     
+			return dst;     
 		} 
 		//advance the current position
 		pos.xyz += Step;     
 		//break if the position is greater than <1, 1, 1>
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
+		{
+			dst = background.SampleLevel(mysampler, texC, 0).xyzw;		
 			return dst;
-	}
+		}
+	}	
     return dst;
 }

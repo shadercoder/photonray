@@ -115,8 +115,8 @@ void gMetaballs::updateVolumeGPU(const vector<Particle>& particles, int numParti
 
 void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
-	updateVolumeGPU(particles, numParticles, scale, metaballsSize);
-	/*
+	//updateVolumeGPU(particles, numParticles, scale, metaballsSize);
+	
 	this->scale = scale;
 	this->metaballsSize = metaballsSize;
 	field.clear();
@@ -134,7 +134,7 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 		{
 			//textureData[i * strideI + j * strideJ] = field.value(i, j, k);
 			memcpy(&textureData[i * strideI + j * strideJ], fieldData + field.arrayIndexFromCoordinate(i, j, 0), sizeof(float) * field.zSize);
-			/*for (int k = 0; k < field.zSize; ++k)
+			for (int k = 0; k < field.zSize; ++k)
 			{
 				//textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);				
 			}
@@ -142,7 +142,7 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 		}		
 	}	
 	md3dContext->Unmap(pVolume, 0);
-	*/
+	
 }
 
 void gMetaballs::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution)
@@ -172,9 +172,6 @@ void gMetaballs::onFrameResize(int width, int height)
 	SAFE_RELEASE(pBackS);
 	SAFE_RELEASE(pBackSRV);
 	SAFE_RELEASE(pBackSView);
-	SAFE_RELEASE(pBackGroundS);
-	SAFE_RELEASE(pBackGroundSRV);
-	SAFE_RELEASE(pBackGroundSView);
 	SAFE_RELEASE(pDepthStencilBuffer);
 	SAFE_RELEASE(pDepthStencilView);	
 	createTexture2D();
@@ -200,8 +197,8 @@ HRESULT gMetaballs::createTexture2D()
 	hr = md3dDevice->CreateRenderTargetView(pFrontS, 0, &pFrontSView);
 	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackS );
 	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackSView);
-	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackGroundS );
-	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackGroundSView);
+	/*hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackGroundS );
+	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackGroundSView);*/
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
 	viewDesc.Format = desc.Format;
@@ -213,7 +210,7 @@ HRESULT gMetaballs::createTexture2D()
 
 	md3dDevice->CreateShaderResourceView(pFrontS, 0, &pFrontSRV);
 	md3dDevice->CreateShaderResourceView(pBackS, 0, &pBackSRV);
-	md3dDevice->CreateShaderResourceView(pBackGroundS, 0, &pBackGroundSRV);
+	//md3dDevice->CreateShaderResourceView(pBackGroundS, 0, &pBackGroundSRV);
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 
@@ -517,7 +514,50 @@ void gMetaballs::draw()
 	D3DXMatrixIdentity(&ident);
 	quad.onFrameMove(ident, pFrontSRV, pBackSRV);
 	quad.setVolume(volumeSRV);
+	
+	HRESULT hr;
+	
+	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();	
+	ID3D11Resource *backbufferRes;
+	pRTV->GetResource(&backbufferRes);
+	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
+	pRTV->GetDesc(&rtDesc);
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.ArraySize = 1;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.Width = DXUTGetWindowWidth();
+	texDesc.Height = DXUTGetWindowHeight();
+	texDesc.MipLevels = 1;
+	texDesc.MiscFlags = 0;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	ID3D11Texture2D *texture;
+	HR( md3dDevice->CreateTexture2D(&texDesc, 0, &texture) );
+	md3dContext->CopyResource(texture, backbufferRes);
+	
+	ID3D11ShaderResourceView* pBackgroundSRV;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));	
+	srvDesc.Format = texDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2DArray.MostDetailedMip = 0;
+	srvDesc.Texture2DArray.MipLevels = texDesc.MipLevels;
+	srvDesc.Texture2DArray.FirstArraySlice = 0;
+	srvDesc.Texture2DArray.ArraySize = 0;
+
+	md3dDevice->CreateShaderResourceView(texture, &srvDesc, &pBackgroundSRV);
+
+	quad.setBackground(pBackgroundSRV);
 	quad.draw();
+	
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(backbufferRes);
+	SAFE_RELEASE(pBackgroundSRV);
 }
 
 void gMetaballs::onFrameMove(D3DXMATRIX& mWorldViewProj)

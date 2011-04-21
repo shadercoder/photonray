@@ -77,9 +77,7 @@
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp">
       <Filter>DXUT</Filter>
     </ClCompile>
-    <None Include="metaballs.sh" />
     <None Include="Particle.dds" />
-    <None Include="particles.sh" />
     <None Include="segments.txt" />
     <None Include="settings.txt" />
     <None Include="settings_readme.txt" />
@@ -87,6 +85,15 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="metaCS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="sorter.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="particles.sh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="metaballs.sh">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

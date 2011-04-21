@@ -417,6 +417,7 @@
     <None Include="settings.txt" />
     <None Include="settings_readme.txt" />
     <None Include="simple.hlsl" />
+    <None Include="sorter.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gMetaballs.cpp" />

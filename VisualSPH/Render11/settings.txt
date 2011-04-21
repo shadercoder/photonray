@@ -1,4 +1,4 @@
-C:\2\
+./frames/2/
 _flu.txt
 0
 10
@@ -6,5 +6,5 @@ _flu.txt
 5 5 1
 0 0 0
 1024 768
-256
+128
 metaballs
