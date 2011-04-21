@@ -190,8 +190,8 @@ void InitGUI()
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-	g_fScale = 140.0f;
-	g_fMetaballsSize = 20.0f;
+	g_fScale = 40.0f;
+	g_fMetaballsSize = 5.0f;
 	g_bSpinning = false;
 
 	appSettings.loadFromFile("settings.txt");
@@ -240,7 +240,7 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 	D3DXMatrixRotationX( &mRot, DEG2RAD( -90.0f ) );
 	g_World = mTranslate * mRot * g_World;	
 	D3DXMATRIX view =  g_World * (*g_Camera.GetViewMatrix());
-	axis.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()));
+	axis.onFrameMove(g_World * (*g_Camera.GetViewMatrix()) * (*g_Camera.GetProjMatrix()), view);
 	switch(appSettings.renderState)
 	{
 	case METABALLS:

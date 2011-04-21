@@ -9,8 +9,15 @@ Axis::Axis(void)
 
 Axis::~Axis(void)
 {
-	ReleaseCOM(mVB);
-	ReleaseCOM(mIB);
+	SAFE_RELEASE(mVB);
+	SAFE_RELEASE(mIB);
+	SAFE_RELEASE(pVertexShader);
+	SAFE_RELEASE(pVertexLayout);
+	SAFE_RELEASE(pPixelShader);
+	SAFE_RELEASE(pDepthStencilState);
+	SAFE_RELEASE(pRasterizerState);
+	SAFE_RELEASE(pBlendState);
+	SAFE_RELEASE(mCB);
 }
 
 void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
@@ -115,6 +122,14 @@ void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	hr = md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader );
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
+
+	// Labels init
+	xLabel.init(md3dDevice, md3dContext, L"X.dds");
+	xLabel.setPosition(1, 0, 0, 0.1, 0.1);
+	yLabel.init(md3dDevice, md3dContext, L"Y.dds");
+	yLabel.setPosition(0, 1, 0, 0.1, 0.1);
+	zLabel.init(md3dDevice, md3dContext, L"Z.dds");
+	zLabel.setPosition(0, 0, 1, 0.1, 0.1);
 }
 
 void Axis::draw()
@@ -136,9 +151,12 @@ void Axis::draw()
 	md3dContext->PSSetShader( pPixelShader, NULL, 0);
 
 	md3dContext->Draw(mNumVertices, 0);
+	xLabel.draw();
+	yLabel.draw();
+	zLabel.draw();
 }
 
-void Axis::onFrameMove(D3DXMATRIX& mWorldViewProj)
+void Axis::onFrameMove(D3DXMATRIX& mWorldViewProj, D3DXMATRIX View)
 {
 	// Update the Constant Buffer
 	CONSTANT_BUFFER* pConstData;
@@ -147,4 +165,7 @@ void Axis::onFrameMove(D3DXMATRIX& mWorldViewProj)
 	pConstData = (CONSTANT_BUFFER*) mappedResource.pData;
 	pConstData->mWorldViewProj = mWorldViewProj;
 	md3dContext->Unmap(mCB, 0);
+	xLabel.onFrameMove(mWorldViewProj, View);
+	yLabel.onFrameMove(mWorldViewProj, View);
+	zLabel.onFrameMove(mWorldViewProj, View);
 }
