@@ -100,6 +100,7 @@
     <ClCompile Include="ParticlesContainer.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Axis.cpp" />
+    <ClCompile Include="sorterGPU.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Render11.hlsl">
@@ -125,6 +126,7 @@
     <ClInclude Include="ShaderUtils.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Axis.h" />
+    <ClInclude Include="sorterGPU.h" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

@@ -380,9 +380,11 @@
   <ItemGroup>
     <ClCompile Include="Axis.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="sorterGPU.cpp" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="ShaderUtils.h" />
+    <ClInclude Include="sorterGPU.h" />
     <ClInclude Include="Vertex.h" />
     <None Include="DXUT\Optional\directx.ico" />
     <ClInclude Include="d3dUtil.h" />

@@ -63,8 +63,8 @@ void metaCS(uint3 DTid : SV_DispatchThreadID )
 			{
 				float3 cell = float3((float) (x + dx), (float) (y + dy), (float) (z + dz));				
 				//InterlockedAdd(VolumeRW[arrayIndexFromCoordinate(float3(x + dx, y + dy, z + dz))].val, (int)calcMetaball(pos * scale, cell, threadshold) * 1000);				
-				VolumeRW[arrayIndexFromCoordinate(cell)].val = calcMetaball(pos * scale, cell, threadshold) * isInside(x + dx, y + dy, z + dz);
-				//VolumeRW[arrayIndexFromCoordinate(float3(x + dx, y + dy, z + dz))].val = 10000;
+				//VolumeRW[arrayIndexFromCoordinate(cell)].val = VolumeRW[arrayIndexFromCoordinate(cell)].val + calcMetaball(pos * scale, cell, threadshold) * isInside(x + dx, y + dy, z + dz);
+				VolumeRW[arrayIndexFromCoordinate(float3(x + dx, y + dy, z + dz))].val = 10000;
 			}
 		}
 	}			    
