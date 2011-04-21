@@ -124,12 +124,13 @@ void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	SAFE_RELEASE(err);
 
 	// Labels init
+	float letterSize = 0.07f;
 	xLabel.init(md3dDevice, md3dContext, L"X.dds");
-	xLabel.setPosition(1, 0, 0, 0.1, 0.1);
+	xLabel.setPosition(1.0f, 0.0f, 0.0f, letterSize, letterSize);
 	yLabel.init(md3dDevice, md3dContext, L"Y.dds");
-	yLabel.setPosition(0, 1, 0, 0.1, 0.1);
+	yLabel.setPosition(0.0f, 1.0f, 0.0f, letterSize, letterSize);
 	zLabel.init(md3dDevice, md3dContext, L"Z.dds");
-	zLabel.setPosition(0, 0, 1, 0.1, 0.1);
+	zLabel.setPosition(0.0f, 0.0f, 1.0f, letterSize, letterSize);
 }
 
 void Axis::draw()

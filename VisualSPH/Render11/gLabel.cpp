@@ -81,7 +81,7 @@ void gLabel::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, LPCWST
 	pConstData->g_texcoords[1] = D3DXVECTOR4( 1, 0, 0, 0);
 	
 	md3dContext->Unmap(mCBImmute, 0);
-		// Create a blend state to disable alpha blending
+	// Create a blend state 
 	D3D11_BLEND_DESC BlendState;
 	ZeroMemory( &BlendState, sizeof( D3D11_BLEND_DESC ) );
 	BlendState.AlphaToCoverageEnable = TRUE;

@@ -77,7 +77,7 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	md3dContext->Unmap(mCBImmute, 0);
 
 
-	// Create a blend state to disable alpha blending
+	// Create a blend state
 	D3D11_BLEND_DESC BlendState;
 	ZeroMemory( &BlendState, sizeof( D3D11_BLEND_DESC ) );
 	BlendState.AlphaToCoverageEnable = TRUE;

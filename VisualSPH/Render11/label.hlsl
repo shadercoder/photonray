@@ -64,7 +64,7 @@ void GS(point VSParticleDrawOut input[1], inout TriangleStream<PSSceneIn> Sprite
 	output.tex = g_texcoords[0];
     SpriteStream.Append(output);
     
-	position = g_positions[1] * input[0].width * 0.5f;
+	position = g_positions[1] * input[0].height * 0.5f;
     position = mul(position, ginvView) + input[0].pos;		
     output.pos = mul( position, gWVP );     
 	output.tex = g_texcoords[1];
@@ -76,7 +76,7 @@ void GS(point VSParticleDrawOut input[1], inout TriangleStream<PSSceneIn> Sprite
 	output.tex = g_texcoords[2];
     SpriteStream.Append(output);
 
-	position = g_positions[3] * input[0].height * 0.5f;
+	position = g_positions[3] * input[0].width * 0.5f;
     position = mul(position, ginvView) + input[0].pos;		
     output.pos = mul( position, gWVP );     
 	output.tex = g_texcoords[3];
