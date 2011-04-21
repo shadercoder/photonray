@@ -27,7 +27,7 @@ HRESULT sorterGPU::CreateResources()
     ID3DBlob* pBlob = NULL;
 
     // Compile the Bitonic Sort Compute Shader
-    hr = CompileShaderFromFile( L"ComputeShaderSort11.hlsl", "BitonicSort", "cs_4_0", &pBlob );
+    hr = CompileShaderFromFile( L"sorter.hlsl", "BitonicSort", "cs_4_0", &pBlob );
     if( FAILED( hr ) )
         return hr;
 

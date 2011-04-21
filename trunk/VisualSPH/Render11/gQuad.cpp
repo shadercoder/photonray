@@ -211,6 +211,7 @@ void gQuad::draw()
 	md3dContext->PSSetShaderResources(1, 1, &backSRV);
 	md3dContext->PSSetShaderResources(2, 1, &volume);
 	md3dContext->PSSetShaderResources(3, 1, &pNoiseSRV);
+	md3dContext->PSSetShaderResources(4, 1, &pBackgroundSRV);
 
 	md3dContext->DrawIndexed( mNumIndices, 0, 0 );
 }
@@ -237,4 +238,9 @@ void gQuad::setVolume(ID3D11ShaderResourceView* _vol)
 void gQuad::setNoise(ID3D11ShaderResourceView* _pNoiseSRV)
 {
 	pNoiseSRV = _pNoiseSRV;
+}
+
+void gQuad::setBackground(ID3D11ShaderResourceView* _pBackgroundSRV)
+{
+	this->pBackgroundSRV = _pBackgroundSRV;
 }

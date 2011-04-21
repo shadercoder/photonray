@@ -8,6 +8,7 @@
 #include "tbb/tbb.h"
 #include "tbb/parallel_for.h"
 #include "tbb/blocked_range.h"
+#include "sorterGPU.h"
 
 using namespace tbb;
 
@@ -16,6 +17,7 @@ using namespace std;
 class CalcField
 {
 private:
+	sorterGPU sorter;
 	DenseField* field;
 	const Particle* particles;		
 	float metaballsSize;
@@ -88,9 +90,9 @@ private:
 	ID3D11RasterizerState*		pRasterizerStateFront;
 	ID3D11DepthStencilState*	pDepthStencilState;
 
-	ID3D11Texture2D*			pBackGroundS;
-	ID3D11RenderTargetView*		pBackGroundSView;
-	ID3D11ShaderResourceView*	pBackGroundSRV;
+	//ID3D11Texture2D*			pBackGroundS;
+	//ID3D11RenderTargetView*		pBackGroundSView;
+	//ID3D11ShaderResourceView*	pBackGroundSRV;
 
 	ID3D11Texture2D*			pFrontS;
 	ID3D11RenderTargetView*		pFrontSView;

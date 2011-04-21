@@ -42,11 +42,13 @@ private:
 	ID3D11ShaderResourceView*	backSRV;
 	ID3D11ShaderResourceView*	volume;
 	ID3D11ShaderResourceView*	pNoiseSRV;
+	ID3D11ShaderResourceView*	pBackgroundSRV;
 public:
 	gQuad(void);
 	~gQuad(void);
 	void setVolume(ID3D11ShaderResourceView* _vol);
 	void setNoise(ID3D11ShaderResourceView* _pNoiseSRV);
+	void setBackground(ID3D11ShaderResourceView* _pBackgroundSRV);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D11ShaderResourceView* frontSRV, ID3D11ShaderResourceView* backSRV);
 	HRESULT init(ID3D11Device* device, ID3D11DeviceContext* md3dContext);
