@@ -99,6 +99,9 @@
     <None Include="label.hlsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="X.dds" />
+    <None Include="Y.dds" />
+    <None Include="Z.dds" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render11.cpp" />

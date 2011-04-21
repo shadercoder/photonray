@@ -421,6 +421,9 @@
     <None Include="settings_readme.txt" />
     <None Include="simple.hlsl" />
     <None Include="sorter.hlsl" />
+    <None Include="X.dds" />
+    <None Include="Y.dds" />
+    <None Include="Z.dds" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gMetaballs.cpp" />
