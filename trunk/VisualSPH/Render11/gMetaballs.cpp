@@ -400,7 +400,7 @@ HRESULT gMetaballs::onCreate()
 	RSDesc.SlopeScaledDepthBias = 0;
 	RSDesc.ScissorEnable = FALSE;
 	RSDesc.MultisampleEnable = TRUE;
-	RSDesc.AntialiasedLineEnable = FALSE;
+	RSDesc.AntialiasedLineEnable = TRUE;
 	hr = md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerStateFront );
 	RSDesc.CullMode = D3D11_CULL_BACK;
 	hr = md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerStateBack );
