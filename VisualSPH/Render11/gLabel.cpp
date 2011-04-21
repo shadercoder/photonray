@@ -1,54 +1,59 @@
 #include "DXUT.h"
-#include "gParticlesRender.h"
+#include "gLabel.h"
 
 
-gParticlesRender::gParticlesRender(void)
+gLabel::gLabel(void)
 {
 }
 
 
-gParticlesRender::~gParticlesRender(void)
+gLabel::~gLabel(void)
 {
+	SAFE_RELEASE(mVB);
+	SAFE_RELEASE(mIB);
+	SAFE_RELEASE(pVertexShader);
+	SAFE_RELEASE(pVertexLayout);
+	SAFE_RELEASE(pPixelShader);
+	SAFE_RELEASE(pDepthStencilState);
+	SAFE_RELEASE(pRasterizerState);
+	SAFE_RELEASE(pBlendState);
+	SAFE_RELEASE(mCB);
 }
 
-HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
+void gLabel::setPosition(float x, float y, float z, float height, float width)
 {
-	HRESULT hr;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	md3dContext->Map(mVB, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mappedResource);
+	Vertex* v = (Vertex*) mappedResource.pData;
+	v->pos = D3DXVECTOR4(x, y, z, 1.0f);	
+	v->height = height;
+	v->width = width;
+	md3dContext->Unmap(mVB, 0);
+}
+
+void gLabel::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, LPCWSTR textFileName)
+{
 	md3dDevice = device;
 	this->md3dContext = md3dContext;
-	DWORD dwShaderFlags = 0;
-#if defined( DEBUG ) || defined( _DEBUG )
-	dwShaderFlags |= D3D11_SHADER_DEBUG_REG_INTERFACE_POINTERS;
-#endif
-	const D3D11_INPUT_ELEMENT_DESC layout[] =
+	mNumVertices = 1;
+	primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+
+	// Create vertex buffer
+	Vertex vertices[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 },		
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 },		
+		{D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f), 1.0f, 1.0f},
 	};
-	int numElements = sizeof(layout) / sizeof(layout[0]);
-	mNumVertices = 0;
-	mNumFaces = 0; 
 
 	D3D11_BUFFER_DESC vbd;
-	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth = sizeof(VertexParticle);
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.ByteWidth = sizeof(Vertex) * mNumVertices;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vbd.MiscFlags = 0;
-	HR(md3dDevice->CreateBuffer(&vbd, NULL, &mVB));
-
-	// Create the index buffer
-	mNumIndices = 0;	
-
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_DEFAULT;
-	ibd.ByteWidth = sizeof(DWORD);
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	HR(md3dDevice->CreateBuffer(&ibd, NULL, &mIB));
-
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = vertices;
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
+	
 	// Create a constant buffer
 	D3D11_BUFFER_DESC cbDesc;
 	cbDesc.ByteWidth = sizeof( CONSTANT_BUFFER );
@@ -69,25 +74,33 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
     pConstData->g_positions[1] = D3DXVECTOR4( 1,  1, 0, 0);
     pConstData->g_positions[3] = D3DXVECTOR4( 1, -1, 0, 0);    
     pConstData->g_positions[2] = D3DXVECTOR4(-1, -1, 0, 0);
-	pConstData->g_texcoords[0] = D3DXVECTOR4( 0, 1, 0, 0); 
-	pConstData->g_texcoords[1] = D3DXVECTOR4( 1, 1, 0, 0);
-	pConstData->g_texcoords[2] = D3DXVECTOR4( 0, 0, 0, 0);
-	pConstData->g_texcoords[3] = D3DXVECTOR4( 1, 0, 0, 0);
+	
+	pConstData->g_texcoords[2] = D3DXVECTOR4( 0, 1, 0, 0); 
+	pConstData->g_texcoords[3] = D3DXVECTOR4( 1, 1, 0, 0);
+	pConstData->g_texcoords[0] = D3DXVECTOR4( 0, 0, 0, 0);
+	pConstData->g_texcoords[1] = D3DXVECTOR4( 1, 0, 0, 0);
 	
 	md3dContext->Unmap(mCBImmute, 0);
-
-
-	// Create a blend state to disable alpha blending
+		// Create a blend state to disable alpha blending
 	D3D11_BLEND_DESC BlendState;
 	ZeroMemory( &BlendState, sizeof( D3D11_BLEND_DESC ) );
 	BlendState.AlphaToCoverageEnable = TRUE;
 	BlendState.RenderTarget[0].RenderTargetWriteMask = 0x0F;
-	HR(md3dDevice->CreateBlendState(&BlendState, &pBlendState));
+	//BlendState.AlphaToCoverageEnable = FALSE;
+	//BlendState.RenderTarget[0].BlendEnable = TRUE;
+	//BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	//BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	//BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	//BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	//BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	//BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	//BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;	
+	md3dDevice->CreateBlendState( &BlendState, &pBlendState ) ;
 
 	// Create a rasterizer state to disable culling
-	D3D11_RASTERIZER_DESC RSDesc;	
+	D3D11_RASTERIZER_DESC RSDesc;
 	RSDesc.FillMode = D3D11_FILL_SOLID;
-	RSDesc.CullMode = D3D11_CULL_NONE;
+	RSDesc.CullMode = D3D11_CULL_FRONT;
 	RSDesc.FrontCounterClockwise = TRUE;
 	RSDesc.DepthBias = 0;
 	RSDesc.DepthBiasClamp = 0;
@@ -95,7 +108,7 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	RSDesc.ScissorEnable = FALSE;
 	RSDesc.MultisampleEnable = TRUE;
 	RSDesc.AntialiasedLineEnable = FALSE;
-	HR(md3dDevice->CreateRasterizerState(&RSDesc, &pRasterizerState));
+	md3dDevice->CreateRasterizerState( &RSDesc, &pRasterizerState );
 
 	// Create a depth stencil state to enable less-equal depth testing
 	D3D11_DEPTH_STENCIL_DESC DSDesc;
@@ -103,49 +116,57 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	DSDesc.DepthEnable = TRUE;
 	DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	HR(md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState));
+	md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState );
+
 
 	// Compile the vertex shader from the file
-	ID3DBlob* err;
-	hr = D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "VS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
-
+	ID3DBlob*	pBlob;
+	ID3DBlob*	err;
+	HRESULT hr;
+	md3dDevice = device;
+	DWORD dwShaderFlags = 0;
+#if defined( DEBUG ) || defined( _DEBUG )
+	dwShaderFlags |= D3D11_SHADER_DEBUG_REG_INTERFACE_POINTERS;
+#endif
+	const D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 },		
+		{ "WIDTH", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 },		
+		{ "HEIGHT", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,  D3D11_INPUT_PER_VERTEX_DATA, 0 },		
+	};
+	int numElements = sizeof(layout) / sizeof(layout[0]);
+	hr = D3DX11CompileFromFile(L"label.hlsl", NULL, NULL, "VS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();
-		MessageBoxA(0, message, "Error happens! : Vertex shader", MB_OK);
-		return S_FALSE;
+		MessageBoxA(0, message, "Error happens!", MB_OK);		
 	}
 	// Create the vertex shader
-	HR(md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pVertexShader ));
-	// Create input layout
-	HR(md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout ));
+	hr = md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pVertexShader );
+	hr = md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(),	pBlob->GetBufferSize(), &pVertexLayout );
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
-	
-	//Compile the geometry shader from the file
-	hr = D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "GS", "gs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 
+	//Compile the geometry shader from the file
+	hr = D3DX11CompileFromFile(L"label.hlsl", NULL, NULL, "GS", "gs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();
 		MessageBoxA(0, message, "Error happens! : Geometry shader", MB_OK);
-		return S_FALSE;
 	}
 	// Create the geometry shader
 	HR(md3dDevice->CreateGeometryShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pGeometryShader));
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
-	
-	// Compile the pixel shader from file
-	HR(D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "PS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL ));
+
+	hr = D3DX11CompileFromFile(L"label.hlsl", NULL, NULL, "PS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();
-		MessageBoxA(0, message, "Error happens! : Pixel shader", MB_OK);
-		return S_FALSE;
+		MessageBoxA(0, message, "Error happens!", MB_OK);
 	}	
 	// Create the pixel shader
-	HR(md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader ));
+	hr = md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader );
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
 	// Create sampler state
@@ -166,35 +187,27 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	HR(md3dDevice->CreateSamplerState(&samplerDesc, &pSamplerState));
 
 	// Load particle texture
-	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"particle.dds", NULL, NULL, &pTexParticleSRV, &hr));
-
-	return hr;
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, textFileName, NULL, NULL, &pTextSRV, &hr));
 }
 
-void gParticlesRender::draw()
+void gLabel::draw()
 {
-	if (mNumVertices == 0)
-	{
-		return;
-	}
-	UINT strides[1] = {sizeof(VertexParticle)};
-	UINT offsets[1] = {0};
-	
-	md3dContext->IASetVertexBuffers(0, 1, &mVB, strides, offsets);
+	md3dContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+
+	md3dContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 	md3dContext->IASetInputLayout(pVertexLayout);
-	md3dContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 	md3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);	
 	md3dContext->GSSetConstantBuffers(0, 1, &mCB);
 	md3dContext->GSSetConstantBuffers(1, 1, &mCBImmute);
-	//md3dDevice->PSSetConstantBuffers(0, 1, &mCB);	
 
 	md3dContext->OMSetBlendState(pBlendState, 0, 0xFFFFFFFF);
 	md3dContext->OMSetDepthStencilState(pDepthStencilState, 0);	
 	md3dContext->RSSetState(pRasterizerState);
 
-	md3dContext->PSSetShaderResources(0, 1, &pTexParticleSRV);
+	md3dContext->PSSetShaderResources(0, 1, &pTextSRV);
 	md3dContext->PSSetSamplers(0, 1, &pSamplerState);
-
 	md3dContext->VSSetShader(pVertexShader, NULL, 0);
 	md3dContext->GSSetShader(pGeometryShader, NULL, 0);
 	md3dContext->PSSetShader(pPixelShader, NULL, 0);
@@ -202,28 +215,7 @@ void gParticlesRender::draw()
 	md3dContext->Draw(mNumVertices, 0);
 }
 
-void gParticlesRender::updateParticles(const vector<Particle>& particles, float scale)
-{
-	SAFE_RELEASE(mVB);
-	mNumVertices = particles.size();
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth = sizeof(VertexParticle) * mNumVertices;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;	
-	vector<VertexParticle> vertices(particles.size());
-	for (size_t i = 0; i < particles.size(); ++i)
-	{
-		vertices[i].pos = particles[i].position * scale * 0.2;
-		vertices[i].color = BLUE;
-	}
-	vinitData.pSysMem = &vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));	
-}
-
-void gParticlesRender::onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View)
+void gLabel::onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View)
 {
 	D3DXMATRIX inv;
 	D3DXMatrixInverse(&inv, NULL, &View);

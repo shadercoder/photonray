@@ -1,5 +1,7 @@
 #pragma once
 #include "gobject.h"
+#include "gLabel.h"
+
 class Axis : public GObject
 {
 private:
@@ -20,13 +22,13 @@ private:
 	ID3D11RasterizerState*		pRasterizerState;
 	ID3D11BlendState*			pBlendState;
 	ID3D11Buffer*	mCB;
-
+	gLabel xLabel, yLabel, zLabel;
 public:
 	Axis(void);
 	~Axis(void);
 	void init(ID3D11Device* device, ID3D11DeviceContext* md3dContext);
 	void draw();
-	void onFrameMove(D3DXMATRIX& mWorldViewProj);
+	void onFrameMove(D3DXMATRIX& mWorldViewProj, D3DXMATRIX View);
 
 };
 

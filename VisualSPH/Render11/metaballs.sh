@@ -155,12 +155,9 @@ float4 RayCastPS(PS_IN input): SV_Target
 	
 	if (all(front == back))
 	{
-		dst = background.SampleLevel(mysampler, texC, 0).xyzw;		
 		return dst;
 	}
     
-	//dst.a = 0;
-  
 	float value = 0;	 
     float3 Step = dir * StepSize;		
 	float3 halfStepBack = float3(-Step * 0.5);
@@ -199,7 +196,6 @@ float4 RayCastPS(PS_IN input): SV_Target
 		//break if the position is greater than <1, 1, 1>
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
 		{
-			dst = background.SampleLevel(mysampler, texC, 0).xyzw;		
 			return dst;
 		}
 	}	

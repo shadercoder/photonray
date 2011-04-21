@@ -379,9 +379,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Axis.cpp" />
+    <ClCompile Include="gLabel.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="sorterGPU.cpp" />
     <ClInclude Include="Axis.h" />
+    <ClInclude Include="gLabel.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="ShaderUtils.h" />
     <ClInclude Include="sorterGPU.h" />
@@ -412,6 +414,7 @@
     <ClCompile Include="DXUT\Optional\DXUTsettingsdlg.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
+    <None Include="label.hlsl" />
     <None Include="metaCS.hlsl" />
     <None Include="segments.txt" />
     <None Include="settings.txt" />
