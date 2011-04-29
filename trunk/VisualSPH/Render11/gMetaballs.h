@@ -17,6 +17,8 @@ using namespace std;
 class CalcField
 {
 private:
+
+
 	sorterGPU sorter;
 	DenseField* field;
 	const Particle* particles;		
@@ -72,27 +74,45 @@ public:
 };
 
 
-struct VS_CONSTANT_BUFFER
-{
-    D3DXMATRIX mWorldViewProj;      //mWorldViewProj will probably be global to all shaders in a project.
-};
 
 class gMetaballs :	public GObject
 {
-private:
+private:	
+	struct VS_CONSTANT_BUFFER
+	{
+	    D3DXMATRIX mWorldViewProj;      //mWorldViewProj will probably be global to all shaders in a project.
+	};
+
+	struct Item
+	{
+		UINT key;
+		UINT val;
+	};
+
+	struct UINT2
+	{
+		UINT x;
+		UINT y;
+	};
+	
+	struct SortCB
+	{
+		UINT iLevel;
+		UINT iLevelMask;
+		UINT iWidth;
+		UINT iHeight;
+	};
+
 	ID3D11VertexShader*			pVertexShader;
 	ID3D11InputLayout*			pVertexLayout;
 	ID3D11PixelShader*			pPixelShader;
 	
 	ID3D11Buffer*				mCB;
+	ID3D11Buffer*				g_pSortCB;
 	ID3D11BlendState*			pBlendState;
 	ID3D11RasterizerState*		pRasterizerStateBack;
 	ID3D11RasterizerState*		pRasterizerStateFront;
 	ID3D11DepthStencilState*	pDepthStencilState;
-
-	//ID3D11Texture2D*			pBackGroundS;
-	//ID3D11RenderTargetView*		pBackGroundSView;
-	//ID3D11ShaderResourceView*	pBackGroundSRV;
 
 	ID3D11Texture2D*			pFrontS;
 	ID3D11RenderTargetView*		pFrontSView;
@@ -112,6 +132,12 @@ private:
 	ID3D11DepthStencilView*		pDepthStencilView;
 
 	ID3D11ComputeShader*		p_MetaballsProcess;
+	ID3D11ComputeShader*		p_CSbuildGrid;
+	ID3D11ComputeShader*		g_pBuildGridIndicesCS;
+	ID3D11ComputeShader*		g_pRearrangeParticlesCS;
+	ID3D11ComputeShader*		g_pSortBitonic;
+	ID3D11ComputeShader*		g_pSortTranspose;
+	ID3D11ComputeShader*		g_pBuildGridCS;
 	
 	ID3D11Buffer*				p_Volume;
 	ID3D11ShaderResourceView*	p_VolumeSRV;
@@ -121,10 +147,23 @@ private:
 	ID3D11ShaderResourceView*	p_ParticlesSRV;
 	ID3D11UnorderedAccessView*	p_ParticlesUAV;
 	
+	ID3D11Buffer*				p_Grid;
+	ID3D11ShaderResourceView*	p_GridSRV;
+	ID3D11UnorderedAccessView*	p_GridUAV;
+
+	ID3D11Buffer*				p_Index;
+	ID3D11ShaderResourceView*	p_IndexSRV;
+	ID3D11UnorderedAccessView*	p_IndexUAV;
+
+	ID3D11Buffer*				g_pGridPingPong;
+	ID3D11ShaderResourceView*	g_pGridPingPongSRV;
+	ID3D11UnorderedAccessView*	g_pGridPingPongUAV;
+
 	UINT screenWidth;
 	UINT screenHeight;
 	UINT volumeResolution;
 
+	sorterGPU sorter;
 	gQuad quad;
 	DenseField field;
 	float scale;
@@ -136,6 +175,15 @@ private:
 
 	HRESULT CreateVolumeBuffer();
 	HRESULT CreateParticleBuffer(const Particle* p, int particleCount);
+	HRESULT CreateGridBuffer();
+	HRESULT CreateIndexBuffer();
+	HRESULT CreateTempBuffer();
+
+	void GPUSort(ID3D11DeviceContext* pd3dImmediateContext,
+             ID3D11UnorderedAccessView* inUAV, ID3D11ShaderResourceView* inSRV,
+             ID3D11UnorderedAccessView* tempUAV, ID3D11ShaderResourceView* tempSRV,
+			 UINT numElements);
+
 
 	void drawBox();
 	float calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell);
