@@ -20,10 +20,12 @@ cbuffer CB : register( b0 )
     unsigned int g_iWidth;
     unsigned int g_iHeight;
 };
-structure Item{
+
+struct Item{
 	unsigned int key;
 	unsigned int pid;
 };
+
 //--------------------------------------------------------------------------------------
 // Structured Buffers
 //--------------------------------------------------------------------------------------
@@ -48,9 +50,11 @@ void BitonicSort( uint3 Gid : SV_GroupID,
     // Sort the shared data
     for (unsigned int j = g_iLevel >> 1 ; j > 0 ; j >>= 1)
     {
-        unsigned int result = ((shared_data[GI & ~j].key <= shared_data[GI | j].key) == (bool)(g_iLevelMask & DTid.x))? shared_data[GI ^ j].key : shared_data[GI].key;
+        //unsigned int result = ((shared_data[GI & ~j].key <= shared_data[GI | j].key) == (bool)(g_iLevelMask & DTid.x))? shared_data[GI ^ j].key : shared_data[GI].key;
+		unsigned int pos = ((shared_data[GI & ~j].key <= shared_data[GI | j].key) == (bool)(g_iLevelMask & DTid.x))? GI ^ j : GI;
         GroupMemoryBarrierWithGroupSync();
-        shared_data[GI] = result;
+        //shared_data[GI].key = result;
+		shared_data[GI] = shared_data[pos];
         GroupMemoryBarrierWithGroupSync();
     }
     
@@ -61,7 +65,7 @@ void BitonicSort( uint3 Gid : SV_GroupID,
 //--------------------------------------------------------------------------------------
 // Matrix Transpose Compute Shader
 //--------------------------------------------------------------------------------------
-groupshared unsigned int transpose_shared_data[TRANSPOSE_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE];
+groupshared Item transpose_shared_data[TRANSPOSE_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE];
 
 [numthreads(TRANSPOSE_BLOCK_SIZE, TRANSPOSE_BLOCK_SIZE, 1)]
 void MatrixTranspose( uint3 Gid : SV_GroupID, 

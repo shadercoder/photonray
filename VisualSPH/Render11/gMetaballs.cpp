@@ -34,14 +34,6 @@ gMetaballs::~gMetaballs(void)
 
 float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
 {	
-	/*
-	D3DXVECTOR3 tmp = centerBall - cell;	
-	float len = D3DXVec3Dot(&tmp, &tmp);
-	if (len > metaballsSize * metaballsSize) {
-		return 0.0f;
-	}
-	return 1.0f / (len + 1e-5f);
-	*/
 	return 0.0f;
 }
 
@@ -72,50 +64,127 @@ ID3D11Buffer* CreateAndCopyToDebugBuf( ID3D11Device* pDevice, ID3D11DeviceContex
     return debugbuf;
 }
 
+//--------------------------------------------------------------------------------------
+// GPU Bitonic Sort
+// For more information, please see the ComputeShaderSort11 sample
+//--------------------------------------------------------------------------------------
+void gMetaballs::GPUSort(ID3D11DeviceContext* pd3dImmediateContext,
+             ID3D11UnorderedAccessView* inUAV, ID3D11ShaderResourceView* inSRV,
+             ID3D11UnorderedAccessView* tempUAV, ID3D11ShaderResourceView* tempSRV,
+			 UINT numElements)
+{
+    pd3dImmediateContext->CSSetConstantBuffers( 0, 1, &g_pSortCB );
+
+    const UINT NUM_ELEMENTS = numElements;
+    const UINT MATRIX_WIDTH = BITONIC_BLOCK_SIZE;
+    const UINT MATRIX_HEIGHT = NUM_ELEMENTS / BITONIC_BLOCK_SIZE;
+
+    // Sort the data
+    // First sort the rows for the levels <= to the block size
+    for( UINT level = 2 ; level <= BITONIC_BLOCK_SIZE ; level <<= 1 )
+    {
+        SortCB constants = { level, level, MATRIX_HEIGHT, MATRIX_WIDTH };
+        pd3dImmediateContext->UpdateSubresource( g_pSortCB, 0, NULL, &constants, 0, 0 );
+
+        // Sort the row data
+        UINT UAVInitialCounts = 0;
+        pd3dImmediateContext->CSSetUnorderedAccessViews( 0, 1, &inUAV, &UAVInitialCounts );
+        pd3dImmediateContext->CSSetShader( g_pSortBitonic, NULL, 0 );
+        pd3dImmediateContext->Dispatch( NUM_ELEMENTS / BITONIC_BLOCK_SIZE, 1, 1 );
+    }
+
+    // Then sort the rows and columns for the levels > than the block size
+    // Transpose. Sort the Columns. Transpose. Sort the Rows.
+    for( UINT level = (BITONIC_BLOCK_SIZE << 1) ; level <= NUM_ELEMENTS ; level <<= 1 )
+    {
+        SortCB constants1 = { (level / BITONIC_BLOCK_SIZE), (level & ~NUM_ELEMENTS) / BITONIC_BLOCK_SIZE, MATRIX_WIDTH, MATRIX_HEIGHT };
+        pd3dImmediateContext->UpdateSubresource( g_pSortCB, 0, NULL, &constants1, 0, 0 );
+
+        // Transpose the data from buffer 1 into buffer 2
+        ID3D11ShaderResourceView* pViewNULL = NULL;
+        UINT UAVInitialCounts = 0;
+        pd3dImmediateContext->CSSetShaderResources( 0, 1, &pViewNULL );
+        pd3dImmediateContext->CSSetUnorderedAccessViews( 0, 1, &tempUAV, &UAVInitialCounts );
+        pd3dImmediateContext->CSSetShaderResources( 0, 1, &inSRV );
+        pd3dImmediateContext->CSSetShader( g_pSortTranspose, NULL, 0 );
+        pd3dImmediateContext->Dispatch( MATRIX_WIDTH / TRANSPOSE_BLOCK_SIZE, MATRIX_HEIGHT / TRANSPOSE_BLOCK_SIZE, 1 );
+
+        // Sort the transposed column data
+        pd3dImmediateContext->CSSetShader( g_pSortBitonic, NULL, 0 );
+        pd3dImmediateContext->Dispatch( NUM_ELEMENTS / BITONIC_BLOCK_SIZE, 1, 1 );
+
+        SortCB constants2 = { BITONIC_BLOCK_SIZE, level, MATRIX_HEIGHT, MATRIX_WIDTH };
+        pd3dImmediateContext->UpdateSubresource( g_pSortCB, 0, NULL, &constants2, 0, 0 );
+
+        // Transpose the data from buffer 2 back into buffer 1
+        pd3dImmediateContext->CSSetShaderResources( 0, 1, &pViewNULL );
+        pd3dImmediateContext->CSSetUnorderedAccessViews( 0, 1, &inUAV, &UAVInitialCounts );
+        pd3dImmediateContext->CSSetShaderResources( 0, 1, &tempSRV );
+        pd3dImmediateContext->CSSetShader( g_pSortTranspose, NULL, 0 );
+        pd3dImmediateContext->Dispatch( MATRIX_HEIGHT / TRANSPOSE_BLOCK_SIZE, MATRIX_WIDTH / TRANSPOSE_BLOCK_SIZE, 1 );
+
+        // Sort the row data
+        pd3dImmediateContext->CSSetShader( g_pSortBitonic, NULL, 0 );
+        pd3dImmediateContext->Dispatch( NUM_ELEMENTS / BITONIC_BLOCK_SIZE, 1, 1 );
+    }
+}
+
 void gMetaballs::updateVolumeGPU(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
-	CreateVolumeBuffer();
+	//CreateVolumeBuffer();
 	CreateParticleBuffer(&(particles[0]), numParticles);
+	CreateGridBuffer();
+	CreateIndexBuffer();
 	const int BLOCK_SIZE = 256;
 	UINT UAVInitialCounts = 0;
-	md3dContext->CSSetUnorderedAccessViews(0, 1, &p_VolumeUAV, &UAVInitialCounts);
+	md3dContext->CSSetUnorderedAccessViews(0, 1, &p_GridUAV, &UAVInitialCounts);
 	md3dContext->CSSetShaderResources(0, 1, &p_ParticlesSRV);
-	md3dContext->CSSetShader(p_MetaballsProcess, NULL, 0);
+	// build keys
+	md3dContext->CSSetShader(g_pBuildGridCS, NULL, 0);
 	md3dContext->Dispatch(numParticles, 1, 1);
-	
-	ID3D11Buffer* temp = CreateAndCopyToDebugBuf(md3dDevice, md3dContext, p_Volume);
+	// sort keys
+	GPUSort(md3dContext, p_GridUAV, p_GridSRV, g_pGridPingPongUAV, g_pGridPingPongSRV, numParticles);	
+	// buil indices
+	md3dContext->CSSetShader( g_pBuildGridIndicesCS, NULL, 0 );
+    md3dContext->Dispatch( numParticles / BLOCK_SIZE, 1, 1 );
+    // rearrange
+    md3dContext->CSSetShader( g_pRearrangeParticlesCS, NULL, 0 );
+    md3dContext->Dispatch( numParticles / BLOCK_SIZE, 1, 1 );
 
-	D3D11_MAPPED_SUBRESOURCE pMT;	
-	D3D11_MAPPED_SUBRESOURCE mappedResourceFromCS;	
-	HR(md3dContext->Map(pVolume, 0, D3D11_MAP_WRITE_DISCARD, 0, &pMT)); 	
-	HR(md3dContext->Map(temp, 0, D3D11_MAP_READ, 0, &mappedResourceFromCS));
-	int strideI = pMT.DepthPitch / sizeof(float);
-	int strideJ = pMT.RowPitch / sizeof(float);
-	float* textureData = (float*) pMT.pData;	
-	float* volumeData = (float*) mappedResourceFromCS.pData;
-	//const float* fieldData = field.getData();
-	for (int i = 0; i < field.xSize; ++i)
-	{
-		for (int j = 0; j < field.ySize; ++j)
-		{
-			//textureData[i * strideI + j * strideJ] = field.value(i, j, k);
-			//memcpy(&textureData[i * strideI + j * strideJ], fieldData + field.arrayIndexFromCoordinate(i, j, 0), sizeof(float) * field.zSize);
-			for (int k = 0; k < field.zSize; ++k)
-			{
-				//textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);				
-				textureData[i * strideI + j * strideJ + k] = volumeData[(i * volumeResolution + j) * volumeResolution + k];				
-			}
-			
-		}		
-	}
-	md3dContext->Unmap(pVolume, 0);
-	md3dContext->Unmap(temp, 0);
-	SAFE_RELEASE(temp);
+
+	//ID3D11Buffer* temp = CreateAndCopyToDebugBuf(md3dDevice, md3dContext, p_Volume);
+	//
+	//D3D11_MAPPED_SUBRESOURCE pMT;	
+	//D3D11_MAPPED_SUBRESOURCE mappedResourceFromCS;	
+	//HR(md3dContext->Map(pVolume, 0, D3D11_MAP_WRITE_DISCARD, 0, &pMT)); 	
+	//HR(md3dContext->Map(temp, 0, D3D11_MAP_READ, 0, &mappedResourceFromCS));
+	//int strideI = pMT.DepthPitch / sizeof(float);
+	//int strideJ = pMT.RowPitch / sizeof(float);
+	//float* textureData = (float*) pMT.pData;	
+	//float* volumeData = (float*) mappedResourceFromCS.pData;
+	////const float* fieldData = field.getData();
+	//for (int i = 0; i < field.xSize; ++i)
+	//{
+	//	for (int j = 0; j < field.ySize; ++j)
+	//	{
+	//		//textureData[i * strideI + j * strideJ] = field.value(i, j, k);
+	//		//memcpy(&textureData[i * strideI + j * strideJ], fieldData + field.arrayIndexFromCoordinate(i, j, 0), sizeof(float) * field.zSize);
+	//		for (int k = 0; k < field.zSize; ++k)
+	//		{
+	//			//textureData[i * strideI + j * strideJ + k] = field.value(i, j, k);				
+	//			textureData[i * strideI + j * strideJ + k] = volumeData[(i * volumeResolution + j) * volumeResolution + k];				
+	//		}
+	//		
+	//	}		
+	//}
+	//md3dContext->Unmap(pVolume, 0);
+	//md3dContext->Unmap(temp, 0);
+	//SAFE_RELEASE(temp);
 }
 
 void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
-	//updateVolumeGPU(particles, numParticles, scale, metaballsSize);
+	updateVolumeGPU(particles, numParticles, scale, metaballsSize);
 	
 	this->scale = scale;
 	this->metaballsSize = metaballsSize;
@@ -158,6 +227,9 @@ void gMetaballs::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, in
 	createTexture3D();
 	CreateVolumeBuffer();
 	CreateParticleBuffer(NULL, 0);
+	CreateGridBuffer();
+	CreateIndexBuffer();
+	CreateTempBuffer();
 	quad.init(md3dDevice, md3dContext);
 	quad.setNoise(pNoiseSRV);
 }
@@ -197,8 +269,6 @@ HRESULT gMetaballs::createTexture2D()
 	hr = md3dDevice->CreateRenderTargetView(pFrontS, 0, &pFrontSView);
 	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackS );
 	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackSView);
-	/*hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackGroundS );
-	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackGroundSView);*/
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
 	viewDesc.Format = desc.Format;
@@ -210,7 +280,6 @@ HRESULT gMetaballs::createTexture2D()
 
 	md3dDevice->CreateShaderResourceView(pFrontS, 0, &pFrontSRV);
 	md3dDevice->CreateShaderResourceView(pBackS, 0, &pBackSRV);
-	//md3dDevice->CreateShaderResourceView(pBackGroundS, 0, &pBackGroundSRV);
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 
@@ -441,18 +510,39 @@ HRESULT gMetaballs::onCreate()
 	}	
 	// Create the pixel shader
 	hr = md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader );
+	SAFE_RELEASE( pBlob );
+
+	const char* CSTarget = (md3dDevice->GetFeatureLevel() >= D3D_FEATURE_LEVEL_11_0)? "cs_5_0" : "cs_4_0"; 
 	
-	const char* CSTarget = (md3dDevice->GetFeatureLevel() >= D3D_FEATURE_LEVEL_11_0)? "cs_5_0" : "cs_4_0";
-    
-	D3DX11CompileFromFile(L"metaCS.hlsl", NULL, NULL, "metaCS", CSTarget, dwShaderFlags, NULL, NULL, &pBlob, &err, NULL);
-	if (FAILED(hr))
-	{
-		const char* message = (const char*)err->GetBufferPointer();
-		MessageBoxA(0, message, "Error happens!", MB_OK);
-		return S_FALSE;
-	}	
-	md3dDevice->CreateComputeShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &p_MetaballsProcess );
+	V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "BuildGridCS", CSTarget, &pBlob ) );
+    V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pBuildGridCS ) );
+    SAFE_RELEASE( pBlob );
+    DXUT_SetDebugName( g_pBuildGridCS, "BuildGridCS" );
+
+    // Sort Shaders
+    V_RETURN( CompileShaderFromFile( L"sorter.hlsl", "BitonicSort", CSTarget, &pBlob ) );
+    V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pSortBitonic ) );
+    SAFE_RELEASE( pBlob );
+    DXUT_SetDebugName( g_pSortBitonic, "BitonicSort" );
+
+    V_RETURN( CompileShaderFromFile( L"sorter.hlsl", "MatrixTranspose", CSTarget, &pBlob ) );
+    V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pSortTranspose ) );
+    SAFE_RELEASE( pBlob );
+    DXUT_SetDebugName( g_pSortTranspose, "MatrixTranspose" );
 	
+    V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "BuildGridIndicesCS", CSTarget, &pBlob ) );
+    V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pBuildGridIndicesCS ) );
+    SAFE_RELEASE( pBlob );
+    DXUT_SetDebugName( g_pBuildGridIndicesCS, "BuildGridIndicesCS" );
+
+    V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "RearrangeParticlesCS", CSTarget, &pBlob ) );
+    V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pRearrangeParticlesCS ) );
+    SAFE_RELEASE( pBlob );
+    DXUT_SetDebugName( g_pRearrangeParticlesCS, "RearrangeParticlesCS" );
+
+	V_RETURN( CreateConstantBuffer< SortCB >( md3dDevice, &g_pSortCB ) );
+	DXUT_SetDebugName( g_pSortCB, "Sort" );
+
 	SAFE_RELEASE(pBlob);
 	SAFE_RELEASE(err);
 	return hr;
@@ -514,8 +604,6 @@ void gMetaballs::draw()
 	D3DXMatrixIdentity(&ident);
 	quad.onFrameMove(ident, pFrontSRV, pBackSRV);
 	quad.setVolume(volumeSRV);
-	
-	HRESULT hr;
 	
 	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();	
 	ID3D11Resource *backbufferRes;
@@ -603,5 +691,41 @@ HRESULT gMetaballs::CreateParticleBuffer(const Particle* p, int particleCount)
 	else
 		V_RETURN(CreateStructuredBuffer<gParticle>(md3dDevice, particleCount, &p_Particles, &p_ParticlesSRV, &p_ParticlesUAV, particles));
 	delete [] particles;
+	return S_OK;	
+}
+
+HRESULT gMetaballs::CreateGridBuffer()
+{
+	HRESULT hr = S_OK;
+	SAFE_RELEASE(p_Grid);
+	SAFE_RELEASE(p_GridSRV);
+	SAFE_RELEASE(p_GridUAV);
+	Item* data = new Item[256 * 256 * 256];
+	V_RETURN(CreateStructuredBuffer<Item>(md3dDevice, 256*256*256, &p_Grid, &p_GridSRV, &p_GridUAV, data));
+	delete [] data;
+	return S_OK;	
+}
+
+HRESULT gMetaballs::CreateIndexBuffer()
+{
+	HRESULT hr = S_OK;
+	SAFE_RELEASE(p_Index);
+	SAFE_RELEASE(p_IndexSRV);
+	SAFE_RELEASE(p_IndexUAV);
+	UINT2* data = new UINT2[256 * 256 * 256];
+	V_RETURN(CreateStructuredBuffer<UINT2>(md3dDevice, 256*256*256, &p_Index, &p_IndexSRV, &p_IndexUAV, data));
+	delete [] data;
+	return S_OK;	
+}
+
+HRESULT gMetaballs::CreateTempBuffer()
+{
+	HRESULT hr = S_OK;
+	SAFE_RELEASE(p_Grid);
+	SAFE_RELEASE(p_GridSRV);
+	SAFE_RELEASE(p_GridUAV);
+	Item* data = new Item[256 * 256 * 256];
+	V_RETURN(CreateStructuredBuffer<Item>(md3dDevice, 256*256*256, &g_pGridPingPong, &g_pGridPingPongSRV, &g_pGridPingPongUAV, data));
+	delete [] data;
 	return S_OK;	
 }

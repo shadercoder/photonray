@@ -4,13 +4,34 @@ struct Voxel
 	float val;
 };
 
+#define SIMULATION_BLOCK_SIZE 256
+
+cbuffer cbGrid : register(b0)
+{
+	uint numParticles;
+};
+
 struct Particle
 {
 	float4 pos;
 };
 
-RWStructuredBuffer<Voxel> VolumeRW : register( u0 );
+struct Item
+{
+	uint key;
+	uint val;
+};
+
+RWStructuredBuffer<Item> GridKeysRW : register( u0 );
+RWStructuredBuffer<Particle> ParticlesRW : register( u0 );
 StructuredBuffer<Particle> ParticlesRO : register( t0 );
+
+RWStructuredBuffer<unsigned int> GridRW : register( u0 );
+StructuredBuffer<Item> GridRO : register( t1 );
+
+RWStructuredBuffer<uint2> GridIndicesRW : register( u0 );
+StructuredBuffer<uint2> GridIndicesRO : register( t2 );
+
 
 int arrayIndexFromCoordinate(float3 pos)
 {
@@ -42,30 +63,70 @@ int isInside(int i, int j, int k)
 	return 0;
 }
 
+unsigned int GridGetKey(Item keyvaluepair)
+{
+    return keyvaluepair.key;
+}
+
+unsigned int GridGetValue(Item keyvaluepair)
+{
+    return (keyvaluepair.val);
+}
+
+uint cellIndex(float4 pos)
+{
+	int hx = 1;
+	int hy = 1;
+	int hz = 1;
+	uint res = (((pos.x / hx) * 256 + pos.y / hy) * 256 + pos.z / hz);
+	return res;
+}
+
+[numthreads(1, 1, 1)]
+void BuildGridCS(uint3 DTid : SV_DispatchThreadID )
+{
+	float4 pos = ParticlesRO[DTid.x].pos;
+	GridKeysRW[DTid.x].key = cellIndex(pos);
+	GridKeysRW[DTid.x].val = DTid.x;
+}
+
+[numthreads(SIMULATION_BLOCK_SIZE, 1, 1)]
+void BuildGridIndicesCS( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint GI : SV_GroupIndex )
+{
+    const unsigned int G_ID = DTid.x; // Grid ID to operate on
+    unsigned int G_ID_PREV = (G_ID == 0)? numParticles : G_ID; G_ID_PREV--;
+    unsigned int G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == numParticles) { G_ID_NEXT = 0; }
+    
+    unsigned int cell = GridGetKey( GridRO[G_ID] );
+    unsigned int cell_prev = GridGetKey( GridRO[G_ID_PREV] );
+    unsigned int cell_next = GridGetKey( GridRO[G_ID_NEXT] );
+    if (cell != cell_prev)
+    {
+        // I'm the start of a cell
+        GridIndicesRW[cell].x = G_ID;
+    }
+    if (cell != cell_next)
+    {
+        // I'm the end of a cell
+        GridIndicesRW[cell].y = G_ID + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------
+// Rearrange Particles
+//--------------------------------------------------------------------------------------
+
+[numthreads(SIMULATION_BLOCK_SIZE, 1, 1)]
+void RearrangeParticlesCS( uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint GI : SV_GroupIndex )
+{
+    const unsigned int ID = DTid.x; // Particle ID to operate on
+    const unsigned int G_ID = GridGetValue( GridRO[ ID ] );
+    ParticlesRW[ID] = ParticlesRO[ G_ID ];
+}
+
+
 [numthreads(1, 1, 1)]
 void metaCS(uint3 DTid : SV_DispatchThreadID )
 {
-	const float scale = 170.0f;
-	const float metaballsSize = 17.0f;
-	const float threadshold = 17.0f * 17.0f;
-	float4 pos = ParticlesRO[DTid.x].pos;
-	int x = (int) (pos.x * scale);
-	int y = (int) (pos.y * scale);
-	int z = (int) (pos.z * scale);
-	
-	for (int dz = (int) -metaballsSize; dz <= (int) metaballsSize; ++dz)
-	{
-		
-		for (int dx = (int) -metaballsSize; dx <= (int) metaballsSize; ++dx)
-		{
-			
-			for (int dy = (int) -metaballsSize; dy <= (int) metaballsSize; ++dy)
-			{
-				float3 cell = float3((float) (x + dx), (float) (y + dy), (float) (z + dz));				
-				//InterlockedAdd(VolumeRW[arrayIndexFromCoordinate(float3(x + dx, y + dy, z + dz))].val, (int)calcMetaball(pos * scale, cell, threadshold) * 1000);				
-				//VolumeRW[arrayIndexFromCoordinate(cell)].val = VolumeRW[arrayIndexFromCoordinate(cell)].val + calcMetaball(pos * scale, cell, threadshold) * isInside(x + dx, y + dy, z + dz);
-				VolumeRW[arrayIndexFromCoordinate(float3(x + dx, y + dy, z + dz))].val = 10000;
-			}
-		}
-	}			    
+		    
 }

@@ -31,6 +31,25 @@
 
 
 //--------------------------------------------------------------------------------------
+// Helper for creating constant buffers
+//--------------------------------------------------------------------------------------
+template <class T>
+HRESULT CreateConstantBuffer(ID3D11Device* pd3dDevice, ID3D11Buffer** ppCB)
+{
+    HRESULT hr = S_OK;
+
+    D3D11_BUFFER_DESC Desc;
+    Desc.Usage = D3D11_USAGE_DEFAULT;
+    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    Desc.CPUAccessFlags = 0;
+    Desc.MiscFlags = 0;
+    Desc.ByteWidth = sizeof( T );
+    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, ppCB ) );
+
+    return hr;
+}
+
+//--------------------------------------------------------------------------------------
 // Find and compile the specified shader
 //--------------------------------------------------------------------------------------
 static HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut )
