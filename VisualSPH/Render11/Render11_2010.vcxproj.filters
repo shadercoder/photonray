@@ -115,7 +115,6 @@
     <ClCompile Include="Axis.cpp" />
     <ClCompile Include="sorterGPU.cpp" />
     <ClCompile Include="gLabel.cpp" />
-    <ClCompile Include="Grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Render11.hlsl">
@@ -143,7 +142,6 @@
     <ClInclude Include="Axis.h" />
     <ClInclude Include="sorterGPU.h" />
     <ClInclude Include="gLabel.h" />
-    <ClInclude Include="Grid.h" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

@@ -15,18 +15,18 @@ private:
 		D3DXCOLOR	col;
 	};
 
-	ID3D11VertexShader*			pVertexShader;
-	ID3D11InputLayout*			pVertexLayout;
-	ID3D11PixelShader*			pPixelShader;
-	ID3D11DepthStencilState*	pDepthStencilState;
-	ID3D11RasterizerState*		pRasterizerState;
-	ID3D11BlendState*			pBlendState;
-	ID3D11Buffer*	mCB;
+	CComPtr<ID3D11VertexShader>			pVertexShader;
+	CComPtr<ID3D11InputLayout>			pVertexLayout;
+	CComPtr<ID3D11PixelShader>			pPixelShader;
+	CComPtr<ID3D11DepthStencilState>	pDepthStencilState;
+	CComPtr<ID3D11RasterizerState>		pRasterizerState;
+	CComPtr<ID3D11BlendState>			pBlendState;
+	CComPtr<ID3D11Buffer>	mCB;
 	gLabel xLabel, yLabel, zLabel;
 public:
 	Axis(void);
 	~Axis(void);
-	void init(ID3D11Device* device, ID3D11DeviceContext* md3dContext);
+	void init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj, D3DXMATRIX View);
 

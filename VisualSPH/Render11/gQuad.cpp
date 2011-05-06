@@ -8,18 +8,9 @@ gQuad::gQuad(void)
 
 gQuad::~gQuad(void)
 {
-	SAFE_RELEASE(pVertexShader);
-	SAFE_RELEASE(pVertexLayout);
-	SAFE_RELEASE(pPixelShader);
-	SAFE_RELEASE(pSamplerState);
-	SAFE_RELEASE(pBlendState);
-	SAFE_RELEASE(pRasterizerState);
-	SAFE_RELEASE(pDepthStencilState);
-	SAFE_RELEASE(mCB);
-	SAFE_RELEASE(mCB_Immute);
 }
 
-HRESULT gQuad::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
+HRESULT gQuad::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext)
 {
 	HRESULT hr;
 	md3dDevice = device;
@@ -133,8 +124,8 @@ HRESULT gQuad::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	HR(md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState));
 
 	// Compile the vertex shader from the file
-	ID3DBlob*	pBlob;
-	ID3DBlob* err;
+	CComPtr<ID3DBlob> pBlob;
+	CComPtr<ID3DBlob> err;
 	
 	hr = D3DX11CompileFromFile(L"metaballs.sh", NULL, NULL, "QuadVS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 
@@ -149,11 +140,11 @@ HRESULT gQuad::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	// Create input layout
 	HR(md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout ));
 	//HR(CreateVertexShaderAndInputLayoutFromAssembly(md3dDevice, "metaVS.vs", &pVertexShader, (D3D10_INPUT_ELEMENT_DESC*) &layout, numElements, &pVertexLayout));
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 	// Compile the pixel shader from file
 
-	hr = D3DX11CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
+	hr = D3DX11CompileFromFile(L"metaballs.sh", NULL, NULL, "RayCastPS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob.p, &err.p, NULL );
 		
 	if (FAILED(hr))
 	{
@@ -165,11 +156,11 @@ HRESULT gQuad::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	//HR(CreatePixelShaderFromAssembly(md3dDevice, "metaPS.ps", &pPixelShader));
 	HR(md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader ));
 	//HR(md3dDevice->CreatePixelShader( shaderCode, size, &pPixelShader ));
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 	// Create sampler state
 	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;	
@@ -190,33 +181,32 @@ void gQuad::draw()
 {
 	UINT strides[1] = { sizeof( Vertex2D ) };
 	UINT offsets[1] = {0};
-	md3dContext->IASetVertexBuffers(0, 1, &mVB, strides, offsets);
+	md3dContext->IASetVertexBuffers(0, 1, &mVB.p, strides, offsets);
 	md3dContext->IASetInputLayout(pVertexLayout);
-	md3dContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
+	md3dContext->IASetIndexBuffer(mIB.p, DXGI_FORMAT_R32_UINT, 0);
 	md3dContext->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	md3dContext->VSSetConstantBuffers( 0, 1, &mCB);
-	//md3dDevice->PSSetConstantBuffers( 0, 1, &mCB);
-	md3dContext->PSSetConstantBuffers( 0, 1, &mCB_Immute);
-	md3dContext->OMSetBlendState(pBlendState, 0, 0xffffffff);
-	md3dContext->OMSetDepthStencilState(pDepthStencilState, 0);	
-	md3dContext->RSSetState(pRasterizerState);
+	md3dContext->VSSetConstantBuffers( 0, 1, &mCB.p);
+	md3dContext->PSSetConstantBuffers( 0, 1, &mCB_Immute.p);
+	md3dContext->OMSetBlendState(pBlendState.p, 0, 0xffffffff);
+	md3dContext->OMSetDepthStencilState(pDepthStencilState.p, 0);	
+	md3dContext->RSSetState(pRasterizerState.p);
 
-	md3dContext->PSSetSamplers(0, 1, &pSamplerState);
+	md3dContext->PSSetSamplers(0, 1, &pSamplerState.p);
 
-	md3dContext->VSSetShader(pVertexShader, NULL, 0);
+	md3dContext->VSSetShader(pVertexShader.p, NULL, 0);
 	md3dContext->GSSetShader(NULL, NULL, 0);
-	md3dContext->PSSetShader(pPixelShader, NULL, 0);
+	md3dContext->PSSetShader(pPixelShader.p, NULL, 0);
 
-	md3dContext->PSSetShaderResources(0, 1, &frontSRV);
-	md3dContext->PSSetShaderResources(1, 1, &backSRV);
-	md3dContext->PSSetShaderResources(2, 1, &volume);
-	md3dContext->PSSetShaderResources(3, 1, &pNoiseSRV);
-	md3dContext->PSSetShaderResources(4, 1, &pBackgroundSRV);
+	md3dContext->PSSetShaderResources(0, 1, &frontSRV.p);
+	md3dContext->PSSetShaderResources(1, 1, &backSRV.p);
+	md3dContext->PSSetShaderResources(2, 1, &volume.p);
+	md3dContext->PSSetShaderResources(3, 1, &pNoiseSRV.p);
+	md3dContext->PSSetShaderResources(4, 1, &pBackgroundSRV.p);
 
 	md3dContext->DrawIndexed( mNumIndices, 0, 0 );
 }
 
-void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D11ShaderResourceView* frontSRV, ID3D11ShaderResourceView* backSRV)
+void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, CComPtr<ID3D11ShaderResourceView> frontSRV, CComPtr<ID3D11ShaderResourceView> backSRV)
 {
 	// Update the Constant Buffer
 	CONSTANT_BUFFER* pConstData;
@@ -230,17 +220,17 @@ void gQuad::onFrameMove(D3DXMATRIX& mWorldViewProj, ID3D11ShaderResourceView* fr
 	this->backSRV = backSRV;
 }
 
-void gQuad::setVolume(ID3D11ShaderResourceView* _vol)
+void gQuad::setVolume(CComPtr<ID3D11ShaderResourceView> _vol)
 {
 	volume = _vol;
 }
 
-void gQuad::setNoise(ID3D11ShaderResourceView* _pNoiseSRV)
+void gQuad::setNoise(CComPtr<ID3D11ShaderResourceView> _pNoiseSRV)
 {
 	pNoiseSRV = _pNoiseSRV;
 }
 
-void gQuad::setBackground(ID3D11ShaderResourceView* _pBackgroundSRV)
+void gQuad::setBackground(CComPtr<ID3D11ShaderResourceView> _pBackgroundSRV)
 {
 	this->pBackgroundSRV = _pBackgroundSRV;
 }

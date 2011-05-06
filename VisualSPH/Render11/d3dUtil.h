@@ -28,7 +28,7 @@
 #include <d3dx10.h>
 #include <dxerr.h>
 #include <cassert>
-
+#include <atlbase.h>
 
 //--------------------------------------------------------------------------------------
 // Helper for creating constant buffers

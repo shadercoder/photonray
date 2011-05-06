@@ -9,18 +9,12 @@ Axis::Axis(void)
 
 Axis::~Axis(void)
 {
-	SAFE_RELEASE(mVB);
-	SAFE_RELEASE(mIB);
-	SAFE_RELEASE(pVertexShader);
-	SAFE_RELEASE(pVertexLayout);
-	SAFE_RELEASE(pPixelShader);
-	SAFE_RELEASE(pDepthStencilState);
-	SAFE_RELEASE(pRasterizerState);
-	SAFE_RELEASE(pBlendState);
-	SAFE_RELEASE(mCB);
+	xLabel.~gLabel();
+	yLabel.~gLabel();
+	zLabel.~gLabel();
 }
 
-void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
+void Axis::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext)
 {
 	md3dDevice = device;
 	this->md3dContext = md3dContext;
@@ -86,8 +80,8 @@ void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 
 
 	// Compile the vertex shader from the file
-	ID3DBlob*	pBlob;
-	ID3DBlob*	err;
+	CComPtr<ID3DBlob> pBlob;
+	CComPtr<ID3DBlob> err;
 	HRESULT hr;
 	md3dDevice = device;
 	DWORD dwShaderFlags = 0;
@@ -110,9 +104,9 @@ void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	hr = md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pVertexShader );
 
 	hr = md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(),	pBlob->GetBufferSize(), &pVertexLayout );
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
-	hr = D3DX11CompileFromFile(L"simple.hlsl", NULL, NULL, "PS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
+	hr = D3DX11CompileFromFile(L"simple.hlsl", NULL, NULL, "PS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob.p, &err.p, NULL );
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();
@@ -120,8 +114,8 @@ void Axis::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
 	}	
 	// Create the pixel shader
 	hr = md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader );
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 
 	// Labels init
 	float letterSize = 0.07f;
@@ -138,18 +132,18 @@ void Axis::draw()
 	md3dContext->IASetPrimitiveTopology(primitiveTopology);
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	md3dContext->IASetInputLayout( pVertexLayout );
-	md3dContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
+	md3dContext->IASetInputLayout( pVertexLayout.p );
+	md3dContext->IASetVertexBuffers(0, 1, &mVB.p, &stride, &offset);
 	//md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 	//md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
-	md3dContext->VSSetConstantBuffers( 0, 1, &mCB);
-	md3dContext->OMSetBlendState(pBlendState, 0, 0xffffffff);
-	md3dContext->RSSetState(pRasterizerState);
-	md3dContext->OMSetDepthStencilState(pDepthStencilState, 0);	
+	md3dContext->VSSetConstantBuffers( 0, 1, &mCB.p);
+	md3dContext->OMSetBlendState(pBlendState.p, 0, 0xffffffff);
+	md3dContext->RSSetState(pRasterizerState.p);
+	md3dContext->OMSetDepthStencilState(pDepthStencilState.p, 0);	
 
-	md3dContext->VSSetShader( pVertexShader, NULL, 0);
+	md3dContext->VSSetShader( pVertexShader.p, NULL, 0);
 	md3dContext->GSSetShader( NULL, NULL, 0);
-	md3dContext->PSSetShader( pPixelShader, NULL, 0);
+	md3dContext->PSSetShader( pPixelShader.p, NULL, 0);
 
 	md3dContext->Draw(mNumVertices, 0);
 	xLabel.draw();

@@ -23,18 +23,17 @@ private:
 	};
 
 
-	ID3D11VertexShader*			pVertexShader;
-	ID3D11PixelShader*			pPixelShader;
-	ID3D11GeometryShader*		pGeometryShader;
-	ID3D11InputLayout*			pVertexLayout;
-	ID3D11SamplerState*			pSamplerState;
-	ID3D11BlendState*			pBlendState;
-	ID3D11RasterizerState*		pRasterizerState;
-	ID3D11DepthStencilState*	pDepthStencilState;
-	ID3DBlob*					pBlob;
-	ID3D11Buffer*				mCB;
-	ID3D11Buffer*				mCBImmute;
-	ID3D11ShaderResourceView*	pTexParticleSRV;
+	CComPtr<ID3D11VertexShader>			pVertexShader;
+	CComPtr<ID3D11PixelShader>			pPixelShader;
+	CComPtr<ID3D11GeometryShader>		pGeometryShader;
+	CComPtr<ID3D11InputLayout>			pVertexLayout;
+	CComPtr<ID3D11SamplerState>			pSamplerState;
+	CComPtr<ID3D11BlendState>			pBlendState;
+	CComPtr<ID3D11RasterizerState>		pRasterizerState;
+	CComPtr<ID3D11DepthStencilState>	pDepthStencilState;
+	CComPtr<ID3D11Buffer>				mCB;
+	CComPtr<ID3D11Buffer>				mCBImmute;
+	CComPtr<ID3D11ShaderResourceView>	pTexParticleSRV;
 public:
 	gParticlesRender(void);
 	~gParticlesRender(void);
@@ -42,6 +41,6 @@ public:
 	void updateParticles(const vector<Particle>& particles, float scale);
 	void onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View);
 	void draw();
-	HRESULT init(ID3D11Device* device, ID3D11DeviceContext* md3dContext);
+	HRESULT init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext);
 };
 

@@ -8,28 +8,8 @@ gMetaballs::gMetaballs(void)
 
 gMetaballs::~gMetaballs(void)
 {
-	SAFE_RELEASE(pVertexShader);
-	SAFE_RELEASE(pVertexLayout);
-	SAFE_RELEASE(pPixelShader);
-
-	SAFE_RELEASE(mCB);
-	SAFE_RELEASE(pBlendState);
-	SAFE_RELEASE(pRasterizerStateFront);
-	SAFE_RELEASE(pRasterizerStateBack);
-	SAFE_RELEASE(pDepthStencilState);	
-	SAFE_RELEASE(pFrontS);
-	SAFE_RELEASE(pFrontSView);
-	SAFE_RELEASE(pBackS);
-	SAFE_RELEASE(pBackSView);
-	SAFE_RELEASE(pFrontSRV);
-	SAFE_RELEASE(pBackSRV);
-	SAFE_RELEASE(pVolume);
-	SAFE_RELEASE(volumeSRV);
-	SAFE_RELEASE(pNoise);
-	SAFE_RELEASE(pNoiseSRV);
-	SAFE_RELEASE(pRenderTargetView);
-	SAFE_RELEASE(pDepthStencilBuffer);
-	SAFE_RELEASE(pDepthStencilView);
+	quad.~gQuad();
+	//sorter.~sorterGPU();
 }
 
 float gMetaballs::calcMetaball(D3DXVECTOR3 centerBall, D3DXVECTOR3 cell)
@@ -184,7 +164,7 @@ void gMetaballs::updateVolumeGPU(const vector<Particle>& particles, int numParti
 
 void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticles, float scale, float metaballsSize)
 {
-	updateVolumeGPU(particles, numParticles, scale, metaballsSize);
+	//updateVolumeGPU(particles, numParticles, scale, metaballsSize);
 	
 	this->scale = scale;
 	this->metaballsSize = metaballsSize;
@@ -214,7 +194,7 @@ void gMetaballs::updateVolume(const vector<Particle>& particles, int numParticle
 	
 }
 
-void gMetaballs::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution)
+void gMetaballs::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution)
 {
 	md3dDevice = device;
 	this->md3dContext = md3dContext;
@@ -238,14 +218,6 @@ void gMetaballs::onFrameResize(int width, int height)
 {
 	screenWidth = width;
 	screenHeight = height;
-	SAFE_RELEASE(pFrontS);
-	SAFE_RELEASE(pFrontSRV);
-	SAFE_RELEASE(pFrontSView);
-	SAFE_RELEASE(pBackS);
-	SAFE_RELEASE(pBackSRV);
-	SAFE_RELEASE(pBackSView);
-	SAFE_RELEASE(pDepthStencilBuffer);
-	SAFE_RELEASE(pDepthStencilView);	
 	createTexture2D();
 }
 
@@ -265,10 +237,10 @@ HRESULT gMetaballs::createTexture2D()
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
-	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pFrontS );
-	hr = md3dDevice->CreateRenderTargetView(pFrontS, 0, &pFrontSView);
-	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackS );
-	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackSView);
+	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pFrontS.p);
+	hr = md3dDevice->CreateRenderTargetView(pFrontS, 0, &pFrontSView.p);
+	hr = md3dDevice->CreateTexture2D(&desc, NULL, &pBackS.p );
+	hr = md3dDevice->CreateRenderTargetView(pBackS, 0, &pBackSView.p);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
 	viewDesc.Format = desc.Format;
@@ -278,8 +250,8 @@ HRESULT gMetaballs::createTexture2D()
 	viewDesc.Texture2DArray.FirstArraySlice = 0;
 	viewDesc.Texture2DArray.ArraySize = 0;
 
-	md3dDevice->CreateShaderResourceView(pFrontS, 0, &pFrontSRV);
-	md3dDevice->CreateShaderResourceView(pBackS, 0, &pBackSRV);
+	md3dDevice->CreateShaderResourceView(pFrontS, 0, &pFrontSRV.p);
+	md3dDevice->CreateShaderResourceView(pBackS, 0, &pBackSRV.p);
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 
@@ -295,8 +267,8 @@ HRESULT gMetaballs::createTexture2D()
 	depthStencilDesc.CPUAccessFlags = 0; 
 	depthStencilDesc.MiscFlags      = 0;
 
-	hr = md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &pDepthStencilBuffer);
-	hr = md3dDevice->CreateDepthStencilView(pDepthStencilBuffer, 0, &pDepthStencilView);
+	hr = md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &pDepthStencilBuffer.p);
+	hr = md3dDevice->CreateDepthStencilView(pDepthStencilBuffer, 0, &pDepthStencilView.p);
 
 	ZeroMemory( &desc, sizeof(desc) );
 	desc.Width = 32;
@@ -318,7 +290,7 @@ HRESULT gMetaballs::createTexture2D()
 		}
 	}
 	noiseInit.pSysMem = (void*) pNoiseData;
-	HR(md3dDevice->CreateTexture2D(&desc, &noiseInit, &pNoise ));
+	HR(md3dDevice->CreateTexture2D(&desc, &noiseInit, &pNoise.p ));
 
 	viewDesc.Format = desc.Format;
 	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -327,7 +299,7 @@ HRESULT gMetaballs::createTexture2D()
 	viewDesc.Texture2DArray.FirstArraySlice = 0;
 	viewDesc.Texture2DArray.ArraySize = 0;
 
-	md3dDevice->CreateShaderResourceView(pNoise, 0, &pNoiseSRV);
+	md3dDevice->CreateShaderResourceView(pNoise, 0, &pNoiseSRV.p);
 	SAFE_DELETE_ARRAY(pNoiseData);
 	return hr;
 }
@@ -361,8 +333,8 @@ HRESULT gMetaballs::createTexture3D()
 	densityFieldSRVdesc.Texture3D.MipLevels = 1;
 	densityFieldSRVdesc.Texture3D.MostDetailedMip = 0;
 
-	HR(md3dDevice->CreateTexture3D(&volume_desc, &densityField, &pVolume));
-	HR(md3dDevice->CreateShaderResourceView(pVolume, &densityFieldSRVdesc, &volumeSRV));
+	HR(md3dDevice->CreateTexture3D(&volume_desc, &densityField, &pVolume.p));
+	HR(md3dDevice->CreateShaderResourceView(pVolume, &densityFieldSRVdesc, &volumeSRV.p));
 
 	SAFE_DELETE_ARRAY(fieldData);
 	return hr;
@@ -482,9 +454,9 @@ HRESULT gMetaballs::onCreate()
 	DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	hr = md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState );
 
-	ID3D10Blob*	pBlob;	
+	CComPtr<ID3DBlob> pBlob;	
 	// Compile the vertex shader from the file
-	ID3D10Blob* err;
+	CComPtr<ID3DBlob> err;
 	
 	hr = D3DX11CompileFromFile(L"metaballs.sh", NULL, NULL, "SimpleVS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 
@@ -498,10 +470,10 @@ HRESULT gMetaballs::onCreate()
 	hr = md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pVertexShader );
 
 	hr = md3dDevice->CreateInputLayout( layout, 3, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout );
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 
-	hr = D3DX11CompileFromFile(L"metaballs.sh", NULL, NULL, "SimplePS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
+	hr = D3DX11CompileFromFile(L"metaballs.sh", NULL, NULL, "SimplePS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob.p, &err.p, NULL );
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();
@@ -510,41 +482,41 @@ HRESULT gMetaballs::onCreate()
 	}	
 	// Create the pixel shader
 	hr = md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader );
-	SAFE_RELEASE( pBlob );
+	//SAFE_RELEASE( pBlob );
 
 	const char* CSTarget = (md3dDevice->GetFeatureLevel() >= D3D_FEATURE_LEVEL_11_0)? "cs_5_0" : "cs_4_0"; 
 	
-	V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "BuildGridCS", CSTarget, &pBlob ) );
+	V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "BuildGridCS", CSTarget, &pBlob.p ) );
     V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pBuildGridCS ) );
-    SAFE_RELEASE( pBlob );
+    //SAFE_RELEASE( pBlob );
     DXUT_SetDebugName( g_pBuildGridCS, "BuildGridCS" );
 
     // Sort Shaders
-    V_RETURN( CompileShaderFromFile( L"sorter.hlsl", "BitonicSort", CSTarget, &pBlob ) );
+	V_RETURN( CompileShaderFromFile( L"sorter.hlsl", "BitonicSort", CSTarget, &pBlob.p ) );
     V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pSortBitonic ) );
-    SAFE_RELEASE( pBlob );
+    //SAFE_RELEASE( pBlob );
     DXUT_SetDebugName( g_pSortBitonic, "BitonicSort" );
 
-    V_RETURN( CompileShaderFromFile( L"sorter.hlsl", "MatrixTranspose", CSTarget, &pBlob ) );
+	V_RETURN( CompileShaderFromFile( L"sorter.hlsl", "MatrixTranspose", CSTarget, &pBlob.p ) );
     V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pSortTranspose ) );
-    SAFE_RELEASE( pBlob );
+    //SAFE_RELEASE( pBlob );
     DXUT_SetDebugName( g_pSortTranspose, "MatrixTranspose" );
 	
-    V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "BuildGridIndicesCS", CSTarget, &pBlob ) );
+	V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "BuildGridIndicesCS", CSTarget, &pBlob.p ) );
     V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pBuildGridIndicesCS ) );
-    SAFE_RELEASE( pBlob );
+    //SAFE_RELEASE( pBlob );
     DXUT_SetDebugName( g_pBuildGridIndicesCS, "BuildGridIndicesCS" );
 
-    V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "RearrangeParticlesCS", CSTarget, &pBlob ) );
+	V_RETURN( CompileShaderFromFile( L"metaCS.hlsl", "RearrangeParticlesCS", CSTarget, &pBlob.p ) );
     V_RETURN( md3dDevice->CreateComputeShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &g_pRearrangeParticlesCS ) );
-    SAFE_RELEASE( pBlob );
+    //SAFE_RELEASE( pBlob );
     DXUT_SetDebugName( g_pRearrangeParticlesCS, "RearrangeParticlesCS" );
 
 	V_RETURN( CreateConstantBuffer< SortCB >( md3dDevice, &g_pSortCB ) );
 	DXUT_SetDebugName( g_pSortCB, "Sort" );
 
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 	return hr;
 }
 
@@ -552,28 +524,28 @@ void gMetaballs::drawBox()
 {
 	UINT strides[1] = { sizeof( Vertex ) };
 	UINT offsets[1] = {0};
-	md3dContext->IASetVertexBuffers( 0, 1, &mVB, strides, offsets );
+	md3dContext->IASetVertexBuffers( 0, 1, &mVB.p, strides, offsets );
 	md3dContext->IASetInputLayout( pVertexLayout );
 	md3dContext->IASetIndexBuffer( mIB, DXGI_FORMAT_R32_UINT, 0 );
 	md3dContext->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	md3dContext->VSSetConstantBuffers( 0, 1, &mCB);
-	md3dContext->OMSetBlendState(pBlendState, 0, 0xffffffff);
+	md3dContext->VSSetConstantBuffers( 0, 1, &mCB.p);
+	md3dContext->OMSetBlendState(pBlendState.p, 0, 0xffffffff);
 
-	md3dContext->OMSetDepthStencilState(pDepthStencilState, 0);	
+	md3dContext->OMSetDepthStencilState(pDepthStencilState.p, 0);	
 
-	md3dContext->VSSetShader( pVertexShader, NULL, 0);
+	md3dContext->VSSetShader( pVertexShader.p, NULL, 0);
 	md3dContext->GSSetShader( NULL, NULL, 0);
-	md3dContext->PSSetShader( pPixelShader, NULL, 0);
+	md3dContext->PSSetShader( pPixelShader.p, NULL, 0);
 
 	// draw to front	
 	// backup backbuffer in temp
-	ID3D11RenderTargetView* pmBackBufferView;
-	ID3D11DepthStencilView* pmDepthStencilView;	
+	CComPtr<ID3D11RenderTargetView> pmBackBufferView;
+	CComPtr<ID3D11DepthStencilView> pmDepthStencilView;	
 
-	md3dContext->OMGetRenderTargets(1, &pmBackBufferView, &pmDepthStencilView);
+	md3dContext->OMGetRenderTargets(1, &pmBackBufferView.p, &pmDepthStencilView.p);
 	// set pFrontS to render target		
-	md3dContext->OMSetRenderTargets(1, &pFrontSView, pDepthStencilView);
+	md3dContext->OMSetRenderTargets(1, &pFrontSView.p, pDepthStencilView);
 	md3dContext->ClearDepthStencilView(pDepthStencilView, D3D10_CLEAR_DEPTH|D3D10_CLEAR_STENCIL, 1.0f, 0);
 	md3dContext->ClearRenderTargetView(pFrontSView, BLACK);
 
@@ -583,7 +555,7 @@ void gMetaballs::drawBox()
 
 	// draw to back
 	// set pBackS to render target
-	md3dContext->OMSetRenderTargets(1, &pBackSView, pDepthStencilView);
+	md3dContext->OMSetRenderTargets(1, &pBackSView.p, pDepthStencilView);
 	md3dContext->ClearDepthStencilView(pDepthStencilView, D3D10_CLEAR_DEPTH|D3D10_CLEAR_STENCIL, 1.0f, 0);
 	md3dContext->ClearRenderTargetView(pBackSView, BLACK);
 
@@ -591,10 +563,10 @@ void gMetaballs::drawBox()
 
 	md3dContext->DrawIndexed( mNumIndices, 0, 0 );
 
-	md3dContext->OMSetRenderTargets(1, &pmBackBufferView, pmDepthStencilView);
+	md3dContext->OMSetRenderTargets(1, &pmBackBufferView.p, pmDepthStencilView);
 
-	SAFE_RELEASE(pmBackBufferView);	
-	SAFE_RELEASE(pmDepthStencilView);
+	//SAFE_RELEASE(pmBackBufferView);	
+	//SAFE_RELEASE(pmDepthStencilView);
 }
 
 void gMetaballs::draw()
@@ -605,9 +577,9 @@ void gMetaballs::draw()
 	quad.onFrameMove(ident, pFrontSRV, pBackSRV);
 	quad.setVolume(volumeSRV);
 	
-	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();	
-	ID3D11Resource *backbufferRes;
-	pRTV->GetResource(&backbufferRes);
+	CComPtr<ID3D11RenderTargetView> pRTV = DXUTGetD3D11RenderTargetView();	
+	CComPtr<ID3D11Resource> backbufferRes;
+	pRTV->GetResource(&backbufferRes.p);
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
 	pRTV->GetDesc(&rtDesc);
 
@@ -624,11 +596,11 @@ void gMetaballs::draw()
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	ID3D11Texture2D *texture;
+	CComPtr<ID3D11Texture2D> texture;
 	HR( md3dDevice->CreateTexture2D(&texDesc, 0, &texture) );
 	md3dContext->CopyResource(texture, backbufferRes);
 	
-	ID3D11ShaderResourceView* pBackgroundSRV;
+	CComPtr<ID3D11ShaderResourceView> pBackgroundSRV;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));	
 	srvDesc.Format = texDesc.Format;
@@ -643,9 +615,9 @@ void gMetaballs::draw()
 	quad.setBackground(pBackgroundSRV);
 	quad.draw();
 	
-	SAFE_RELEASE(texture);
-	SAFE_RELEASE(backbufferRes);
-	SAFE_RELEASE(pBackgroundSRV);
+	//SAFE_RELEASE(texture);
+	//SAFE_RELEASE(backbufferRes);
+	//SAFE_RELEASE(pBackgroundSRV);
 }
 
 void gMetaballs::onFrameMove(D3DXMATRIX& mWorldViewProj)
@@ -662,9 +634,9 @@ void gMetaballs::onFrameMove(D3DXMATRIX& mWorldViewProj)
 HRESULT gMetaballs::CreateVolumeBuffer()
 {
 	HRESULT hr = S_OK;
-	SAFE_RELEASE(p_Volume);
-	SAFE_RELEASE(p_VolumeSRV);
-	SAFE_RELEASE(p_VolumeUAV);
+	//SAFE_RELEASE(p_Volume);
+	//SAFE_RELEASE(p_VolumeSRV);
+	//SAFE_RELEASE(p_VolumeUAV);
 	int size = volumeResolution *  volumeResolution * volumeResolution;
 	float* volume = new float[volumeResolution *  volumeResolution * volumeResolution];
 	memset(volume, 0, sizeof(float) * size);
@@ -676,9 +648,9 @@ HRESULT gMetaballs::CreateVolumeBuffer()
 HRESULT gMetaballs::CreateParticleBuffer(const Particle* p, int particleCount)
 {
 	HRESULT hr = S_OK;
-	SAFE_RELEASE(p_Particles);
-	SAFE_RELEASE(p_ParticlesSRV);
-	SAFE_RELEASE(p_ParticlesUAV);
+	//SAFE_RELEASE(p_Particles);
+	//SAFE_RELEASE(p_ParticlesSRV);
+	//SAFE_RELEASE(p_ParticlesUAV);
 	gParticle* particles = new gParticle[particleCount];
 	for (int i = 0; i < particleCount; ++i)
 	{
@@ -697,9 +669,9 @@ HRESULT gMetaballs::CreateParticleBuffer(const Particle* p, int particleCount)
 HRESULT gMetaballs::CreateGridBuffer()
 {
 	HRESULT hr = S_OK;
-	SAFE_RELEASE(p_Grid);
-	SAFE_RELEASE(p_GridSRV);
-	SAFE_RELEASE(p_GridUAV);
+	//SAFE_RELEASE(p_Grid);
+	//SAFE_RELEASE(p_GridSRV);
+	//SAFE_RELEASE(p_GridUAV);
 	Item* data = new Item[256 * 256 * 256];
 	V_RETURN(CreateStructuredBuffer<Item>(md3dDevice, 256*256*256, &p_Grid, &p_GridSRV, &p_GridUAV, data));
 	delete [] data;
@@ -709,9 +681,9 @@ HRESULT gMetaballs::CreateGridBuffer()
 HRESULT gMetaballs::CreateIndexBuffer()
 {
 	HRESULT hr = S_OK;
-	SAFE_RELEASE(p_Index);
-	SAFE_RELEASE(p_IndexSRV);
-	SAFE_RELEASE(p_IndexUAV);
+	//SAFE_RELEASE(p_Index);
+	//SAFE_RELEASE(p_IndexSRV);
+	//SAFE_RELEASE(p_IndexUAV);
 	UINT2* data = new UINT2[256 * 256 * 256];
 	V_RETURN(CreateStructuredBuffer<UINT2>(md3dDevice, 256*256*256, &p_Index, &p_IndexSRV, &p_IndexUAV, data));
 	delete [] data;
@@ -721,9 +693,9 @@ HRESULT gMetaballs::CreateIndexBuffer()
 HRESULT gMetaballs::CreateTempBuffer()
 {
 	HRESULT hr = S_OK;
-	SAFE_RELEASE(p_Grid);
-	SAFE_RELEASE(p_GridSRV);
-	SAFE_RELEASE(p_GridUAV);
+	//SAFE_RELEASE(p_Grid);
+	//SAFE_RELEASE(p_GridSRV);
+	//SAFE_RELEASE(p_GridUAV);
 	Item* data = new Item[256 * 256 * 256];
 	V_RETURN(CreateStructuredBuffer<Item>(md3dDevice, 256*256*256, &g_pGridPingPong, &g_pGridPingPongSRV, &g_pGridPingPongUAV, data));
 	delete [] data;

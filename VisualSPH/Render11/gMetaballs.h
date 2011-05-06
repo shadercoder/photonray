@@ -103,67 +103,67 @@ private:
 		UINT iHeight;
 	};
 
-	ID3D11VertexShader*			pVertexShader;
-	ID3D11InputLayout*			pVertexLayout;
-	ID3D11PixelShader*			pPixelShader;
+	CComPtr<ID3D11VertexShader>			pVertexShader;
+	CComPtr<ID3D11InputLayout>			pVertexLayout;
+	CComPtr<ID3D11PixelShader>			pPixelShader;
 	
-	ID3D11Buffer*				mCB;
-	ID3D11Buffer*				g_pSortCB;
-	ID3D11BlendState*			pBlendState;
-	ID3D11RasterizerState*		pRasterizerStateBack;
-	ID3D11RasterizerState*		pRasterizerStateFront;
-	ID3D11DepthStencilState*	pDepthStencilState;
+	CComPtr<ID3D11Buffer>				mCB;
+	CComPtr<ID3D11Buffer>				g_pSortCB;
+	CComPtr<ID3D11BlendState>			pBlendState;
+	CComPtr<ID3D11RasterizerState>		pRasterizerStateBack;
+	CComPtr<ID3D11RasterizerState>		pRasterizerStateFront;
+	CComPtr<ID3D11DepthStencilState>	pDepthStencilState;
 
-	ID3D11Texture2D*			pFrontS;
-	ID3D11RenderTargetView*		pFrontSView;
-	ID3D11Texture2D*			pBackS;
-	ID3D11RenderTargetView*		pBackSView;
-	ID3D11ShaderResourceView*	pFrontSRV;
-	ID3D11ShaderResourceView*	pBackSRV;
+	CComPtr<ID3D11Texture2D>			pFrontS;
+	CComPtr<ID3D11RenderTargetView>		pFrontSView;
+	CComPtr<ID3D11Texture2D>			pBackS;
+	CComPtr<ID3D11RenderTargetView>		pBackSView;
+	CComPtr<ID3D11ShaderResourceView>	pFrontSRV;
+	CComPtr<ID3D11ShaderResourceView>	pBackSRV;
 
-	ID3D11Texture3D*			pVolume;
-	ID3D11ShaderResourceView*	volumeSRV;
+	CComPtr<ID3D11Texture3D>			pVolume;
+	CComPtr<ID3D11ShaderResourceView>	volumeSRV;
 
-	ID3D11Texture2D*			pNoise;
-	ID3D11ShaderResourceView*	pNoiseSRV;
+	CComPtr<ID3D11Texture2D>			pNoise;
+	CComPtr<ID3D11ShaderResourceView>	pNoiseSRV;
 
-	ID3D11RenderTargetView*		pRenderTargetView;
-	ID3D11Texture2D*			pDepthStencilBuffer;
-	ID3D11DepthStencilView*		pDepthStencilView;
+	CComPtr<ID3D11RenderTargetView>		pRenderTargetView;
+	CComPtr<ID3D11Texture2D>			pDepthStencilBuffer;
+	CComPtr<ID3D11DepthStencilView>		pDepthStencilView;
 
-	ID3D11ComputeShader*		p_MetaballsProcess;
-	ID3D11ComputeShader*		p_CSbuildGrid;
-	ID3D11ComputeShader*		g_pBuildGridIndicesCS;
-	ID3D11ComputeShader*		g_pRearrangeParticlesCS;
-	ID3D11ComputeShader*		g_pSortBitonic;
-	ID3D11ComputeShader*		g_pSortTranspose;
-	ID3D11ComputeShader*		g_pBuildGridCS;
+	CComPtr<ID3D11ComputeShader>		p_MetaballsProcess;
+	CComPtr<ID3D11ComputeShader>		p_CSbuildGrid;
+	CComPtr<ID3D11ComputeShader>		g_pBuildGridIndicesCS;
+	CComPtr<ID3D11ComputeShader>		g_pRearrangeParticlesCS;
+	CComPtr<ID3D11ComputeShader>		g_pSortBitonic;
+	CComPtr<ID3D11ComputeShader>		g_pSortTranspose;
+	CComPtr<ID3D11ComputeShader>		g_pBuildGridCS;
 	
-	ID3D11Buffer*				p_Volume;
-	ID3D11ShaderResourceView*	p_VolumeSRV;
-	ID3D11UnorderedAccessView*	p_VolumeUAV;
+	CComPtr<ID3D11Buffer>				p_Volume;
+	CComPtr<ID3D11ShaderResourceView>	p_VolumeSRV;
+	CComPtr<ID3D11UnorderedAccessView>	p_VolumeUAV;
 
-	ID3D11Buffer*				p_Particles;
-	ID3D11ShaderResourceView*	p_ParticlesSRV;
-	ID3D11UnorderedAccessView*	p_ParticlesUAV;
+	CComPtr<ID3D11Buffer>				p_Particles;
+	CComPtr<ID3D11ShaderResourceView>	p_ParticlesSRV;
+	CComPtr<ID3D11UnorderedAccessView>	p_ParticlesUAV;
 	
-	ID3D11Buffer*				p_Grid;
-	ID3D11ShaderResourceView*	p_GridSRV;
-	ID3D11UnorderedAccessView*	p_GridUAV;
+	CComPtr<ID3D11Buffer>				p_Grid;
+	CComPtr<ID3D11ShaderResourceView>	p_GridSRV;
+	CComPtr<ID3D11UnorderedAccessView>	p_GridUAV;
 
-	ID3D11Buffer*				p_Index;
-	ID3D11ShaderResourceView*	p_IndexSRV;
-	ID3D11UnorderedAccessView*	p_IndexUAV;
+	CComPtr<ID3D11Buffer>				p_Index;
+	CComPtr<ID3D11ShaderResourceView>	p_IndexSRV;
+	CComPtr<ID3D11UnorderedAccessView>	p_IndexUAV;
 
-	ID3D11Buffer*				g_pGridPingPong;
-	ID3D11ShaderResourceView*	g_pGridPingPongSRV;
-	ID3D11UnorderedAccessView*	g_pGridPingPongUAV;
+	CComPtr<ID3D11Buffer>				g_pGridPingPong;
+	CComPtr<ID3D11ShaderResourceView>	g_pGridPingPongSRV;
+	CComPtr<ID3D11UnorderedAccessView>	g_pGridPingPongUAV;
 
 	UINT screenWidth;
 	UINT screenHeight;
 	UINT volumeResolution;
 
-	sorterGPU sorter;
+	//sorterGPU sorter;
 	gQuad quad;
 	DenseField field;
 	float scale;
@@ -194,7 +194,7 @@ public:
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj);
 	void onFrameResize(int width, int height);
-	void init(ID3D11Device* device, ID3D11DeviceContext* md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution);
+	void init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution);
 	gMetaballs(void);
 	~gMetaballs(void);
 };

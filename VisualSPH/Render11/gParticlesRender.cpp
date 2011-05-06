@@ -11,7 +11,7 @@ gParticlesRender::~gParticlesRender(void)
 {
 }
 
-HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dContext)
+HRESULT gParticlesRender::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext)
 {
 	HRESULT hr;
 	md3dDevice = device;
@@ -106,7 +106,8 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	HR(md3dDevice->CreateDepthStencilState( &DSDesc, &pDepthStencilState));
 
 	// Compile the vertex shader from the file
-	ID3DBlob* err;
+	CComPtr<ID3DBlob> pBlob;
+	CComPtr<ID3DBlob> err;
 	hr = D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "VS", "vs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
 
 	if (FAILED(hr))
@@ -119,11 +120,11 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	HR(md3dDevice->CreateVertexShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pVertexShader ));
 	// Create input layout
 	HR(md3dDevice->CreateInputLayout( layout, numElements, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pVertexLayout ));
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 	
 	//Compile the geometry shader from the file
-	hr = D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "GS", "gs_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL );
+	hr = D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "GS", "gs_4_0", dwShaderFlags, NULL, NULL, &pBlob.p, &err.p, NULL );
 
 	if (FAILED(hr))
 	{
@@ -133,11 +134,11 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	}
 	// Create the geometry shader
 	HR(md3dDevice->CreateGeometryShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pGeometryShader));
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 	
 	// Compile the pixel shader from file
-	HR(D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "PS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob, &err, NULL ));
+	HR(D3DX11CompileFromFile(L"particles.sh", NULL, NULL, "PS", "ps_4_0", dwShaderFlags, NULL, NULL, &pBlob.p, &err.p, NULL ));
 	if (FAILED(hr))
 	{
 		const char* message = (const char*)err->GetBufferPointer();
@@ -146,8 +147,8 @@ HRESULT gParticlesRender::init(ID3D11Device* device, ID3D11DeviceContext* md3dCo
 	}	
 	// Create the pixel shader
 	HR(md3dDevice->CreatePixelShader( (DWORD*)pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &pPixelShader ));
-	SAFE_RELEASE(pBlob);
-	SAFE_RELEASE(err);
+	//SAFE_RELEASE(pBlob);
+	//SAFE_RELEASE(err);
 	// Create sampler state
 	D3D11_SAMPLER_DESC samplerDesc;
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -204,7 +205,7 @@ void gParticlesRender::draw()
 
 void gParticlesRender::updateParticles(const vector<Particle>& particles, float scale)
 {
-	SAFE_RELEASE(mVB);
+	//SAFE_RELEASE(mVB);	
 	mNumVertices = particles.size();
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_DEFAULT;
@@ -220,7 +221,7 @@ void gParticlesRender::updateParticles(const vector<Particle>& particles, float 
 		vertices[i].color = BLUE;
 	}
 	vinitData.pSysMem = &vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));	
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB.p));	
 }
 
 void gParticlesRender::onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View)
