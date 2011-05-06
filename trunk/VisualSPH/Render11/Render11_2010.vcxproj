@@ -380,12 +380,10 @@
   <ItemGroup>
     <ClCompile Include="Axis.cpp" />
     <ClCompile Include="gLabel.cpp" />
-    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="sorterGPU.cpp" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="gLabel.h" />
-    <ClInclude Include="Grid.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="ShaderUtils.h" />
     <ClInclude Include="sorterGPU.h" />

@@ -20,18 +20,18 @@ private:
 	//std::vector<UINT> results;
 	void* result;
 
-	ID3D11Device*               g_pd3dDevice;
-	ID3D11DeviceContext*        g_pd3dImmediateContext;
-	ID3D11ComputeShader*        g_pComputeShaderBitonic;
-	ID3D11ComputeShader*        g_pComputeShaderTranspose;
-	ID3D11Buffer*               g_pCB;
-	ID3D11Buffer*               g_pBuffer1;
-	ID3D11ShaderResourceView*   g_pBuffer1SRV;
-	ID3D11UnorderedAccessView*  g_pBuffer1UAV;
-	ID3D11Buffer*               g_pBuffer2;
-	ID3D11ShaderResourceView*   g_pBuffer2SRV;
-	ID3D11UnorderedAccessView*  g_pBuffer2UAV;
-	ID3D11Buffer*               g_pReadBackBuffer;
+	CComPtr<ID3D11Device>               g_pd3dDevice;
+	CComPtr<ID3D11DeviceContext>        g_pd3dImmediateContext;
+	CComPtr<ID3D11ComputeShader>        g_pComputeShaderBitonic;
+	CComPtr<ID3D11ComputeShader>        g_pComputeShaderTranspose;
+	CComPtr<ID3D11Buffer>               g_pCB;
+	CComPtr<ID3D11Buffer>               g_pBuffer1;
+	CComPtr<ID3D11ShaderResourceView>   g_pBuffer1SRV;
+	CComPtr<ID3D11UnorderedAccessView>  g_pBuffer1UAV;
+	CComPtr<ID3D11Buffer>               g_pBuffer2;
+	CComPtr<ID3D11ShaderResourceView>   g_pBuffer2SRV;
+	CComPtr<ID3D11UnorderedAccessView>  g_pBuffer2UAV;
+	CComPtr<ID3D11Buffer>               g_pReadBackBuffer;
 	
 	// Constant Buffer Layout
 	struct CB

@@ -1,4 +1,4 @@
-c:\2\
+C:\work\
 _flu.txt
 0
 10

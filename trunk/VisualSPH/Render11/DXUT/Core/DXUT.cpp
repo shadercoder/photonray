@@ -4141,7 +4141,7 @@ void DXUTCleanup3DEnvironment11( bool bReleaseSettings )
             if( references > 0 )
             {
                 DXUTDisplayErrorMessage( DXUTERR_NONZEROREFCOUNT );
-                DXUT_ERR( L"DXUTCleanup3DEnvironment", DXUTERR_NONZEROREFCOUNT );
+                DXUT_ERR( L"DXUTCleanup3DEnvironment", DXUTERR_NONZEROREFCOUNT );				
             }
         }
         GetDXUTState().SetD3D11Device( NULL );

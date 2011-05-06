@@ -14,10 +14,10 @@ protected:
 	DWORD mNumIndices;
 	DWORD mNumFaces;	
 
-	ID3D11Device* md3dDevice;
-	ID3D11DeviceContext* md3dContext;
-	ID3D11Buffer* mVB;
-	ID3D11Buffer* mIB;
+	CComPtr<ID3D11Device> md3dDevice;
+	CComPtr<ID3D11DeviceContext> md3dContext;
+	CComPtr<ID3D11Buffer> mVB;
+	CComPtr<ID3D11Buffer> mIB;
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology;
 	// render's parameters are set in this method before render
 	void onRenderBegin();

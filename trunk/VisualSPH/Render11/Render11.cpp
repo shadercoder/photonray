@@ -33,7 +33,7 @@ CDXUTDialog                         g_HUD;                   // manages the 3D
 CDXUTDialog                         g_SampleUI;              // dialog for sample specific controls
 
 // Resources
-CDXUTTextHelper*                    g_pTxtHelper = NULL;
+CDXUTTextHelper*            g_pTxtHelper = NULL;
 
 
 D3DXMATRIX                          g_World;
@@ -431,7 +431,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 {
 	HRESULT hr;
 
-	ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
+	CComPtr<ID3D11DeviceContext> pd3dImmediateContext = DXUTGetD3D11DeviceContext();
 	V_RETURN( g_DialogResourceManager.OnD3D11CreateDevice( pd3dDevice, pd3dImmediateContext ) );
 	V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
 	g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
@@ -492,9 +492,8 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 void CaptureScreen(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pDevContext, char* fileName)
 {
 	HRESULT hr;
-	
-	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();	
-	ID3D11Resource *backbufferRes;
+	CComPtr<ID3D11RenderTargetView> pRTV = DXUTGetD3D11RenderTargetView();	
+	CComPtr<ID3D11Resource> backbufferRes;
 	pRTV->GetResource(&backbufferRes);
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
 	pRTV->GetDesc(&rtDesc);
@@ -512,13 +511,13 @@ void CaptureScreen(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pDevContext, c
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	ID3D11Texture2D *texture;
+	CComPtr<ID3D11Texture2D> texture;
 	HR( pd3dDevice->CreateTexture2D(&texDesc, 0, &texture) );
 	pDevContext->CopyResource(texture, backbufferRes);
 
 	V( D3DX11SaveTextureToFileA(pDevContext, texture, D3DX11_IFF_PNG, fileName) );
-	texture->Release();
-	backbufferRes->Release();
+	//texture->Release();
+	//backbufferRes->Release();
 }
 
 //--------------------------------------------------------------------------------------
@@ -548,9 +547,9 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	// Clear the render target and depth stencil
 	float ClearColor[4] = { 0.552f, 0.713f, 0.803f, 1.0f };
-	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+	CComPtr<ID3D11RenderTargetView> pRTV = DXUTGetD3D11RenderTargetView();
 	pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
-	ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+	CComPtr<ID3D11DepthStencilView> pDSV = DXUTGetD3D11DepthStencilView();
 	pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 	axis.draw();
@@ -627,6 +626,9 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 	g_D3DSettingsDlg.OnD3D11DestroyDevice();
 	DXUTGetGlobalResourceCache().OnDestroyDevice();
 	SAFE_DELETE( g_pTxtHelper );
+	metaballs.~gMetaballs();
+	axis.~Axis();
+	particleRender.~gParticlesRender();
 }
 
 //--------------------------------------------------------------------------------------
