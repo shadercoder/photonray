@@ -14,6 +14,7 @@ HRESULT gQuad::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> m
 {
 	HRESULT hr;
 	md3dDevice = device;
+	DXUT_SetDebugName(md3dDevice, "gQuad");
 	this->md3dContext = md3dContext;
 	DWORD dwShaderFlags = 0;
 #if defined( DEBUG ) || defined( _DEBUG )

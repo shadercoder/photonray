@@ -114,11 +114,17 @@ float4 calcBlinnPhongLighting( Material M, float4 LColor, float3 N, float3 L, fl
 }
 
 float3 calcGradient(float3 pos, float value, float StepSize)
-{
+{		
 	float E = volume.SampleLevel(mysampler, pos + float3(StepSize, 0, 0), 0).r;
 	float N = volume.SampleLevel(mysampler, pos + float3(0, StepSize, 0), 0).r;
 	float U = volume.SampleLevel(mysampler, pos + float3(0, 0, StepSize), 0).r;
-	float3 ret = normalize(float3(E - value, N - value, U - value));	
+
+	float E1 = volume.SampleLevel(mysampler, pos - float3(StepSize, 0, 0), 0).r;
+	float N1 = volume.SampleLevel(mysampler, pos - float3(0, StepSize, 0), 0).r;
+	float U1 = volume.SampleLevel(mysampler, pos - float3(0, 0, StepSize), 0).r;
+
+	float3 ret = normalize(float3(E - E1, N - N1, U - U1));	
+
 	return ret;
 }
 
@@ -144,7 +150,7 @@ float3 calcWaterColor( Material M, float4 LColor, float3 N, float3 L, float3 V, 
 float4 RayCastPS(PS_IN input): SV_Target
 {	
 	const int Iterations = 512;
-	const float Threshold = 50.0f;
+	const float Threshold = 0.45f;
 	float StepSize = 1.7f / Iterations;
 	float2 texC = input.textcoord; 
     float3 front = frontS.SampleLevel(mysampler, texC, 0).xyz;
@@ -182,7 +188,10 @@ float4 RayCastPS(PS_IN input): SV_Target
 			pos += halfStepBack * k;
 			value = volume.SampleLevel(mysampler, pos, 0).r;			
 			*/
-			normal = calcGradient(pos, value, StepSize);
+			pos = lerp(pos, pos - Step, (value - Threshold));
+			value = Threshold;
+			
+			normal = calcGradient(pos, value, 1.0f / 128.0f);
 			R = reflect(light1, normal);						
 			color = calcWaterColor( material, l1.color, normal, -light1, dir, R );// * float3(0.1,0.4,0.7);
 			R = reflect(light2, normal);						

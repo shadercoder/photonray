@@ -25,7 +25,7 @@ private:
 	gLabel xLabel, yLabel, zLabel;
 public:
 	Axis(void);
-	~Axis(void);
+	virtual ~Axis(void);
 	void init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext);
 	void draw();
 	void onFrameMove(D3DXMATRIX& mWorldViewProj, D3DXMATRIX View);

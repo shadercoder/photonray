@@ -36,7 +36,7 @@ private:
 	CComPtr<ID3D11ShaderResourceView>	pTexParticleSRV;
 public:
 	gParticlesRender(void);
-	~gParticlesRender(void);
+	virtual ~gParticlesRender(void);
 
 	void updateParticles(const vector<Particle>& particles, float scale);
 	void onFrameMove(D3DXMATRIX WorldViewProj, D3DXMATRIX View);
