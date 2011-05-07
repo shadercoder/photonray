@@ -167,7 +167,7 @@ HRESULT gParticlesRender::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11Devic
 	HR(md3dDevice->CreateSamplerState(&samplerDesc, &pSamplerState));
 
 	// Load particle texture
-	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"particle.dds", NULL, NULL, &pTexParticleSRV, &hr));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"particle.dds", NULL, NULL, &pTexParticleSRV.p, &hr));
 
 	return hr;
 }
@@ -181,24 +181,24 @@ void gParticlesRender::draw()
 	UINT strides[1] = {sizeof(VertexParticle)};
 	UINT offsets[1] = {0};
 	
-	md3dContext->IASetVertexBuffers(0, 1, &mVB, strides, offsets);
-	md3dContext->IASetInputLayout(pVertexLayout);
+	md3dContext->IASetVertexBuffers(0, 1, &mVB.p, strides, offsets);
+	md3dContext->IASetInputLayout(pVertexLayout.p);
 	md3dContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 	md3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);	
-	md3dContext->GSSetConstantBuffers(0, 1, &mCB);
-	md3dContext->GSSetConstantBuffers(1, 1, &mCBImmute);
+	md3dContext->GSSetConstantBuffers(0, 1, &mCB.p);
+	md3dContext->GSSetConstantBuffers(1, 1, &mCBImmute.p);
 	//md3dDevice->PSSetConstantBuffers(0, 1, &mCB);	
 
-	md3dContext->OMSetBlendState(pBlendState, 0, 0xFFFFFFFF);
-	md3dContext->OMSetDepthStencilState(pDepthStencilState, 0);	
-	md3dContext->RSSetState(pRasterizerState);
+	md3dContext->OMSetBlendState(pBlendState.p, 0, 0xFFFFFFFF);
+	md3dContext->OMSetDepthStencilState(pDepthStencilState.p, 0);	
+	md3dContext->RSSetState(pRasterizerState.p);
 
-	md3dContext->PSSetShaderResources(0, 1, &pTexParticleSRV);
+	md3dContext->PSSetShaderResources(0, 1, &pTexParticleSRV.p);
 	md3dContext->PSSetSamplers(0, 1, &pSamplerState);
 
-	md3dContext->VSSetShader(pVertexShader, NULL, 0);
-	md3dContext->GSSetShader(pGeometryShader, NULL, 0);
-	md3dContext->PSSetShader(pPixelShader, NULL, 0);
+	md3dContext->VSSetShader(pVertexShader.p, NULL, 0);
+	md3dContext->GSSetShader(pGeometryShader.p, NULL, 0);
+	md3dContext->PSSetShader(pPixelShader.p, NULL, 0);
 
 	md3dContext->Draw(mNumVertices, 0);
 }

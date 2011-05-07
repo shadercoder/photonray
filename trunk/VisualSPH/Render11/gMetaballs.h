@@ -33,12 +33,12 @@ private:
 		if (len > threadshold) {
 			return 0.0f;
 		}
-		float res = powf(threadshold / (len + 1e-5f), 4.0f);
+		float res = powf(threadshold / (len + 1e-7f), 1.0f);
 		return res;
 	}
 public:	
 	CalcField(DenseField* field, const Particle* particles, float metaballsSize, float scale)
-		:threadshold(metaballsSize * metaballsSize)
+		:threadshold(metaballsSize)
 	{
 		this->field = field;
 		this->particles = particles;		
@@ -131,33 +131,33 @@ private:
 	CComPtr<ID3D11Texture2D>			pDepthStencilBuffer;
 	CComPtr<ID3D11DepthStencilView>		pDepthStencilView;
 
-	CComPtr<ID3D11ComputeShader>		p_MetaballsProcess;
-	CComPtr<ID3D11ComputeShader>		p_CSbuildGrid;
-	CComPtr<ID3D11ComputeShader>		g_pBuildGridIndicesCS;
-	CComPtr<ID3D11ComputeShader>		g_pRearrangeParticlesCS;
-	CComPtr<ID3D11ComputeShader>		g_pSortBitonic;
-	CComPtr<ID3D11ComputeShader>		g_pSortTranspose;
-	CComPtr<ID3D11ComputeShader>		g_pBuildGridCS;
-	
-	CComPtr<ID3D11Buffer>				p_Volume;
-	CComPtr<ID3D11ShaderResourceView>	p_VolumeSRV;
-	CComPtr<ID3D11UnorderedAccessView>	p_VolumeUAV;
+	//CComPtr<ID3D11ComputeShader>		p_MetaballsProcess;
+	//CComPtr<ID3D11ComputeShader>		p_CSbuildGrid;
+	//CComPtr<ID3D11ComputeShader>		g_pBuildGridIndicesCS;
+	//CComPtr<ID3D11ComputeShader>		g_pRearrangeParticlesCS;
+	//CComPtr<ID3D11ComputeShader>		g_pSortBitonic;
+	//CComPtr<ID3D11ComputeShader>		g_pSortTranspose;
+	//CComPtr<ID3D11ComputeShader>		g_pBuildGridCS;
+	//
+	//CComPtr<ID3D11Buffer>				p_Volume;
+	//CComPtr<ID3D11ShaderResourceView>	p_VolumeSRV;
+	//CComPtr<ID3D11UnorderedAccessView>	p_VolumeUAV;
 
-	CComPtr<ID3D11Buffer>				p_Particles;
-	CComPtr<ID3D11ShaderResourceView>	p_ParticlesSRV;
-	CComPtr<ID3D11UnorderedAccessView>	p_ParticlesUAV;
-	
-	CComPtr<ID3D11Buffer>				p_Grid;
-	CComPtr<ID3D11ShaderResourceView>	p_GridSRV;
-	CComPtr<ID3D11UnorderedAccessView>	p_GridUAV;
+	//CComPtr<ID3D11Buffer>				p_Particles;
+	//CComPtr<ID3D11ShaderResourceView>	p_ParticlesSRV;
+	//CComPtr<ID3D11UnorderedAccessView>	p_ParticlesUAV;
+	//
+	//CComPtr<ID3D11Buffer>				p_Grid;
+	//CComPtr<ID3D11ShaderResourceView>	p_GridSRV;
+	//CComPtr<ID3D11UnorderedAccessView>	p_GridUAV;
 
-	CComPtr<ID3D11Buffer>				p_Index;
-	CComPtr<ID3D11ShaderResourceView>	p_IndexSRV;
-	CComPtr<ID3D11UnorderedAccessView>	p_IndexUAV;
+	//CComPtr<ID3D11Buffer>				p_Index;
+	//CComPtr<ID3D11ShaderResourceView>	p_IndexSRV;
+	//CComPtr<ID3D11UnorderedAccessView>	p_IndexUAV;
 
-	CComPtr<ID3D11Buffer>				g_pGridPingPong;
-	CComPtr<ID3D11ShaderResourceView>	g_pGridPingPongSRV;
-	CComPtr<ID3D11UnorderedAccessView>	g_pGridPingPongUAV;
+	//CComPtr<ID3D11Buffer>				g_pGridPingPong;
+	//CComPtr<ID3D11ShaderResourceView>	g_pGridPingPongSRV;
+	//CComPtr<ID3D11UnorderedAccessView>	g_pGridPingPongUAV;
 
 	UINT screenWidth;
 	UINT screenHeight;
@@ -196,6 +196,6 @@ public:
 	void onFrameResize(int width, int height);
 	void init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext, int _screenWidth, int _screenHeight, int _volumeResolution);
 	gMetaballs(void);
-	~gMetaballs(void);
+	virtual ~gMetaballs(void);
 };
 

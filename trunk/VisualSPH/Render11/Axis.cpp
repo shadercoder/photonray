@@ -9,9 +9,6 @@ Axis::Axis(void)
 
 Axis::~Axis(void)
 {
-	xLabel.~gLabel();
-	yLabel.~gLabel();
-	zLabel.~gLabel();
 }
 
 void Axis::init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext)

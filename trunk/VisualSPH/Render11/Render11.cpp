@@ -623,12 +623,13 @@ void CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext )
 void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 {
 	g_DialogResourceManager.OnD3D11DestroyDevice();
+	g_DialogResourceManager.~CDXUTDialogResourceManager();
 	g_D3DSettingsDlg.OnD3D11DestroyDevice();
 	DXUTGetGlobalResourceCache().OnDestroyDevice();
 	SAFE_DELETE( g_pTxtHelper );
-	metaballs.~gMetaballs();
-	axis.~Axis();
-	particleRender.~gParticlesRender();
+	//metaballs.~gMetaballs();
+	//axis.~Axis();
+	//particleRender.~gParticlesRender();
 }
 
 //--------------------------------------------------------------------------------------

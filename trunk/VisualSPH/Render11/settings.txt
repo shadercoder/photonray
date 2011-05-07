@@ -1,4 +1,4 @@
-C:\work\
+./frames/2/
 _flu.txt
 0
 10

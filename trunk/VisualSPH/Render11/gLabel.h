@@ -36,7 +36,7 @@ class gLabel: public GObject
 
 public:
 	gLabel(void);
-	~gLabel(void);
+	virtual ~gLabel(void);
 	void setPosition(float x, float y, float z, float height, float width);
 	void init(CComPtr<ID3D11Device> device, CComPtr<ID3D11DeviceContext> md3dContext, LPCWSTR textFileName);
 	void draw();
